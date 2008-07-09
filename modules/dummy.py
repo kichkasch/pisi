@@ -31,7 +31,7 @@ from events import events
 
 
 class SynchronizationModule:
-	def __init__( self, modulesString, config, configsection, folder, verbose=False):
+	def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
 		self.vebose = verbose
 		if self.vebose:
 			print "Dummy module loaded"

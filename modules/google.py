@@ -30,12 +30,13 @@ import sys,os
 # Allows us to import event
 sys.path.insert(0,os.path.abspath(__file__+"/../.."))
 from events import events
-import datetime
+import datetime,time
 
 class SynchronizationModule:
-	def __init__( self, modulesString, config, configsection, folder, verbose=False):
+	def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
 		#TODO: Check if the configuration is in the correct format
 		self.verbose = verbose
+		self.soft = soft
 		self.modulesString = modulesString
 		self.folder = folder
 		if not os.path.exists(self.folder):
@@ -48,17 +49,24 @@ class SynchronizationModule:
 		"""Returns an Events instance with all events"""
 		# Retrieve all events from Google
 		# Remember: Id should be recognizable with the other module->use self.modulesString
-		
-		# Temporary return an empty events.events.Events
 		allEvents = events.Events( )
-		attributes=\
-			{'start':datetime.datetime(2008,7,8,14,15,0), \
-			 'end':datetime.datetime(2008,7,8,16,0,0), 'title':"Google title",\
-			 'description':"", 'location':"", 'alarm':False,\
-			 'alarmmin':0 \
-			}
-		dummyevent = events.Event( "dummyid2", datetime.datetime(2008,7,8,15,18,0), attributes )
-		allEvents.insertEvent( dummyevent )
+		
+		feed = self.cal_client.GetCalendarEventFeed('/calendar/feeds/'+self.calendarid+'/private/full?max-results=999999')
+		for i, an_event in enumerate(feed.entry):
+			if self.verbose:
+				print '\tGoogleModule: %s. %s' % (i, an_event.title.text,)
+				print '\t\tId:%s' % (an_event.id.text)
+				print '\t\tStart:',an_event.when[0].start_time
+				print '\t\tEnd:',an_event.when[0].end_time
+				print '\t\tUpdated:',an_event.updated.text,'Like new:',self._gtimeToDatetime(an_event.updated.text )
+			attributes=\
+				{'start':self._gtimeToDatetime(an_event.when[0].start_time ), \
+				 'end':self._gtimeToDatetime(an_event.when[0].end_time ), 'title':an_event.title.text,\
+				 'description':"", 'location':"", 'alarm':False,\
+				 'alarmmin':0 \
+				}
+			tmpevent = events.Event( an_event.id.text, self._gtimeToDatetime(an_event.updated.text ), attributes )
+			allEvents.insertEvent( tmpevent )
 		return allEvents
 	
 	def addEvent( self, eventInstance ):
@@ -101,6 +109,29 @@ class SynchronizationModule:
 			if self.verbose:
 				print 'No lastSyncronization-file'
 			return "1970-01-01T01:00:00Z"
+
+	def _gtimeToDatetime( self, gtime ):
+		"""Converts Google normal way (RFC3339) to write date and time
+		to a datetime instance"""
+		#TODO: We can't assume time will have an Z all the time. MORE PARSING
+		onlyDandT = datetime.datetime.strptime(gtime[:19], '%Y-%m-%dT%H:%M:%S')
+		timezone = gtime[23:24]
+		if timezone=='Z':
+			timezonehour = 0
+			timezonemin  = 0
+		else:
+			timezonehour = int(gtime[24:26])
+			timezonemin  = int(gtime[27:29])
+		if timezonehour>0 or timezonemin>0:
+			# Convert time to timestamp, the add or subtract timezone,
+			# and convert back
+			onlyDandT = time.mktime(onlyDandT.timetuple())
+			if timezone=='+':
+				onlyDandT -= (timezonehour*60 + timezonemin)*60
+			else:
+				onlyDandT += (timezonehour*60 + timezonemin)*60
+			onlyDandT = datetime.datetime.fromtimestamp(onlyDandT)
+		return onlyDandT
 
 	def _login( self, user, password ):
 		if self.verbose:

@@ -83,7 +83,7 @@ def main ():
 	for i in range(0,2):
 		modulename = config.get(  modulesToLoad[i], 'module' )
 		exec "from modules import " + modulename + " as module"+i.__str__()
-		exec "source.append( module"+i.__str__()+".SynchronizationModule(modulesNamesCombined, config, modulesToLoad[i], configfolder+modulesToLoad[i]+'/', verbose) )"
+		exec "source.append( module"+i.__str__()+".SynchronizationModule(modulesNamesCombined, config, modulesToLoad[i], configfolder+modulesToLoad[i]+'/', verbose, soft) )"
 	# Now we have source[0] and source[1] as our 2 synchronization modules
 
 	"""
