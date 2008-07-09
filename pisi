@@ -1,0 +1,149 @@
+#!/usr/bin/env python
+
+"""
+    Copyright Esben Damgaard
+
+
+    This file is part of Pisi.
+
+    Pisi is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Pisi is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+import ConfigParser
+import os
+import sys
+import datetime
+
+from events import events
+
+usage = """
+You start the program by specifying 2 modules to synchronize.
+Like this:
+  ./pisi google isc
+Flags:
+	-v --verbose
+		Make program verbose
+	-s --soft
+		Don't actually make any changes on the servers/in the files
+"""
+modulesToLoad = []
+modulesNamesCombined = ""
+verbose = False
+# soft = True means that the program shouldn't make any changes on servers
+soft = False
+
+def parseArguments ():
+	global verbose, modulesNamesCombined
+	for arg in sys.argv[1:]:
+		if arg[:1]!='-':
+			modulesToLoad.append( arg )
+			modulesNamesCombined += arg
+		elif arg=='-v' or arg=='--verbose':
+			verbose=True
+			print "Verbose mode on"
+		elif arg=='-s' or arg=='--soft-run':
+			soft = True
+	if len(modulesToLoad)!=2:
+		sys.exit(usage)
+	modulesToLoad.sort() # We sort them, so id's made from the names will 
+								# always be the same (will make sense later on)
+
+
+
+def main ():
+	global verbose
+	# Read configuration
+	homedir = os.environ.get('HOME')
+	configfolder = homedir + '/.pisi/'
+	configfile = configfolder + 'conf'
+	if verbose:
+		print "Reading configfile:",configfile
+	#TODO: Check if configuration file exists
+	config = ConfigParser.ConfigParser()
+	config.readfp(open(configfile))
+
+	"""
+	Now configuration can be read like this
+	print config.get('google','user')
+	"""
+
+	# Import modules
+	source = []
+	for i in range(0,2):
+		modulename = config.get(  modulesToLoad[i], 'module' )
+		exec "from modules import " + modulename + " as module"+i.__str__()
+		exec "source.append( module"+i.__str__()+".SynchronizationModule(modulesNamesCombined, config, modulesToLoad[i], configfolder+modulesToLoad[i]+'/', verbose) )"
+	# Now we have source[0] and source[1] as our 2 synchronization modules
+
+	"""
+	# When were these two last updated:
+	lastSync = lastSynchronization( configfolder, modulesToLoad[0]+modulesToLoad[1] )
+	for i in source:
+		i.initChangesSince( lastSync )
+	"""
+	
+	# Get all events
+	allEvents = [ source[0].allEvents() , source[1].allEvents() ]
+	if verbose:
+		print 
+		print "Module",modulesToLoad[0],"has",len(allEvents[0].getAllEvents()),"events in total"
+		print "Module",modulesToLoad[1],"has",len(allEvents[1].getAllEvents()),"events in total"
+		print 
+	# Loop through all events from source[0]
+	for id,event in allEvents[0].getAllEvents().iteritems():
+		# Does it exist in the other module?
+		if verbose:
+			print "Checking eventid",id,"from module",modulesToLoad[0]
+		sameEvent = allEvents[1].getEvent(id)
+		if sameEvent:
+			# They have the same event
+			if verbose:
+				print "\tThey both have this event"
+			# See if they have different updatetimes
+			if event.updated != sameEvent.updated:
+				if verbose:
+					print "\t one is newer than the other. I'll try an merge them"
+				merged = event.merge( sameEvent )
+				if verbose:
+					merged.prettyPrint()
+				source[0].replaceEvent( id, merged )
+				source[1].replaceEvent( id, merged )
+			# Remove event from our temporary list from source[1]
+			allEvents[1].removeEvent( id )
+		else:
+			# Module 2 didn't have this, so add it
+			if verbose:
+				print "\tAdd",id,"to module",modulesToLoad[1]
+			source[1].addEvent( event )
+		print ""
+	
+	
+	# Loop through all remaning events from source[1]
+	for id,event in allEvents[1].getAllEvents().iteritems():
+		# Add all remaining events to source[0]
+		if verbose:
+			print "Adding event with id",id,"from module",modulesToLoad[1]
+		source[0].addEvent( event )
+	
+	source[0].saveModifications()
+	source[1].saveModifications()
+	
+
+if __name__ == "__main__":
+	# Testing
+	sys.argv = ['file', '--soft-run', '--verbose', 'googleTest', 'dummy']
+	# Testing
+	parseArguments()
+	main()
+	
