@@ -52,8 +52,10 @@ class SynchronizationModule:
 		# Remember: Id should be recognizable with the other module->use self.modulesString
 		allEvents = events.Events( )
 		
-		self.googleevents = self.cal_client.GetCalendarEventFeed('/calendar/feeds/'+self.calendarid+'/private/full?max-results=999999')
-		for i, an_event in enumerate(self.googleevents.entry):
+		feed = self.cal_client.GetCalendarEventFeed('/calendar/feeds/'+self.calendarid+'/private/full?max-results=999999')
+		self.googleevents = dict()
+		for i, an_event in enumerate(feed.entry):
+			self.googleevents[an_event.id.text] = an_event
 			if self.verbose:
 				print '\tGoogleModule: %s. %s' % (i, an_event.title.text,)
 				print '\t\tId:%s' % (an_event.id.text)
@@ -83,8 +85,12 @@ class SynchronizationModule:
 	
 	def addCommonid( self, id, commonid ):
 		"""Add commonid"""
-		print self.googleevents
-		
+		# Add extended property to event
+		key = 'pisi'+self.modulesString+'commonid'
+		self.googleevents[id].extended_property.append(gdata.calendar.ExtendedProperty(name=key, value=commonid))
+		# Add event to update batch
+		self.googleevents[id].batch_id = gdata.BatchId(text='update-request')
+		self.batchOperations.AddUpdate(entry=self.googleevents[id])
 	
 	def replaceEvent( self, id, updatedevent ):
 		"""Replace event"""
@@ -116,16 +122,7 @@ class SynchronizationModule:
 		f.close()
 
 	def _convertToGoogle( self, dateTimeObject ):
-		if dateTimeObject:
-			#FIXME: Timezone
-			time = dateTimeObject.strftime('%Y-%m-%dT%H:%M:%SZ')
-			if self.verbose:
-				print 'Last syncronization was:',time
-			return time
-		else:
-			if self.verbose:
-				print 'No lastSyncronization-file'
-			return "1970-01-01T01:00:00Z"
+		return dateTimeObject.strftime('%Y-%m-%dT%H:%M:%S.000Z')
 
 	def _gtimeToDatetime( self, gtime ):
 		"""Converts Google normal way (RFC3339) to write date and time
