@@ -51,7 +51,13 @@ class SynchronizationModule:
 		
 		# Temporary return an empty events.events.Events
 		allEvents = events.Events( )
-		dummyevent = events.Event( "dummyid2", datetime.datetime(2008,7,7,14,18,0), datetime.datetime(2008,7,9,14,15,0), datetime.datetime(2008,7,10,16,0,0), "Google title" )
+		attributes=\
+			{'start':datetime.datetime(2008,7,8,14,15,0), \
+			 'end':datetime.datetime(2008,7,8,16,0,0), 'title':"Google title",\
+			 'description':"", 'location':"", 'alarm':False,\
+			 'alarmmin':0 \
+			}
+		dummyevent = events.Event( "dummyid2", datetime.datetime(2008,7,8,15,18,0), attributes )
 		allEvents.insertEvent( dummyevent )
 		return allEvents
 	

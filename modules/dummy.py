@@ -42,9 +42,16 @@ class SynchronizationModule:
 			print "Dummy module makes some dummy events and returns them..\n \
 		Dummy likes to talk about itself in third person."
 		allEvents = events.Events( )
-		dummyevent = events.Event( "dummyid1", datetime.datetime(2008,7,7,14,16,0), datetime.datetime(2008,7,8,14,15,0), datetime.datetime(2008,7,8,16,0,0), "Dummy title" )
+		attributes=\
+			{'start':datetime.datetime(2008,7,8,14,15,0), \
+			 'end':datetime.datetime(2008,7,8,16,0,0), 'title':"Dummy title",\
+			 'description':"", 'location':"", 'alarm':False,\
+			 'alarmmin':0 \
+			}
+		dummyevent = events.Event( "dummyid1", datetime.datetime(2008,7,7,14,16,0), attributes )
 		allEvents.insertEvent( dummyevent )
-		dummyevent = events.Event( "dummyid2", datetime.datetime(2008,7,8,14,15,0), datetime.datetime(2008,7,9,14,15,0), datetime.datetime(2008,7,10,16,0,0), "Dummy title" )
+		attributes['start'] = datetime.datetime(2008,7,8,14,20,0)
+		dummyevent = events.Event( "dummyid2", datetime.datetime(2008,7,8,14,15,0), attributes )
 		allEvents.insertEvent( dummyevent )
 		return allEvents
 

@@ -26,22 +26,10 @@
 import datetime
 
 class Event:
-	def __init__( self, id, updated, datetimeStart, datetimeEnd, title="Test event", description="", location="", alarm=False, alarmmin=0 ):
+	def __init__( self, id, updated, attributes ):
 		self.id = id # Must be a unique id
 		self.updated = updated
-		"""self.start = datetimeStart # Start-time
-		self.end = datetimeEnd # End-time
-		self.title = title # Title or subject
-		self.description = description # Description or comment
-		self.location = location # Location of event
-		self.alarm = alarm # Is there an alarm? True/False
-		self.alarmmin = alarmmin # How many minutes before start"""
-		#TODO: Recurrence, attendees
-		self.attributtes=\
-			{'start':datetimeStart, 'end':datetimeEnd, 'title':title,\
-			 'description':description, 'location':location, 'alarm':alarm,\
-			 'alarmmin':alarmmin \
-			}
+		self.attributes=attributes
 	
 	def merge( self, e ):
 		"""Merges the event (e) with itself. If two sections are different, use
@@ -51,23 +39,24 @@ class Event:
 		if e.updated < self.updated:
 			# self is newer
 			selfNew=True
-		for key,value in self.attributtes.iteritems():
-			if value != e.attributtes[key]:
+		for key,value in self.attributes.iteritems():
+			if value != e.attributes[key]:
 				# The events differ in this field
 				if not selfNew:
-					self.attributtes[key] = e.attributtes[key]
-			del e.attributtes[key]
-		for key,value in e.attributtes.iteritems():
-			if value != self.attributtes[key]:
+					self.attributes[key] = e.attributes[key]
+			del e.attributes[key]
+		for key,value in e.attributes.iteritems():
+			if value != self.attributes[key]:
 				# The events differ in this field
 				if not selfNew:
-					self.attributtes[key] = e.attributtes[key]
+					self.attributes[key] = e.attributes[key]
 		return self
 	
 	def prettyPrint ( self ):
-		"""Prints all attributtes 'nicely'.."""
+		"""Prints all attributes 'nicely'.."""
 		print "\t_PrettyPrint of id:",self.id
-		for key,value in self.attributtes.iteritems():
+		print "\t\tUpdated = ",self.updated
+		for key,value in self.attributes.iteritems():
 			print "\t\t",key," = ",value
 	
 

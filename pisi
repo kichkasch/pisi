@@ -128,7 +128,6 @@ def main ():
 			source[1].addEvent( event )
 		print ""
 	
-	
 	# Loop through all remaning events from source[1]
 	for id,event in allEvents[1].getAllEvents().iteritems():
 		# Add all remaining events to source[0]
