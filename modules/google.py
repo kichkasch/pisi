@@ -116,6 +116,9 @@ class SynchronizationModule:
 		"""Save whatever changes have come by"""
 		if not self.soft:
 			# Save batchoperations
+			if self.verbose:
+				print "Saving Google-calendar modifications\n\n"
+				print self.batchOperations
 			self.cal_client.ExecuteBatch(self.batchOperations, '/calendar/feeds/'+self.calendarid+'/private/full/batch')
 
 
