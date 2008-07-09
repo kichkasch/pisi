@@ -45,7 +45,7 @@ class SynchronizationModule:
 		attributes=\
 			{'start':datetime.datetime(2008,7,8,14,15,0), \
 			 'end':datetime.datetime(2008,7,8,16,0,0), 'title':"Dummy title",\
-			 'description':"", 'location':"", 'alarm':False,\
+			 'description':"None", 'location':"Somewhere", 'alarm':False,\
 			 'alarmmin':0 \
 			}
 		dummyevent = events.Event( "dummyid1",False, datetime.datetime(2008,7,7,14,16,0), attributes )

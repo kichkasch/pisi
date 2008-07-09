@@ -66,7 +66,7 @@ class Event:
 	
 	def prettyPrint ( self ):
 		"""Prints all attributes 'nicely'.."""
-		print "\t_PrettyPrint of id:",self.id
+		print "\t_PrettyPrint of id:",self.id,"Commonid:",self.commonid
 		print "\t\tUpdated = ",self.updated
 		for key,value in self.attributes.iteritems():
 			print "\t\t",key," = ",value

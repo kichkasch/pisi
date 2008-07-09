@@ -62,7 +62,7 @@ def parseArguments ():
 
 
 def main ():
-	global verbose
+	global verbose,soft
 	# Read configuration
 	homedir = os.environ.get('HOME')
 	configfolder = homedir + '/.pisi/'
@@ -141,10 +141,21 @@ def main ():
 	
 	# Loop through all remaning events from source[1]
 	for id,event in allEvents[1].getAllEvents().iteritems():
-		# Add all remaining events to source[0]
-		if verbose:
-			print "Adding event with id",id,"from module",modulesToLoad[1]
-		source[0].addEvent( event )
+		# Does it exist in the other module? Did it ever?
+		if not event.commonid:
+			# This event has never been synchronized
+			print "\tThis event has never been synchronized"
+			if verbose:
+				print "\tAdd",event.id,"to module",modulesToLoad[1]
+			event.commonid = event.id # 'Steal' the id as the common id
+			# Update commonid
+			source[1].addCommonid( event.id, event.commonid )
+			# Add event
+			source[0].addEvent( event )
+		else:
+			# Event has been deleted from source[0]
+			# so delete it from source[1]
+			source[1].removeEvent( event.id )
 	
 	source[0].saveModifications()
 	source[1].saveModifications()

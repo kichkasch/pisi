@@ -49,7 +49,6 @@ class SynchronizationModule:
 	def allEvents( self ):
 		"""Returns an Events instance with all events"""
 		# Retrieve all events from Google
-		# Remember: Id should be recognizable with the other module->use self.modulesString
 		allEvents = events.Events( )
 		
 		feed = self.cal_client.GetCalendarEventFeed('/calendar/feeds/'+self.calendarid+'/private/full?max-results=999999')
@@ -82,6 +81,9 @@ class SynchronizationModule:
 	
 	def addEvent( self, eventInstance ):
 		"""Saves and event for later writing"""
+		gevent = self._convertPisiEventToGoogle( eventInstance )
+		gevent.batch_id = gdata.BatchId(text='insert-request')
+		self.batchOperations.AddUpdate(entry=gevent)
 	
 	def addCommonid( self, id, commonid ):
 		"""Add commonid"""
@@ -112,6 +114,10 @@ class SynchronizationModule:
 	
 	def saveModifications( self ):
 		"""Save whatever changes have come by"""
+		if not self.soft:
+			# Save batchoperations
+			self.cal_client.ExecuteBatch(self.batchOperations, '/calendar/feeds/'+self.calendarid+'/private/full/batch')
+
 
 	def _saveSyncronizationTime( self ):
 		"""
@@ -123,6 +129,23 @@ class SynchronizationModule:
 
 	def _convertToGoogle( self, dateTimeObject ):
 		return dateTimeObject.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+
+	def _convertPisiEventToGoogle( self, event ):
+		if self.verbose:
+			print "\n\nConverting this to Googleevent:"
+			event.prettyPrint()
+		gevent = gdata.calendar.CalendarEventEntry()
+		gevent.title = atom.Title(text=event.attributes['title'])
+		key = 'pisi'+self.modulesString+'commonid'
+		gevent.extended_property.append(gdata.calendar.ExtendedProperty(name=key, value=event.commonid))
+		gevent.where.append(gdata.calendar.Where(value_string=event.attributes['location']))
+		gevent.when.append(gdata.calendar.When(\
+								start_time=self._convertToGoogle(event.attributes['start']), \
+								end_time=self._convertToGoogle(event.attributes['end'])))
+		gevent.content = atom.Content(text=event.attributes['description'])
+		if self.verbose:
+			print "\n\nConverting done:",gevent
+		return gevent
 
 	def _gtimeToDatetime( self, gtime ):
 		"""Converts Google normal way (RFC3339) to write date and time
