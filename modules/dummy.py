@@ -61,8 +61,14 @@ class SynchronizationModule:
 	def replaceEvent( self, id, updatedevent ):
 		"""Replace event (for later writing)"""
 	
+	def removeEvent( self, id ):
+		"""Removes an event"""
+	
 	def saveModifications( self ):
 		"""Save whatever changes have come by"""
+
+	def addCommonid( self, id, commonid ):
+		"""Add commonid"""
 
 #----------------------------------------------------------------------------#
 

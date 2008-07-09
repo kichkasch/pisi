@@ -39,6 +39,7 @@ class SynchronizationModule:
 		self.soft = soft
 		self.modulesString = modulesString
 		self.folder = folder
+		self.batchOperations = gdata.calendar.CalendarEventFeed()
 		if not os.path.exists(self.folder):
 			os.mkdir(self.folder)
 		self._login( config.get(configsection,'user'),
@@ -51,8 +52,8 @@ class SynchronizationModule:
 		# Remember: Id should be recognizable with the other module->use self.modulesString
 		allEvents = events.Events( )
 		
-		feed = self.cal_client.GetCalendarEventFeed('/calendar/feeds/'+self.calendarid+'/private/full?max-results=999999')
-		for i, an_event in enumerate(feed.entry):
+		self.googleevents = self.cal_client.GetCalendarEventFeed('/calendar/feeds/'+self.calendarid+'/private/full?max-results=999999')
+		for i, an_event in enumerate(self.googleevents.entry):
 			if self.verbose:
 				print '\tGoogleModule: %s. %s' % (i, an_event.title.text,)
 				print '\t\tId:%s' % (an_event.id.text)
@@ -80,8 +81,16 @@ class SynchronizationModule:
 	def addEvent( self, eventInstance ):
 		"""Saves and event for later writing"""
 	
+	def addCommonid( self, id, commonid ):
+		"""Add commonid"""
+		print self.googleevents
+		
+	
 	def replaceEvent( self, id, updatedevent ):
 		"""Replace event"""
+	
+	def removeEvent( self, id ):
+		"""Removes an event"""
 
 	def initChangesSince( self, datet ):
 		"""Initialize changes since datet. datet is a datetime object

@@ -102,30 +102,41 @@ def main ():
 		print 
 	# Loop through all events from source[0]
 	for id,event in allEvents[0].getAllEvents().iteritems():
-		# Does it exist in the other module?
 		if verbose:
 			print "Checking eventid",id,"from module",modulesToLoad[0]
-		sameEvent = allEvents[1].getEvent(id)
-		if sameEvent:
-			# They have the same event
+		# Does it exist in the other module? Did it ever?
+		if not event.commonid:
+			# This event has never been synchronized
+			print "\tThis event has never been synchronized"
 			if verbose:
-				print "\tThey both have this event"
-			# See if they have different updatetimes
-			if event.updated != sameEvent.updated:
-				if verbose:
-					print "\t one is newer than the other. I'll try an merge them"
-				merged = event.merge( sameEvent )
-				if verbose:
-					merged.prettyPrint()
-				source[0].replaceEvent( id, merged )
-				source[1].replaceEvent( id, merged )
-			# Remove event from our temporary list from source[1]
-			allEvents[1].removeEvent( id )
-		else:
-			# Module 2 didn't have this, so add it
-			if verbose:
-				print "\tAdd",id,"to module",modulesToLoad[1]
+				print "\tAdd",event.id,"to module",modulesToLoad[1]
+			event.commonid = event.id # 'Steal' the id as the common id
+			# Update commonid
+			source[0].addCommonid( event.id, event.commonid )
+			# Add event
 			source[1].addEvent( event )
+		else:
+			sameEvent = allEvents[1].getEvent(id)
+			if sameEvent:
+				# They have the same event
+				if verbose:
+					print "\tThey both have this event"
+				# See if they have different updatetimes
+				if event.updated != sameEvent.updated:
+					if verbose:
+						print "\t one is newer than the other. I'll try an merge them"
+					merged = event.merge( sameEvent )
+					if verbose:
+						merged.prettyPrint()
+					source[0].replaceEvent( id, merged )
+					source[1].replaceEvent( id, merged )
+				# Remove event from our temporary list from source[1]
+				allEvents[1].removeEvent( id )
+			else:
+				# Event has been deleted from source[1]
+				# so delete it from source[0]
+				source[0].removeEvent( event.id )
+				
 		print ""
 	
 	# Loop through all remaning events from source[1]
@@ -141,7 +152,7 @@ def main ():
 
 if __name__ == "__main__":
 	# Testing
-	sys.argv = ['file', '--soft-run', '--verbose', 'googleTest', 'dummy']
+	sys.argv = ['file', '--soft-run', '--verbose', 'googleTest', 'zdummy']
 	# Testing
 	parseArguments()
 	main()
