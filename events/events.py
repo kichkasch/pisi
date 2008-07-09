@@ -26,8 +26,20 @@
 import datetime
 
 class Event:
-	def __init__( self, id, updated, attributes ):
-		self.id = id # Must be a unique id
+	def __init__( self, id, commonid, updated, attributes ):
+		"""Initialize event.
+		Arguments:
+		 * id - is the id the modules uses to id the event
+		 * commonid - This is the id for this event and the two modules. If it
+		              hasn't been synchronized (with the other module), it
+		              should be False.
+		 * updaed - datetime instance
+		 * attributes - a dictionary with attributes. See 
+		                http://projects.openmoko.org/plugins/wiki/index.php?Developer&id=156&type=g
+		                for more help.
+		"""
+		self.id = id
+		self.commonid = commonid 
 		self.updated = updated
 		self.attributes=attributes
 	
@@ -45,10 +57,10 @@ class Event:
 				if not selfNew:
 					self.attributes[key] = e.attributes[key]
 			del e.attributes[key]
-		for key,value in e.attributes.iteritems():
-			if value != self.attributes[key]:
-				# The events differ in this field
-				if not selfNew:
+		if not selfNew:
+			for key,value in e.attributes.iteritems():
+				if value != self.attributes[key]:
+					# The events differ in this field
 					self.attributes[key] = e.attributes[key]
 		return self
 	
@@ -81,7 +93,7 @@ class Events:
 		try:
 			del self._events[id]
 		except:
-			print "Couldn't remove event with id",id,". Wastn't found!"
+			print "Couldn't remove event with id",id,". Wasn't found!"
 
 if __name__=="__main__":
 	print "Testing events module"

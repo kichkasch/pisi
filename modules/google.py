@@ -65,7 +65,15 @@ class SynchronizationModule:
 				 'description':"", 'location':"", 'alarm':False,\
 				 'alarmmin':0 \
 				}
-			tmpevent = events.Event( an_event.id.text, self._gtimeToDatetime(an_event.updated.text ), attributes )
+			
+			# Find commonid (if any)	
+			commonid = False
+			for n,property in enumerate(an_event.extended_property):
+				if property.name == self.modulesString+"externalId":
+					commonid = property.value
+			# Create event
+			tmpevent = events.Event( an_event.id.text, commonid, self._gtimeToDatetime(an_event.updated.text ), attributes )
+			# Insert event
 			allEvents.insertEvent( tmpevent )
 		return allEvents
 	

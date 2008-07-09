@@ -48,10 +48,10 @@ class SynchronizationModule:
 			 'description':"", 'location':"", 'alarm':False,\
 			 'alarmmin':0 \
 			}
-		dummyevent = events.Event( "dummyid1", datetime.datetime(2008,7,7,14,16,0), attributes )
+		dummyevent = events.Event( "dummyid1",False, datetime.datetime(2008,7,7,14,16,0), attributes )
 		allEvents.insertEvent( dummyevent )
 		attributes['start'] = datetime.datetime(2008,7,8,14,20,0)
-		dummyevent = events.Event( "dummyid2", datetime.datetime(2008,7,8,14,15,0), attributes )
+		dummyevent = events.Event( "dummyid2","dummyid2", datetime.datetime(2008,7,8,14,15,0), attributes )
 		allEvents.insertEvent( dummyevent )
 		return allEvents
 
