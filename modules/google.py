@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    Copyright by Esben Damgaard
+    Copyright 2008 Esben Damgaard <ebbe at hvemder . dk>
 
     Syncronize with Google Calendar
 
@@ -80,7 +80,8 @@ class SynchronizationModule:
 			# Insert event
 			allEvents.insertEvent( tmpevent )
 			
-			print '\n\n\n\n\n',an_event,'\n\n\n\n\n\n\n'
+			if self.verbose:
+				print '\n\n\n\n\n',an_event,'\n\n\n\n\n\n\n'
 			
 		return allEvents
 	
@@ -133,6 +134,7 @@ class SynchronizationModule:
 					print 'batch id: %s' % (entry.batch_id.text,)
 					print 'status: %s' % (entry.batch_status.code,)
 					print 'reason: %s' % (entry.batch_status.reason,)
+					print '\n',entry
 
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    Copyright Esben Damgaard
+    Copyright 2008 Esben Damgaard <ebbe at hvemder . dk>
 
     My own calendar-event-object.
 
