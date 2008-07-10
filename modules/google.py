@@ -71,19 +71,24 @@ class SynchronizationModule:
 			# Find commonid (if any)	
 			commonid = False
 			for n,property in enumerate(an_event.extended_property):
-				if property.name == self.modulesString+"externalId":
+				if property.name == 'pisi'+self.modulesString+'commonid':
 					commonid = property.value
+			if self.verbose:
+				print '\t\tCommonid:',commonid
 			# Create event
 			tmpevent = events.Event( an_event.id.text, commonid, self._gtimeToDatetime(an_event.updated.text ), attributes )
 			# Insert event
 			allEvents.insertEvent( tmpevent )
+			
+			print '\n\n\n\n\n',an_event,'\n\n\n\n\n\n\n'
+			
 		return allEvents
 	
 	def addEvent( self, eventInstance ):
-		"""Saves and event for later writing"""
+		"""Saves an event for later writing"""
 		gevent = self._convertPisiEventToGoogle( eventInstance )
-		gevent.batch_id = gdata.BatchId(text='insert-request')
-		self.batchOperations.AddUpdate(entry=gevent)
+		gevent.batch_id = gdata.BatchId(text=eventInstance.id)
+		self.batchOperations.AddInsert(entry=gevent)
 	
 	def addCommonid( self, id, commonid ):
 		"""Add commonid"""
@@ -91,27 +96,29 @@ class SynchronizationModule:
 		key = 'pisi'+self.modulesString+'commonid'
 		self.googleevents[id].extended_property.append(gdata.calendar.ExtendedProperty(name=key, value=commonid))
 		# Add event to update batch
-		self.googleevents[id].batch_id = gdata.BatchId(text='update-request')
+		self.googleevents[id].batch_id = gdata.BatchId(text=id)
 		self.batchOperations.AddUpdate(entry=self.googleevents[id])
 	
 	def replaceEvent( self, id, updatedevent ):
 		"""Replace event"""
+		if self.verbose:
+			print "We will replace event",id
+		gevent = self._convertPisiEventToGoogle( updatedevent )
+		gevent.batch_id = gdata.BatchId(text='update-request')
+		gevent.id = atom.Id( id )
+		# Get and insert edit link
+		editUri = self.googleevents[id].GetEditLink().href
+		gevent.link.append( atom.Link(editUri, 'edit', 'application/atom+xml') )
+		
+		self.batchOperations.AddUpdate(gevent)
 	
 	def removeEvent( self, id ):
 		"""Removes an event"""
-
-	def initChangesSince( self, datet ):
-		"""Initialize changes since datet. datet is a datetime object
-		"""
 		if self.verbose:
-			print "Find changes since",\
-					datet.strftime('%Y-%m-%d %H:%M:%S')
-		""" Find changes
-				* Save a copy of the old backup
-				* Find deleted events
-				* Find updated & new events
-		"""
-	
+			print "We will delete event",id
+		self.googleevents[id].batch_id = gdata.BatchId(text=id)
+		self.batchOperations.AddDelete(entry=self.googleevents[id])
+
 	def saveModifications( self ):
 		"""Save whatever changes have come by"""
 		if not self.soft:
@@ -119,7 +126,14 @@ class SynchronizationModule:
 			if self.verbose:
 				print "Saving Google-calendar modifications\n\n"
 				print self.batchOperations
-			self.cal_client.ExecuteBatch(self.batchOperations, '/calendar/feeds/'+self.calendarid+'/private/full/batch')
+			response_feed = self.cal_client.ExecuteBatch(self.batchOperations, '/calendar/feeds/'+self.calendarid+'/private/full/batch')
+			# iterate the response feed to get the operation status
+			if self.verbose:
+				for entry in response_feed.entry:
+					print 'batch id: %s' % (entry.batch_id.text,)
+					print 'status: %s' % (entry.batch_status.code,)
+					print 'reason: %s' % (entry.batch_status.reason,)
+
 
 
 	def _saveSyncronizationTime( self ):

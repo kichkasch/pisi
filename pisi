@@ -44,7 +44,7 @@ verbose = False
 soft = False
 
 def parseArguments ():
-	global verbose, modulesNamesCombined
+	global verbose, modulesNamesCombined, soft
 	for arg in sys.argv[1:]:
 		if arg[:1]!='-':
 			modulesToLoad.append( arg )
@@ -116,7 +116,7 @@ def main ():
 			# Add event
 			source[1].addEvent( event )
 		else:
-			sameEvent = allEvents[1].getEvent(id)
+			sameEvent = allEvents[1].getEvent(event.commonid)
 			if sameEvent:
 				# They have the same event
 				if verbose:
@@ -128,10 +128,12 @@ def main ():
 					merged = event.merge( sameEvent )
 					if verbose:
 						merged.prettyPrint()
+					merged.id = id
 					source[0].replaceEvent( id, merged )
-					source[1].replaceEvent( id, merged )
+					merged.id = sameEvent.id
+					source[1].replaceEvent( sameEvent.id, merged )
 				# Remove event from our temporary list from source[1]
-				allEvents[1].removeEvent( id )
+				allEvents[1].removeEvent( sameEvent.id )
 			else:
 				# Event has been deleted from source[1]
 				# so delete it from source[0]
@@ -163,7 +165,7 @@ def main ():
 
 if __name__ == "__main__":
 	# Testing
-	sys.argv = ['file', '--soft-run', '--verbose', 'googleTest', 'zdummy']
+	sys.argv = ['file', '--verbose', 'googleTest','googleTest2']#, 'zdummy']
 	# Testing
 	parseArguments()
 	main()
