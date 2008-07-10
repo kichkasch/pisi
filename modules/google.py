@@ -63,12 +63,14 @@ class SynchronizationModule:
 				print '\t\tUpdated:',an_event.updated.text,'Like new:',self._gtimeToDatetime(an_event.updated.text )
 			attributes=\
 				{'start':self._gtimeToDatetime(an_event.when[0].start_time ), \
-				 'end':self._gtimeToDatetime(an_event.when[0].end_time ), 'title':an_event.title.text,\
-				 'description':"", 'location':"", 'alarm':False,\
-				 'alarmmin':0 \
+				 'end':self._gtimeToDatetime(an_event.when[0].end_time ), \
+				 'title':an_event.title.text, \
+				 'description':"", 'location':"",\
+				 'alarm':False, 'alarmmin':0 \
 				}
 			
-			# Find commonid (if any)	
+			# Find commonid (if any)
+			#TODO: Get update-time and commonid from a local file
 			commonid = False
 			for n,property in enumerate(an_event.extended_property):
 				if property.name == 'pisi'+self.modulesString+'commonid':
@@ -135,6 +137,7 @@ class SynchronizationModule:
 					print 'status: %s' % (entry.batch_status.code,)
 					print 'reason: %s' % (entry.batch_status.reason,)
 					print '\n',entry
+			#TODO: Save updatetime and commonid in a local file
 
 
 
