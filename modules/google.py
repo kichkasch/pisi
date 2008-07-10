@@ -204,29 +204,4 @@ class SynchronizationModule:
 
 if __name__ == "__main__":
 	print "Testing the Google module"
-	import ConfigParser
-	config = ConfigParser.ConfigParser()
-	config.readfp(open(os.environ.get('HOME') + '/.mokogsync/conf'))
-	google = SynchronizationModule(config, os.environ.get('HOME') + '/.mokogsync/', True)
-
-	"""    
-	feed = google.cal_client.GetAllCalendarsFeed()
-	print 'Printing allcalendars: %s' % feed.title.text
-	for i, a_calendar in zip(xrange(len(feed.entry)), feed.entry):
-	print '\t%s. %s' % (i, a_calendar.title.text,)
-	"""
-
-	feed = google.cal_client.GetCalendarEventFeed('/calendar/feeds/'+config.get('google','calendarid')+'/private/full?max-results=999999')
-	print 'Events on Primary Calendar: %s' % (feed.title.text,)
-	for i, an_event in enumerate(feed.entry):
-		print '\t%s. %s' % (i, an_event.title.text,)
-		print '\t\tId:%s' % (an_event.id.text)
-		print '\t\tStart:',an_event.when[0].start_time
-		print '\t\tEnd:',an_event.when[0].end_time
-		print '\t\tUpdated:',an_event.updated.text
-
-	""" Get entire feed in a file:
-	f = open('feed','w')
-	f.write(feed.__str__())
-	f.close()
-	"""
+	

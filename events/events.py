@@ -97,13 +97,4 @@ class Events:
 
 if __name__=="__main__":
 	print "Testing events module"
-	all = Events()
-	testevent = Event( "testid1", datetime.datetime(2008,7,8), datetime.datetime(2008,7,8), "Test title" )
-	all.insertEvent( testevent )
-	print all.getEvent( "testid1" ).title
-	
-	
-	
-	
-	
 	
