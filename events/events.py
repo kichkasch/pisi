@@ -78,7 +78,7 @@ class Events:
 	
 	def insertEvent( self, eventInstance ):
 		"""Saves a new event. Expects an event instance."""
-		self._events[eventInstance.id] = eventInstance
+		self._events[eventInstance.commonid] = eventInstance
 
 	def getEvent( self, id ):
 		try:

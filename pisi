@@ -113,8 +113,8 @@ def main ():
 		# Does it exist in the other module? Did it ever?
 		if not event.commonid:
 			# This event has never been synchronized
-			print "\tThis event has never been synchronized"
 			if verbose:
+				print "\tThis event has never been synchronized"
 				print "\tAdd",event.id,"to module",modulesToLoad[1]
 			event.commonid = event.id # 'Steal' the id as the common id
 			# Update commonid
@@ -123,7 +123,7 @@ def main ():
 			source[1].addEvent( event )
 		else:
 			sameEvent = allEvents[1].getEvent(event.commonid)
-			if sameEvent:
+			if not sameEvent==False:
 				# They have the same event
 				if verbose:
 					print "\tThey both have this event"
@@ -139,7 +139,7 @@ def main ():
 					merged.id = sameEvent.id
 					source[1].replaceEvent( sameEvent.id, merged )
 				# Remove event from our temporary list from source[1]
-				allEvents[1].removeEvent( sameEvent.id )
+				allEvents[1].removeEvent( sameEvent.commonid )
 			else:
 				# Event has been deleted from source[1]
 				# so delete it from source[0]
@@ -149,6 +149,8 @@ def main ():
 	
 	# Loop through all remaning events from source[1]
 	for id,event in allEvents[1].getAllEvents().iteritems():
+		if verbose:
+			print "Checking eventid",id,"from module",modulesToLoad[0]
 		# Does it exist in the other module? Did it ever?
 		if not event.commonid:
 			# This event has never been synchronized
