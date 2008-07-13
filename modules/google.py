@@ -133,7 +133,7 @@ class SynchronizationModule:
 		gevent.link.append( atom.Link(editUri, 'edit', 'application/atom+xml') )
 		self.batchOperations.AddUpdate(gevent)
 		# - localfile
-		self.localFile[updatedevent.id] = \
+		self.localFile[id] = \
 			{'commonid':updatedevent.commonid , 'updated':updatedevent.updated }
 	
 	def removeEvent( self, id ):
@@ -177,6 +177,8 @@ class SynchronizationModule:
 					try:
 						# If we are deleting, this will fail
 						self.localFile[entry.batch_id.text]['googleupdatedtime'] = self._gtimeToDatetime(entry.updated.text)
+						if self.verbose:
+							print "We got a new googleupdatetime"
 					except:
 						print
 					"""selfLink = entry.GetSelfLink()
