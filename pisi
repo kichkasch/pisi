@@ -27,16 +27,7 @@ import datetime
 
 from events import events
 
-usage = """
-You start the program by specifying 2 modules to synchronize.
-Like this:
-  ./pisi google isc
-Flags:
-	-v --verbose
-		Make program verbose
-	-s --soft
-		Don't actually make any changes on the servers/in the files
-"""
+
 modulesToLoad = []
 modulesNamesCombined = ""
 verbose = False
@@ -52,14 +43,42 @@ def parseArguments ():
 		elif arg=='-v' or arg=='--verbose':
 			verbose=True
 			print "Verbose mode on"
-		elif arg=='-s' or arg=='--soft-run':
+		elif arg=='-s' or arg=='--soft':
 			soft = True
+		elif arg=='-c' or arg=='--list-configurations':
+			list_configurations()
 	if len(modulesToLoad)!=2:
-		sys.exit(usage)
+		usage()
 	modulesToLoad.sort() # We sort them, so id's made from the names will 
 								# always be the same (will make sense later on)
 
-
+def usage ():
+	usage = """You start the program by specifying 2 modules to synchronize.
+Like this:
+  ./pisi [option] google isc
+Flags:
+  -v --verbose
+      Make program verbose
+  -s --soft
+      Don't actually make any changes on the servers/in the files
+  -c --list-configurations
+      List which configurations there are in the config-file (this don't need 
+      the two modules)
+"""
+	sys.exit(usage)
+def list_configurations ():
+	# Read configuration
+	homedir = os.environ.get('HOME')
+	configfolder = homedir + '/.pisi/'
+	configfile = configfolder + 'conf'
+	if not os.path.isfile(configfile):
+		sys.exit("Couldn't find the configuration file: "+configfile)
+	config = ConfigParser.ConfigParser()
+	config.readfp(open(configfile))
+	print 'You seem to have these configurations:'
+	for con in config.sections():
+		print '\t',con,'which uses module',config.get(con,'module')
+	sys.exit(0)
 
 def main ():
 	global verbose,soft
@@ -69,7 +88,8 @@ def main ():
 	configfile = configfolder + 'conf'
 	if verbose:
 		print "Reading configfile:",configfile
-	#TODO: Check if configuration file exists
+	if not os.path.isfile(configfile):
+		sys.exit("Couldn't find the configuration file: "+configfile)
 	config = ConfigParser.ConfigParser()
 	config.readfp(open(configfile))
 
@@ -182,8 +202,8 @@ def main ():
 
 if __name__ == "__main__":
 	# Testing
-	sys.argv = ['file', '--verbose', 'googleTest','googleTest2']#, 'zdummy']
-	# Testing
+	#sys.argv = ['file', '--verbose', 'googleTest','googleTest2']#, 'zdummy']
+	
 	parseArguments()
 	main()
 	
