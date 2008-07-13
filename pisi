@@ -160,10 +160,8 @@ def main ():
 					source[1].replaceEvent( sameEvent.id, merged )"""
 				
 				if event.updated < sameEvent.updated:
-					print "modul 2 er nyest"
 					source[0].replaceEvent( event.id, sameEvent )
 				elif event.updated > sameEvent.updated:
-					print "modul 1 er nyest"
 					event.id = sameEvent.id
 					source[1].replaceEvent( sameEvent.id, event )
 				

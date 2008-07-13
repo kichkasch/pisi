@@ -89,7 +89,7 @@ class SynchronizationModule:
 			tmpevent = self._geventToPisiEvent(an_event)
 			tmpevent.commonid = commonid
 			tmpevent.updated = updated
-			tmpevent.prettyPrint()
+			#tmpevent.prettyPrint()
 			# Insert event
 			allEvents.insertEvent( tmpevent )
 			
