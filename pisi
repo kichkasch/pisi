@@ -128,7 +128,7 @@ def main ():
 				if verbose:
 					print "\tThey both have this event"
 				# See if they have different updatetimes
-				if event.updated != sameEvent.updated:
+				"""if event.updated != sameEvent.updated:
 					if verbose:
 						print "\t one is newer than the other. I'll try an merge them"
 					merged = event.merge( sameEvent )
@@ -137,7 +137,16 @@ def main ():
 					merged.id = id
 					source[0].replaceEvent( id, merged )
 					merged.id = sameEvent.id
-					source[1].replaceEvent( sameEvent.id, merged )
+					source[1].replaceEvent( sameEvent.id, merged )"""
+				
+				if event.updated < sameEvent.updated:
+					print "modul 2 er nyest"
+					source[0].replaceEvent( event.id, sameEvent )
+				elif event.updated > sameEvent.updated:
+					print "modul 1 er nyest"
+					event.id = sameEvent.id
+					source[1].replaceEvent( sameEvent.id, event )
+				
 				# Remove event from our temporary list from source[1]
 				allEvents[1].removeEvent( sameEvent.commonid )
 			else:
