@@ -198,8 +198,11 @@ class SynchronizationModule:
 		f.write( datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S') )
 		f.close()
 
-	def _convertToGoogle( self, dateTimeObject ):
-		return dateTimeObject.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+	def _convertToGoogle( self, dateTimeObject, allday ):
+		if allday:
+			return dateTimeObject.strftime('%Y-%m-%d')
+		else:
+			return dateTimeObject.strftime('%Y-%m-%dT%H:%M:%S.000Z')
 
 	def _convertPisiEventToGoogle( self, event ):
 		if self.verbose:
@@ -211,27 +214,35 @@ class SynchronizationModule:
 		#gevent.extended_property.append(gdata.calendar.ExtendedProperty(name=key, value=event.commonid))
 		gevent.where.append(gdata.calendar.Where(value_string=event.attributes['location']))
 		gevent.when.append(gdata.calendar.When(\
-								start_time=self._convertToGoogle(event.attributes['start']), \
-								end_time=self._convertToGoogle(event.attributes['end'])))
+								start_time=self._convertToGoogle(event.attributes['start'],event.attributes['allday']), \
+								end_time=self._convertToGoogle(event.attributes['end'],event.attributes['allday'])))
 		gevent.content = atom.Content(text=event.attributes['description'])
 		if self.verbose:
 			print "\n\nConverting done:",gevent
 		return gevent
 
 	def _geventToPisiEvent( self, event ):
+		(allday, start) = self._gtimeToDatetime(event.when[0].start_time )
+		(allday, end) = self._gtimeToDatetime(event.when[0].end_time )
 		attributes=\
-			{'start':self._gtimeToDatetime(event.when[0].start_time ), \
-			 'end':self._gtimeToDatetime(event.when[0].end_time ), \
+			{'start':start, \
+			 'end':end, \
+			 'allday':allday, \
 			 'title':event.title.text, \
 			 'description':"", 'location':"",\
 			 'alarm':False, 'alarmmin':0 \
 			}
-		return events.Event( event.id.text, False, self._gtimeToDatetime(event.updated.text ), attributes )
+		(tmp, updated) = self._gtimeToDatetime(event.updated.text )
+		return events.Event( event.id.text, False, updated, attributes )
 
 	def _gtimeToDatetime( self, gtime ):
 		"""Converts Google normal way (RFC3339) to write date and time
 		to a datetime instance"""
-		#TODO: We can't assume time will have an Z all the time. MORE PARSING
+		allday = False
+		if len(gtime)==10:
+			allday = True
+			date = datetime.datetime.strptime(gtime[:19], '%Y-%m-%d')
+			return (allday, date)
 		onlyDandT = datetime.datetime.strptime(gtime[:19], '%Y-%m-%dT%H:%M:%S')
 		timezone = gtime[23:24]
 		if timezone=='Z':
@@ -249,7 +260,7 @@ class SynchronizationModule:
 			else:
 				onlyDandT += (timezonehour*60 + timezonemin)*60
 			onlyDandT = datetime.datetime.fromtimestamp(onlyDandT)
-		return onlyDandT
+		return (allday, onlyDandT)
 
 	def _login( self, user, password ):
 		if self.verbose:
