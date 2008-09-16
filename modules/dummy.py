@@ -31,46 +31,46 @@ from events import events
 
 
 class SynchronizationModule:
-	def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
-		self.vebose = verbose
-		if self.vebose:
-			print "Dummy module loaded"
-	
-	def allEvents( self ):
-		"""Returns an Events instance with all events"""
-		if self.vebose:
-			print "Dummy module makes some dummy events and returns them..\n \
-		Dummy likes to talk about itself in third person."
-		allEvents = events.Events( )
-		attributes=\
-			{'start':datetime.datetime(2008,7,8,14,15,0), \
-			 'end':datetime.datetime(2008,7,8,16,0,0), 'title':"Dummy title",\
-			 'description':"None", 'location':"Somewhere", 'alarm':False,\
-			 'alarmmin':0 \
-			}
-		dummyevent = events.Event( "dummyid1",False, datetime.datetime(2008,7,7,14,16,0), attributes )
-		allEvents.insertEvent( dummyevent )
-		attributes['start'] = datetime.datetime(2008,7,8,14,20,0)
-		dummyevent = events.Event( "dummyid2","dummyid2", datetime.datetime(2008,7,8,14,15,0), attributes )
-		allEvents.insertEvent( dummyevent )
-		return allEvents
+    def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
+        self.vebose = verbose
+        if self.vebose:
+            print "Dummy module loaded"
 
-	def addEvent( self, eventInstance ):
-		"""Saves an event for later writing"""
-	
-	def replaceEvent( self, id, updatedevent ):
-		"""Replace event (for later writing)"""
-	
-	def removeEvent( self, id ):
-		"""Removes an event"""
-	
-	def saveModifications( self ):
-		"""Save whatever changes have come by"""
+    def allEvents( self ):
+        """Returns an Events instance with all events"""
+        if self.vebose:
+            print "Dummy module makes some dummy events and returns them..\n \
+        Dummy likes to talk about itself in third person."
+        allEvents = events.Events( )
+        attributes=\
+            {'start':datetime.datetime(2008,7,8,14,15,0), \
+             'end':datetime.datetime(2008,7,8,16,0,0), 'title':"Dummy title",\
+             'description':"None", 'location':"Somewhere", 'alarm':False,\
+             'alarmmin':0 \
+            }
+        dummyevent = events.Event( "dummyid1",False, datetime.datetime(2008,7,7,14,16,0), attributes )
+        allEvents.insertEvent( dummyevent )
+        attributes['start'] = datetime.datetime(2008,7,8,14,20,0)
+        dummyevent = events.Event( "dummyid2","dummyid2", datetime.datetime(2008,7,8,14,15,0), attributes )
+        allEvents.insertEvent( dummyevent )
+        return allEvents
 
-	def addCommonid( self, id, commonid ):
-		"""Add commonid"""
+    def addEvent( self, eventInstance ):
+        """Saves an event for later writing"""
+
+    def replaceEvent( self, id, updatedevent ):
+        """Replace event (for later writing)"""
+
+    def removeEvent( self, id ):
+        """Removes an event"""
+
+    def saveModifications( self ):
+        """Save whatever changes have come by"""
+
+    def addCommonid( self, id, commonid ):
+        """Add commonid"""
 
 #----------------------------------------------------------------------------#
 
 if __name__ == "__main__":
-	print "Testing the dummy module"
+    print "Testing the dummy module"

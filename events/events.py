@@ -26,85 +26,85 @@
 import datetime
 
 class Event:
-	def __init__( self, id, commonid, updated, attributes ):
-		"""Initialize event.
-		Arguments:
-		 * id - is the id the modules uses to id the event
-		 * commonid - This is the id for this event and the two modules. If it
-		              hasn't been synchronized (with the other module), it
-		              should be False.
-		 * updated - datetime instance
-		 * attributes - a dictionary with attributes. See 
-		                http://projects.openmoko.org/plugins/wiki/index.php?Developer&id=156&type=g
-		                for more help.
-		"""
-		self.id        = id
-		self.commonid  = commonid 
-		self.updated   = updated
-		self.attributes=attributes
-	
-	def merge( self, e ):
-		"""Merges the event (e) with itself. If two sections are different, use
-		the section from the newest updated."""
-		# Find which is newer
-		selfNew=False
-		if e.updated < self.updated:
-			# self is newer
-			selfNew=True
-		for key,value in self.attributes.iteritems():
-			if value != e.attributes[key]:
-				# The events differ in this field
-				if not selfNew:
-					self.attributes[key] = e.attributes[key]
-			del e.attributes[key]
-		if not selfNew:
-			for key,value in e.attributes.iteritems():
-				if value != self.attributes[key]:
-					# The events differ in this field
-					self.attributes[key] = e.attributes[key]
-		return self
-	
-	def prettyPrint ( self ):
-		"""Prints all attributes 'nicely'.."""
-		print "\t_PrettyPrint of id:",self.id,"Commonid:",self.commonid
-		print "\t\tUpdated = ",self.updated
-		for key,value in self.attributes.iteritems():
-			print "\t\t",key," = ",value
-	
+    def __init__( self, id, commonid, updated, attributes ):
+        """Initialize event.
+        Arguments:
+         * id - is the id the modules uses to id the event
+         * commonid - This is the id for this event and the two modules. If it
+                      hasn't been synchronized (with the other module), it
+                      should be False.
+         * updated - datetime instance
+         * attributes - a dictionary with attributes. See
+                        http://projects.openmoko.org/plugins/wiki/index.php?Developer&id=156&type=g
+                        for more help.
+        """
+        self.id        = id
+        self.commonid  = commonid
+        self.updated   = updated
+        self.attributes=attributes
+
+    def merge( self, e ):
+        """Merges the event (e) with itself. If two sections are different, use
+        the section from the newest updated."""
+        # Find which is newer
+        selfNew=False
+        if e.updated < self.updated:
+            # self is newer
+            selfNew=True
+        for key,value in self.attributes.iteritems():
+            if value != e.attributes[key]:
+                # The events differ in this field
+                if not selfNew:
+                    self.attributes[key] = e.attributes[key]
+            del e.attributes[key]
+        if not selfNew:
+            for key,value in e.attributes.iteritems():
+                if value != self.attributes[key]:
+                    # The events differ in this field
+                    self.attributes[key] = e.attributes[key]
+        return self
+
+    def prettyPrint ( self ):
+        """Prints all attributes 'nicely'.."""
+        print "\t_PrettyPrint of id:",self.id,"Commonid:",self.commonid
+        print "\t\tUpdated = ",self.updated
+        for key,value in self.attributes.iteritems():
+            print "\t\t",key," = ",value
+
 
 class Events:
-	def __init__( self ):
-		self._events = dict()
-	
-	def insertEvent( self, eventInstance ):
-		"""Saves a new event. Expects an event instance."""
-		self._events[eventInstance.commonid] = eventInstance
+    def __init__( self ):
+        self._events = dict()
 
-	def getEvent( self, id ):
-		try:
-			return self._events[id]
-		except:
-			return False
-	
-	def getAllEvents( self ):
-		return self._events
-	
-	def removeEvent( self, id ):
-		try:
-			del self._events[id]
-		except:
-			print "Couldn't remove event with id",id,". Wasn't found!"
+    def insertEvent( self, eventInstance ):
+        """Saves a new event. Expects an event instance."""
+        self._events[eventInstance.commonid] = eventInstance
+
+    def getEvent( self, id ):
+        try:
+            return self._events[id]
+        except:
+            return False
+
+    def getAllEvents( self ):
+        return self._events
+
+    def removeEvent( self, id ):
+        try:
+            del self._events[id]
+        except:
+            print "Couldn't remove event with id",id,". Wasn't found!"
 
 
 class Recurrence:
-	def __init__( self, startDate, endDate, frequency, count, untilDate, byMonth, byDay ):
-		self.startDate = startDate
-		self.endDate   = endDate
-		self.frequency = frequency
-		self.count     = count
-		self.untilDate = untilDate
-		self.byMonth   = byMonth
-		self.byDay     = byDay
+    def __init__( self, startDate, endDate, frequency, count, untilDate, byMonth, byDay ):
+        self.startDate = startDate
+        self.endDate   = endDate
+        self.frequency = frequency
+        self.count     = count
+        self.untilDate = untilDate
+        self.byMonth   = byMonth
+        self.byDay     = byDay
 
 
 
