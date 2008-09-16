@@ -33,14 +33,14 @@ class Event:
 		 * commonid - This is the id for this event and the two modules. If it
 		              hasn't been synchronized (with the other module), it
 		              should be False.
-		 * updaed - datetime instance
+		 * updated - datetime instance
 		 * attributes - a dictionary with attributes. See 
 		                http://projects.openmoko.org/plugins/wiki/index.php?Developer&id=156&type=g
 		                for more help.
 		"""
-		self.id = id
-		self.commonid = commonid 
-		self.updated = updated
+		self.id        = id
+		self.commonid  = commonid 
+		self.updated   = updated
 		self.attributes=attributes
 	
 	def merge( self, e ):
@@ -95,6 +95,19 @@ class Events:
 		except:
 			print "Couldn't remove event with id",id,". Wasn't found!"
 
-if __name__=="__main__":
-	print "Testing events module"
-	
+
+class Recurrence:
+	def __init__( self, startDate, endDate, frequency, count, untilDate, byMonth, byDay ):
+		self.startDate = startDate
+		self.endDate   = endDate
+		self.frequency = frequency
+		self.count     = count
+		self.untilDate = untilDate
+		self.byMonth   = byMonth
+		self.byDay     = byDay
+
+
+
+
+
+
