@@ -36,18 +36,16 @@ class SynchronizationModule:
         self.soft = soft
         self.modulesString = modulesString
         self.folder = folder
-        self.localFile = dict()
+        self.allEvents = events.Events( )
         self.timezones = dict()
         self.file = open(config.get(configsection,'file'),'r+')
-        self._readHeader()
+        self._readFile()
         if self.verbose:
             print 'ics-module using file %s' % (config.get(configsection,'file'))
 
     def allEvents( self ):
         """Returns an Events instance with all events"""
-        allEvents = events.Events( )
-
-        return allEvents
+        return self.allEvents
 
     def addEvent( self, eventInstance ):
         """Saves an event for later writing"""
@@ -80,21 +78,78 @@ class SynchronizationModule:
 
 
 # Private functions
-    def _parseRecurrence( self,rrule ):
-        """Parses a string with recurrence rules"""
+    def _parseEventFromFile( self ):
+        """Reads the next lines of the file and parses the event. Returns
+        an Event instance."""
+        id = None
+        commonid = False
+        updated = None
+        attr = dict()
+        while True:
+            line = self.file.readline()
+            if line=="END:VEVENT\n":
+                break
+            else:
+                theSplit = line.strip('\n').split(':')
+                if theSplit[0]=="UID":
+                    id = theSplit[1]
+                elif theSplit[0]=="LAST-MODIFIED":
+                    updated = datetime.datetime.strptime(theSplit[1], '%Y%m%dT%H%M%S')
+                elif theSplit[0]=="X-PISI-COMID":
+                    commonid = theSplit[1]
+                elif theSplit[0][:7]=="DTSTART":
+                    tz = theSplit[0].split(';')[1].split('=')[1]
+                    time = theSplit[1]
+                    self._parseTime( tz, time )
+        # Create event and send it back
+        return events.Event( id, commonid, updated, attr )
 
+    def _parseRecurrence( self, startDate, endDate, rrule ):
+        """Parses a string with recurrence rules"""
+        rules = rrule.split(';')
+        attr  = {'freq':None,'count':None,'until':None,'bymonth':None,'byday':None}
+        for rule in rules:
+            temp = rule.split('=')
+            if temp[0]=="FREQ":
+                if temp[1]=="YEARLY":
+                    attr['freq'] = events.YEARLY
+                elif temp[1]=="MONTHLY":
+                    attr['freq'] = events.MONTHLY
+                elif temp[1]=="WEEKLY":
+                    attr['freq'] = events.WEEKLY
+                elif temp[1]=="DAILY":
+                    attr['freq'] = events.DAILY
+            elif temp[0]=="COUNT":
+                attr['count'] = int(temp[1])
+            elif temp[0]=="UNTIL":
+                attr['until'] = datetime.datetime.strptime(temp[1], '%Y%m%d')
+            elif temp[0]=="INTERVAL":
+                attr['interval'] = int(temp[1])
+            elif temp[0]=="BYMONTH":
+                attr['bymonth'] = temp[1]
+            elif temp[0]=="BYDAY":
+                attr['byday'] = temp[1]
+
+        return events.Recurrence(
+                startDate, endDate,
+                attr['freq'], attr['count'],
+                attr['until'], attr['bymonth'],
+                attr['byday']
+            )
+
+    def _parseTime( self, timezone, time ):
+        print timezone, time
 
     def _getTimeZoneFromFile( self ):
         """Read timezone"""
         tmp  = dict()
-        rules= []
+        rules= dict()
         ruleNr = -1
         tzid= ''
-        run = True
-        while run:
+        while True:
             line = self.file.readline()
             if line=="END:VTIMEZONE\n":
-                run = False
+                break
             else:
                 theSplit = line.strip('\n').split(':')
                 if theSplit[0]=="TZID":
@@ -107,23 +162,26 @@ class SynchronizationModule:
                 elif theSplit[0]=="TZOFFSETTO":
                     rules[ruleNr]['to'] = theSplit[1]
                 elif theSplit[0]=="RRULE":
-                    rules[ruleNr]['recurrence'] = self._parseRecurrence(theSplit[1])
+                    rules[ruleNr]['recurrence'] = self._parseRecurrence(
+                        datetime.datetime.min,datetime.datetime.max,
+                        theSplit[1])
         # Save timezone
         self.timezones[tzid]=tmp
 
-    def _readHeader( self ):
+    def _readFile( self ):
         """Parse the header of the file"""
-        header = True
-        while header:
+        while True:
             tell = self.file.tell()
             line = self.file.readline()
             if line=='':
-                header = False
+                break
             elif line=="BEGIN:VTIMEZONE\n":
                 self._getTimeZoneFromFile()
+            elif line=="BEGIN:VEVENT\n":
+                e = self._parseEventFromFile()
+                e.prettyPrint()
+                self.allEvents.insertEvent( e )
 
-            theSplit = line.strip('\n').split(':')
-            print theSplit[1]
 
 
 

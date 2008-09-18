@@ -25,6 +25,10 @@
 
 import datetime
 
+# Recurrence constants
+YEARLY, MONTHLY, WEEKLY, DAILY = range(4)
+MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
+
 class Event:
     def __init__( self, id, commonid, updated, attributes ):
         """Initialize event.
@@ -98,6 +102,8 @@ class Events:
 
 class Recurrence:
     def __init__( self, startDate, endDate, frequency, count, untilDate, byMonth, byDay ):
+        """The Recurrence class. Arguments according to iCalendar standard (RFC 2445)
+        """
         self.startDate = startDate
         self.endDate   = endDate
         self.frequency = frequency
