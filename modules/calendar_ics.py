@@ -80,7 +80,14 @@ class SynchronizationModule:
 
 
 # Private functions
-    def _nextLine( self ):
+    def _convertPisiEventToIcs( self, event ):
+        """"""
+        _icsEvent = "BEGIN:VEVENT\n"
+        _icsEvent += "UID:"+event.id+"\n"
+        _icsEvent += "END:VEVENT\n"
+        return _icsEvent
+
+    def _getNextLine( self ):
         """"""
         if self._currentline=='':
             self._currentline = self.file.readline().strip('\n')
@@ -88,7 +95,7 @@ class SynchronizationModule:
         self._currentline = self.file.readline().strip('\n')
         while self._currentline[:1]==" ":
             returnString = returnString + self._currentline[1:]
-            self._currentline = self.file.readline()
+            self._currentline = self.file.readline().strip('\n')
 
         return returnString
 
@@ -101,7 +108,7 @@ class SynchronizationModule:
         attr = dict()
         local= dict()
         while True:
-            line = self._nextLine()
+            line = self._getNextLine()
             if line=="END:VEVENT":
                 break
             else:
@@ -119,6 +126,7 @@ class SynchronizationModule:
                     self._parseTime( tz, time )
         self._localFile[id] = local
         # Create event and send it back
+
         return events.Event( id, commonid, updated, attr )
 
     def _parseRecurrence( self, startDate, endDate, rrule ):
@@ -164,7 +172,7 @@ class SynchronizationModule:
         ruleNr = -1
         tzid= ''
         while True:
-            line = self._nextLine()
+            line = self._getNextLine()
             if line=="END:VTIMEZONE":
                 break
             else:
@@ -189,7 +197,7 @@ class SynchronizationModule:
         """Parse the header of the file"""
         while True:
             tell = self.file.tell()
-            line = self._nextLine()
+            line = self._getNextLine()
             if line=='':
                 break
             elif line=="BEGIN:VTIMEZONE":
@@ -197,6 +205,7 @@ class SynchronizationModule:
             elif line=="BEGIN:VEVENT":
                 e = self._parseEventFromFile()
                 e.prettyPrint()
+                print self._convertPisiEventToIcs( e )
                 self._allEvents.insertEvent( e )
 
 
