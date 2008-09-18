@@ -36,16 +36,18 @@ class SynchronizationModule:
         self.soft = soft
         self.modulesString = modulesString
         self.folder = folder
-        self.allEvents = events.Events( )
+        self._allEvents = events.Events( )
+        self._currentline=''
+        self._localFile = dict()
         self.timezones = dict()
         self.file = open(config.get(configsection,'file'),'r+')
-        self._readFile()
         if self.verbose:
             print 'ics-module using file %s' % (config.get(configsection,'file'))
+        self._readFile()
 
     def allEvents( self ):
         """Returns an Events instance with all events"""
-        return self.allEvents
+        return self._allEvents
 
     def addEvent( self, eventInstance ):
         """Saves an event for later writing"""
@@ -54,14 +56,14 @@ class SynchronizationModule:
         """Add commonid"""
         # - localfile
         print "Adding commonid to id",id
-        self.localFile[id]['commonid'] = commonid
+        self._localFile[id]['commonid'] = commonid
 
     def replaceEvent( self, id, updatedevent ):
         """Replace event"""
         if self.verbose:
             print "We will replace event",id
         # - localfile
-        self.localFile[id] = \
+        self._localFile[id] = \
             {'commonid':updatedevent.commonid , 'updated':updatedevent.updated }
 
     def removeEvent( self, id ):
@@ -78,6 +80,18 @@ class SynchronizationModule:
 
 
 # Private functions
+    def _nextLine( self ):
+        """"""
+        if self._currentline=='':
+            self._currentline = self.file.readline().strip('\n')
+        returnString = self._currentline
+        self._currentline = self.file.readline().strip('\n')
+        while self._currentline[:1]==" ":
+            returnString = returnString + self._currentline[1:]
+            self._currentline = self.file.readline()
+
+        return returnString
+
     def _parseEventFromFile( self ):
         """Reads the next lines of the file and parses the event. Returns
         an Event instance."""
@@ -85,12 +99,14 @@ class SynchronizationModule:
         commonid = False
         updated = None
         attr = dict()
+        local= dict()
         while True:
-            line = self.file.readline()
-            if line=="END:VEVENT\n":
+            line = self._nextLine()
+            if line=="END:VEVENT":
                 break
             else:
-                theSplit = line.strip('\n').split(':')
+                theSplit = line.split(':')
+                local[theSplit[0]] = theSplit[1]
                 if theSplit[0]=="UID":
                     id = theSplit[1]
                 elif theSplit[0]=="LAST-MODIFIED":
@@ -101,6 +117,7 @@ class SynchronizationModule:
                     tz = theSplit[0].split(';')[1].split('=')[1]
                     time = theSplit[1]
                     self._parseTime( tz, time )
+        self._localFile[id] = local
         # Create event and send it back
         return events.Event( id, commonid, updated, attr )
 
@@ -147,11 +164,11 @@ class SynchronizationModule:
         ruleNr = -1
         tzid= ''
         while True:
-            line = self.file.readline()
-            if line=="END:VTIMEZONE\n":
+            line = self._nextLine()
+            if line=="END:VTIMEZONE":
                 break
             else:
-                theSplit = line.strip('\n').split(':')
+                theSplit = line.split(':')
                 if theSplit[0]=="TZID":
                     tzid=theSplit[1]
                 elif theSplit[0]=="BEGIN":
@@ -172,15 +189,15 @@ class SynchronizationModule:
         """Parse the header of the file"""
         while True:
             tell = self.file.tell()
-            line = self.file.readline()
+            line = self._nextLine()
             if line=='':
                 break
-            elif line=="BEGIN:VTIMEZONE\n":
+            elif line=="BEGIN:VTIMEZONE":
                 self._getTimeZoneFromFile()
-            elif line=="BEGIN:VEVENT\n":
+            elif line=="BEGIN:VEVENT":
                 e = self._parseEventFromFile()
                 e.prettyPrint()
-                self.allEvents.insertEvent( e )
+                self._allEvents.insertEvent( e )
 
 
 

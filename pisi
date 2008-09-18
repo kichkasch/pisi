@@ -118,9 +118,12 @@ def main ():
     for i in source:
         i.initChangesSince( lastSync )
     """
+    if verbose:
+        print "Modules loaded:",source
 
     # Get all events
-    allEvents = [ source[0].allEvents() , source[1].allEvents() ]
+    allEvents = [ source[0].allEvents()
+     , source[1].allEvents() ]
     if verbose:
         print
         print "Module",modulesToLoad[0],"has",len(allEvents[0].getAllEvents()),"events in total"
