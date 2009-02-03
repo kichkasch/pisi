@@ -106,6 +106,8 @@ class Events:
 class Recurrence:
     def __init__( self, startDate, endDate, frequency, count, untilDate, byMonth, byDay ):
         """The Recurrence class. Arguments according to iCalendar standard (RFC 2445)
+
+            Look for inspiration in: http://codespeak.net/icalendar/
         """
         self.startDate = startDate
         self.endDate   = endDate
