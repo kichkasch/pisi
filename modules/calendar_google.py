@@ -59,7 +59,7 @@ class SynchronizationModule:
         # Retrieve all events from Google
         allEvents = events.Events( )
 
-        # TODO: Iterate through results instead of fetching all
+        # TODO: Iterate through results instead of fetching "all"
         feed = self.cal_client.GetCalendarEventFeed('/calendar/feeds/'+self.calendarid+'/private/full?max-results=999999')
         self.googleevents = dict()
         for i, an_event in enumerate(feed.entry):
@@ -269,7 +269,7 @@ class SynchronizationModule:
         self.cal_client = gdata.calendar.service.CalendarService()
         self.cal_client.email = user
         self.cal_client.password = password
-        self.cal_client.source = 'mokoGsync-google_module'
+        self.cal_client.source = 'pisi-google_module'
         self.cal_client.ProgrammaticLogin()
         # We are now logged in
 
