@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    Copyright 2008 Esben Damgaard <ebbe at hvemder . dk>
+    Copyright 2009 Esben Damgaard <ebbe at hvemder . dk>
 
     Syncronize with Google Calendar
 
@@ -59,6 +59,7 @@ class SynchronizationModule:
         # Retrieve all events from Google
         allEvents = events.Events( )
 
+        # TODO: Iterate through results instead of fetching all
         feed = self.cal_client.GetCalendarEventFeed('/calendar/feeds/'+self.calendarid+'/private/full?max-results=999999')
         self.googleevents = dict()
         for i, an_event in enumerate(feed.entry):
