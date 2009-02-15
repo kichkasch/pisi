@@ -174,8 +174,8 @@ def main ():
                 # Event has been deleted from source[1]
                 # so delete it from source[0]
                 source[0].removeEvent( event.id )
-
-        print ""
+        if verbose:
+            print ""
 
     # Loop through all remaning events from source[1]
     for id,event in allEvents[1].getAllEvents().iteritems():

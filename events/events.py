@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    Copyright 2008 Esben Damgaard <ebbe at hvemder . dk>
+    Copyright 2009 Esben Damgaard <ebbe at hvemder . dk>
 
     My own calendar-event-object.
 
@@ -33,7 +33,7 @@ class Event:
     def __init__( self, id, commonid, updated, attributes ):
         """Initialize event.
         Arguments:
-         * id - is the id the modules uses to id the event
+         * id - is the id the module uses to id the event
          * commonid - This is the id for this event and the two modules. If it
                       hasn't been synchronized (with the other module), it
                       should be False.

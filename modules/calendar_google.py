@@ -98,6 +98,8 @@ class SynchronizationModule:
 
     def addEvent( self, eventInstance ):
         """Saves an event for later writing"""
+        if self.soft:
+            return
         # - at Google
         gevent = self._convertPisiEventToGoogle( eventInstance )
         gevent.batch_id = gdata.BatchId(text=eventInstance.id)
@@ -105,18 +107,13 @@ class SynchronizationModule:
         # - localfile (We can't, as we don't know id)
         self.newEvents[eventInstance.id] = \
            {'commonid':eventInstance.commonid , 'updated':eventInstance.updated }
-        """self.localFile[eventInstance.id] = \
-            {'commonid':eventInstance.commonid , 'updated':eventInstance.updated }"""
 
     def addCommonid( self, id, commonid ):
         """Add commonid"""
+        if self.soft:
+            return
         # - at Google
-        """# Add extended property to event
-        key = 'pisi'+self.modulesString+'commonid'
-        self.googleevents[id].extended_property.append(gdata.calendar.ExtendedProperty(name=key, value=commonid))
-        # Add event to update batch
-        self.googleevents[id].batch_id = gdata.BatchId(text=id)
-        self.batchOperations.AddUpdate(entry=self.googleevents[id])"""
+        #no need for this
         # - localfile
         print "Adding commonid to id",id
         self.localFile[id]['commonid'] = commonid
@@ -125,6 +122,8 @@ class SynchronizationModule:
         """Replace event"""
         if self.verbose:
             print "We will replace event",id
+        if self.soft:
+            return
         # - at Google
         gevent = self._convertPisiEventToGoogle( updatedevent )
         gevent.batch_id = gdata.BatchId(text=id)
@@ -141,6 +140,8 @@ class SynchronizationModule:
         """Removes an event"""
         if self.verbose:
             print "We will delete event",id
+        if self.soft:
+            return
         # - at Google
         self.googleevents[id].batch_id = gdata.BatchId(text=id)
         self.batchOperations.AddDelete(entry=self.googleevents[id])
@@ -149,47 +150,48 @@ class SynchronizationModule:
 
     def saveModifications( self ):
         """Save whatever changes have come by"""
-        if not self.soft:
-            # Save batchoperations
+        if self.verbose:
+            print "Saving Google-calendar modifications:"
+            print self.batchOperations
+        if self.soft:
+            return
+        # Save batchoperations
+        response_feed = self.cal_client.ExecuteBatch(self.batchOperations, '/calendar/feeds/'+self.calendarid+'/private/full/batch')
+        # iterate the response feed to get the operation status
+        for entry in response_feed.entry:
             if self.verbose:
-                print "Saving Google-calendar modifications\n\n"
-                print self.batchOperations
-            response_feed = self.cal_client.ExecuteBatch(self.batchOperations, '/calendar/feeds/'+self.calendarid+'/private/full/batch')
-            # iterate the response feed to get the operation status
-            for entry in response_feed.entry:
-                if self.verbose:
-                    print 'batch id: %s' % (entry.batch_id.text,)
-                    print 'status: %s' % (entry.batch_status.code,)
-                    print 'reason: %s' % (entry.batch_status.reason,)
-                    #print '\n',entry
+                print 'batch id: %s' % (entry.batch_id.text,)
+                print 'status: %s' % (entry.batch_status.code,)
+                print 'reason: %s' % (entry.batch_status.reason,)
+                #print '\n',entry
 
-                if entry.batch_status.reason=="Created":
-                    #commonid = self.newEvents[entry.batch_id.text]['commonid']
+            if entry.batch_status.reason=="Created":
+                #commonid = self.newEvents[entry.batch_id.text]['commonid']
+                if self.verbose:
+                    print "\t We have just created a new event :)"
+                updated  = self.newEvents[entry.batch_id.text]['updated']
+                commonid = self.newEvents[entry.batch_id.text]['commonid']
+                self.localFile[entry.GetSelfLink().href] = { \
+                    'commonid':commonid , \
+                    'updated':updated, \
+                    'googleupdatedtime':self._gtimeToDatetime(entry.updated.text) \
+                    }
+            else:
+                try:
+                    # If we are deleting, this will fail
+                    self.localFile[entry.batch_id.text]['googleupdatedtime'] = self._gtimeToDatetime(entry.updated.text)
                     if self.verbose:
-                        print "\t We have just created a new event :)"
-                    updated  = self.newEvents[entry.batch_id.text]['updated']
-                    commonid = self.newEvents[entry.batch_id.text]['commonid']
-                    self.localFile[entry.GetSelfLink().href] = { \
-                        'commonid':commonid , \
-                        'updated':updated, \
-                        'googleupdatedtime':self._gtimeToDatetime(entry.updated.text) \
-                        }
-                else:
-                    try:
-                        # If we are deleting, this will fail
-                        self.localFile[entry.batch_id.text]['googleupdatedtime'] = self._gtimeToDatetime(entry.updated.text)
-                        if self.verbose:
-                            print "We got a new googleupdatetime"
-                    except:
-                        print
-                    """selfLink = entry.GetSelfLink()
-                    if entry.batch_id.text!=selfLink:
-                        self.localFile[selfLink] = self.localFile[entry.batch_id.text]
-                        del self.localFile[entry.batch_id.text]"""
-            # Save updatetime and commonid in a local file
-            f = open( self.folder+'local', 'w' )
-            pickle.dump(self.localFile, f)
-            f.close()
+                        print "We got a new googleupdatetime"
+                except:
+                    print
+                """selfLink = entry.GetSelfLink()
+                if entry.batch_id.text!=selfLink:
+                    self.localFile[selfLink] = self.localFile[entry.batch_id.text]
+                    del self.localFile[entry.batch_id.text]"""
+        # Save updatetime and commonid in a local file
+        f = open( self.folder+'local', 'w' )
+        pickle.dump(self.localFile, f)
+        f.close()
 
     def _saveSyncronizationTime( self ):
         """
