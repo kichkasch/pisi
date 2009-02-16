@@ -115,7 +115,8 @@ class SynchronizationModule:
         # - at Google
         #no need for this
         # - localfile
-        print "Adding commonid to id",id
+        if self.verbose:        
+            print "Adding commonid to id",id
         self.localFile[id]['commonid'] = commonid
 
     def replaceEvent( self, id, updatedevent ):
@@ -232,7 +233,8 @@ class SynchronizationModule:
              'end':end, \
              'allday':allday, \
              'title':event.title.text, \
-             'description':"", 'location':"",\
+             'description':event.content.text, \
+             'location':"",\
              'alarm':False, 'alarmmin':0 \
             }
         (tmp, updated) = self._gtimeToDatetime(event.updated.text )
