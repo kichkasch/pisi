@@ -234,7 +234,7 @@ class SynchronizationModule:
              'allday':allday, \
              'title':event.title.text, \
              'description':event.content.text, \
-             'location':"",\
+             'location':event.where[0].value_string,\
              'alarm':False, 'alarmmin':0 \
             }
         (tmp, updated) = self._gtimeToDatetime(event.updated.text )
