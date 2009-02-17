@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 """
-    Copyright 2008 Esben Damgaard <ebbe at hvemder . dk>
-
     A dummy to make a new module from (if one so pleases)
 
 
@@ -32,6 +30,13 @@ from events import events
 
 class SynchronizationModule:
     def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
+        """
+          * moduleString is a small string to help you make a unique id. It is the two modules configuration-names concatinated.
+          * config/configsection is the configuration from ~/.pisi/conf. Use like config.get(configsection,'user')
+          * folder is a string with the location for where your module can save its own files if necessary
+          * verbose should make your module "talk" more
+          * soft should tell you if you should make changes (ie. save)
+        """
         self.vebose = verbose
         if self.vebose:
             print "Dummy module loaded"

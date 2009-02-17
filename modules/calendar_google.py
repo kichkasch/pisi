@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
 """
-    Copyright 2009 Esben Damgaard <ebbe at hvemder . dk>
-
     Syncronize with Google Calendar
 
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
 """
-    Copyright 2009 Esben Damgaard <ebbe at hvemder . dk>
-
-    My own calendar-event-object.
-
+    Our own calendar-event-object.
 
 
     This file is part of Pisi.
