@@ -71,9 +71,9 @@ class Event:
     def prettyPrint ( self ):
         """Prints all attributes 'nicely'.."""
         print "\t_PrettyPrint of id:",self.id,"Commonid:",self.commonid
-        print "\t\tUpdated = ",self.updated
+        print "\t\t- Updated = ",self.updated
         for key,value in self.attributes.iteritems():
-            print "\t\t",key," = ",value
+            print "\t\t- ",key," = ",value
 
 
 class Events:
@@ -104,20 +104,44 @@ class Events:
 
 
 class Recurrence:
-    def __init__( self, startDate, endDate, frequency, count, untilDate, byMonth, byDay ):
-        """The Recurrence class. Arguments according to iCalendar standard (RFC 2445)
+    def __init__( self ):
+        # We don't have any information yet
+        self.icsTextReady = False
+        self.recurrenceElementsReady = False
+    
+    def setRecurrenceElements( self, startDate, endDate, frequency, count, untilDate, byMonth, byDay ):
+        """Arguments according to iCalendar standard (RFC 2445)"""
+        self.recurrenceElementsReady = True
+        # Look for inspiration in: http://codespeak.net/icalendar/
+##        self.startDate = startDate
+##        self.endDate   = endDate
+##        self.frequency = frequency
+##        self.count     = count
+##        self.untilDate = untilDate
+##        self.byMonth   = byMonth
+##        self.byDay     = byDay
 
-            Look for inspiration in: http://codespeak.net/icalendar/
-        """
-        self.startDate = startDate
-        self.endDate   = endDate
-        self.frequency = frequency
-        self.count     = count
-        self.untilDate = untilDate
-        self.byMonth   = byMonth
-        self.byDay     = byDay
+    def setIcsText( self, icsText ):
+        """Recurrence according to iCalendar standard (RFC 2445)"""
+        self.icsTextReady = True
+        self.icsText = icsText
+    
+    def getIcsText( self ):
+        if not self.icsTextReady:
+            self._compileIcsText
+        return self.icsText
+    
+    def getRecurrenceElements( self ):
+        # TODO
+        return False
 
-
+    def _compileIcsText( self ):
+        """Creates iCalendar recurrence text from 'recurrenceElements'"""
+        # TODO
+    
+    def _compileRecurrenceElements( self ):
+        """Creates 'recurrenceElements' from iCalendar recurrence text"""
+        # TODO
 
 
 

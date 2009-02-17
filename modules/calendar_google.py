@@ -64,6 +64,7 @@ class SynchronizationModule:
         self.googleevents = dict()
         for i, an_event in enumerate(feed.entry):
             self.googleevents[an_event.id.text] = an_event
+            print an_event
             """if self.verbose:
                 print '\tGoogleModule: %s. %s' % (i, an_event.title.text,)
                 print '\t\tId:%s' % (an_event.id.text)
@@ -184,7 +185,8 @@ class SynchronizationModule:
                     if self.verbose:
                         print "We got a new googleupdatetime"
                 except:
-                    print
+                    if self.verbose:
+                        print
                 """selfLink = entry.GetSelfLink()
                 if entry.batch_id.text!=selfLink:
                     self.localFile[selfLink] = self.localFile[entry.batch_id.text]
@@ -226,11 +228,22 @@ class SynchronizationModule:
         return gevent
 
     def _geventToPisiEvent( self, event ):
-        (allday, start) = self._gtimeToDatetime(event.when[0].start_time )
-        (allday, end) = self._gtimeToDatetime(event.when[0].end_time )
+        """Converts a Google event to Pisi"""
+        if event.recurrence:
+            # When there is a recurrence, the 'start' and 'end' is inside the recurrence text
+            recurrence = events.Recurrence()
+            recurrence.setIcsText( event.recurrence.text )
+            start = None
+            end = None
+            allday = None
+        else:
+            recurrence = None
+            (allday, start) = self._gtimeToDatetime(event.when[0].start_time )
+            (allday, end) = self._gtimeToDatetime(event.when[0].end_time )
         attributes=\
             {'start':start, \
              'end':end, \
+             'recurrence':recurrence, \
              'allday':allday, \
              'title':event.title.text, \
              'description':event.content.text, \

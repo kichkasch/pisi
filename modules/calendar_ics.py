@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-    Copyright 2008 Esben Damgaard <ebbe at hvemder . dk>
+    Copyright 2009 Esben Damgaard <ebbe at hvemder . dk>
 
     Syncronize with an iCalendar file
 
@@ -55,7 +55,8 @@ class SynchronizationModule:
     def addCommonid( self, id, commonid ):
         """Add commonid"""
         # - localfile
-        print "Adding commonid to id",id
+        if self.verbose:
+            print "Adding commonid to id",id
         self._localFile[id]['commonid'] = commonid
 
     def replaceEvent( self, id, updatedevent ):
