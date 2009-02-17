@@ -61,6 +61,11 @@ Flags:
   -l --list-configurations
       List which configurations there are in the config-file (this don't need
       the two modules)
+
+Configuration:
+Read
+https://projects.openmoko.org/plugins/wiki/index.php?configure&id=156&type=g
+for help
 """
     sys.exit(usage)
 def list_configurations ():
