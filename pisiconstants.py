@@ -18,13 +18,21 @@ along with Pisi.  If not, see <http://www.gnu.org/licenses/>
 """
 
 PISI_NAME = 'PISI'
+"""'About'-information for user - program name"""
 PISI_COMMENTS = "PISI is synchronizing information"
+"""'About'-information for user - comments / explainations"""
 PISI_VERSION = '0.1.2'
+"""'About'-information for user - current version"""
 FILEPATH_COPYING = "/opt/pisi/COPYING"
+"""'About'-information for user - where to find the 'licence' file"""
 PISI_AUTHORS = ["Esben Damgaard","Michael Pilgermann"]
+"""'About'-information for user - list of programmers"""
 PISI_HOMEPAGE = "https://projects.openmoko.org/projects/pisi/"
+"""'About'-information for user - program home page"""
 PISI_TRANSLATOR_CREDITS = None
+"""'About'-information for user - list of translators"""
 PISI_DOCUMENTERS = ['Michael Pilgermann']
+"""'About'-information for user - list of documenters"""
 
 MODE_CALENDAR = 0
 """Type of sources to deal with are calendars"""
@@ -56,4 +64,6 @@ ACTIONID_MODIFY = 2
 """Entry in the history of activities for synchronization modules - here for MODIFY"""
 
 GOOGLE_CONTACTS_APPNAME = "pisi0.1"
+"""application name to use for connecting against google contacts services"""
 GOOGLE_CONTACTS_MAXRESULTS = 1000
+"""upper limit of result set when querying google contacts api"""

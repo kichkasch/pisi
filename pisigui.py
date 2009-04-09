@@ -5,6 +5,9 @@ Graphical User Interface to PISI based on GTK - one implementation of user inter
 
 This file is part of Pisi.
 
+It is a very basic GUI, which only allows for selection of two data sources and after initiation
+of sync shows a progress bar. What else do we need?
+
 Pisi is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -29,7 +32,15 @@ import pisi
 
 
 class Base(pisiprogress.AbstractCallback):
+    """
+    The one and only Main frame
+    
+    Made up mainly by a notebook; one side for each type of PIM data, and by a progress bar and some buttons.
+    """
     def __init__(self):
+        """
+        Constructor - the whole assembling of the window is performed in here
+        """
         pisiprogress.AbstractCallback.__init__(self)
         config = pisi.getConfiguration()
         self.sources = {}
@@ -50,7 +61,6 @@ class Base(pisiprogress.AbstractCallback):
         box = gtk.VBox(False, 5)
         
         labelTitle= gtk.Label("PISI Synchronization")
-#        labelTitle.set_alignment(0, 0)
         box.pack_start(labelTitle, False, False, 0)
         labelTitle.show()
 
@@ -111,6 +121,9 @@ class Base(pisiprogress.AbstractCallback):
         self.window.show()
 
     def _createContactsPanel(self,  sources):
+        """
+        Creates one side in the notebook - the one for setting up contacts synchronization
+        """
         box = gtk.VBox(False, 5)
         label = gtk.Label("Source A")
         label.set_alignment(0, 0)
@@ -153,6 +166,9 @@ class Base(pisiprogress.AbstractCallback):
         return box
 
     def _createCalendarPanel(self,  sources):
+        """
+        Creates one side in the notebook - the one for setting up calendar synchronization
+        """
         box = gtk.VBox(False, 5)
         label = gtk.Label("Source A")
         label.set_alignment(0, 0)
@@ -179,18 +195,29 @@ class Base(pisiprogress.AbstractCallback):
         box.show()
         return box
 
-
     def main(self):
+        """
+        Starts up the application ('Main-Loop')
+        """
         gtk.main()
 
     def destroy(self, widget, data=None):
+        """
+        Shuts down the application
+        """
         gtk.main_quit()
 
     def delete_event(self, widget, event, data=None):
+        """
+        Event handler
+        """
         return False
 
 
     def showAbout(self,  target):
+        """
+        Pops up an 'About'-dialog, which displays all the application meta information from module pisiconstants.
+        """
         d = gtk.AboutDialog()
         d.set_name(PISI_NAME)
         d.set_version(PISI_VERSION)
@@ -209,6 +236,11 @@ class Base(pisiprogress.AbstractCallback):
         d.destroy()
 
     def startSync(self, target):
+        """
+        Passes control on to PISI core and starts up synchronization process
+        
+        Updates on the GUI are from now on only performed on request of the core by calling the callback functions.
+        """
         self.verbose('Configuring')
         self.progress.reset()
         self.progress.setProgress(0)
@@ -317,7 +349,7 @@ class Base(pisiprogress.AbstractCallback):
 
     def message(self,  st,  messageType = gtk.MESSAGE_INFO):
         """
-        Output a message to the user.
+        Output a message to the user - a message dialog is popped up
         """
         dialog = gtk.MessageDialog(self.window, buttons=gtk.BUTTONS_OK,  message_format = st,  flags = gtk.DIALOG_MODAL,  type = messageType)
         ret = dialog.run()
@@ -325,26 +357,26 @@ class Base(pisiprogress.AbstractCallback):
         
     def verbose(self,  st):
         """
-        Output a message (of lower interest) to the user.
+        Output a message (of lower interest) to the user - output is directed to text based console.
         """
         print st
         
     def error(self,  st):
         """
-        Redirect to L{message}
+        Redirect to L{message} with special dialog type
         """
         print "** Error: %s" %(str(st))
         self.message(str(st),  gtk.MESSAGE_ERROR)
 
     def promptGeneric(self,  prompt,  default):
         """
-        Prompt the user for a single entry to type in
+        Prompt the user for a single entry to type in - not implemented in GUI
         """
         raise ValueError("Prompt Generic not implemented for this GUI.")
 
     def promptFilename(self, prompt,  default):
         """
-        Prompt the user for providing a file name
+        Prompt the user for providing a file name - the standard file selection dialog of GTK is used for this
         """
         d = gtk.FileChooserDialog(prompt,  self.window,  buttons =(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK) )
         d.set_select_multiple(False)
@@ -360,6 +392,8 @@ class Base(pisiprogress.AbstractCallback):
         """
         Use interaction for choosing which contact entry to keep in case of a conflict
         
+        An instance of L{ConflictsDialog} is started up with the information in question.
+        
         @return: A dictionary which contains the action for each conflict entry; the key is the id of the contact entry, 
         the value one out of a - keep entry from first source, b - keep value from second source and s - skip this entry (no change on either side)
         """
@@ -374,6 +408,8 @@ class Base(pisiprogress.AbstractCallback):
     def update(self,  status):
         """
         This function should be called whenever new information has been made available and the UI should be updates somehow.
+        
+        The progress bar is updated and the messages is put insight the progress bar. Finally, the GUI is forced to update all components.
         """
         prog = self.progress.calculateOverallProgress()
         self.progressbar.set_text("%s (%d %%)" %(status,  prog ))
@@ -382,7 +418,14 @@ class Base(pisiprogress.AbstractCallback):
            gtk.main_iteration(False)
 
 class ConflictsDialog(gtk.Dialog):
+    """
+    GTK-Dialog to visualize a list of conflicting contact entries in a table view with options to select actions for each entry
+    """
+    
     def __init__(self,  parent,  source,  idList):
+        """
+        Contructor - all components are assembled in here
+        """
         gtk.Dialog.__init__(self, "Please resolve conflicts",  parent,  gtk.DIALOG_MODAL ,  (gtk.STOCK_OK,gtk.RESPONSE_OK))
         self._idList = idList
         self._source= source
@@ -439,6 +482,9 @@ class ConflictsDialog(gtk.Dialog):
         self.vbox.pack_start(table, True, True, 0)
 
     def getReactions(self):
+        """
+        Checks all drop down boxes for their selections and assembles a nice dictionary containing all the user selections
+        """
         y = 0
         ret = {}
         for entryID in self._idList:
@@ -447,6 +493,9 @@ class ConflictsDialog(gtk.Dialog):
         return ret
         
     def actionDetails(self,  target):
+        """
+        Pops up an instance of L{ConflictDetailsDialog}
+        """
         entry1 = self.entriesForButton[target][0]
         entry2 = self.entriesForButton[target][1]
         d = ConflictDetailsDialog(self, entry1,  entry2, self._source[0].getDescription(),  self._source[1].getDescription() )
@@ -455,7 +504,16 @@ class ConflictsDialog(gtk.Dialog):
         
 
 class ConflictDetailsDialog(gtk.Dialog):
+    """
+    GTK-Dialog for visualizing the differences between two particular contact entries from two data sources (which are concerned as belonging to the same person)
+    
+    All attributes, in which the two entries differ, are visualized in a table for the two sources.
+    """
+    
     def __init__(self,  parent,  entry1,  entry2,  nameSource1,  nameSource2):
+        """
+        Constructor - all components are assembled in here
+        """
         gtk.Dialog.__init__(self, "Details for conflict",  parent,  gtk.DIALOG_MODAL ,  ("Close",gtk.RESPONSE_OK))
 
         self.set_size_request(600, 300)
@@ -530,6 +588,12 @@ class ConflictDetailsDialog(gtk.Dialog):
             return default
         
 def testConfiguration():
+    """
+    Checks, whether configuration can be loaded from PISI core.
+    
+    If not possible, an error message is visualized in a GTK dialog.
+    @return: False, if an Error occurs when loading the configration from core; otherwise True
+    """
     try:
         pisi.getConfiguration()
         return True

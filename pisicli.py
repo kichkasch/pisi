@@ -4,7 +4,10 @@ Command Line Interface to PISI - one implementation of user interaction
 This file is part of Pisi.
 
 This module provides the CLI interface to PISI:
-     - Checking of Arguments
+    - controlling the entire CLI application
+    - Checking of Arguments
+    
+A callback is defined as well, which handles all the output coming from the application core.
 
 Pisi is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -91,6 +94,8 @@ class CLICallback(pisiprogress.AbstractCallback):
     def _getDetailValue(self,  dict,  key,  default = '<n.a.>'):
         """
         Gets around the problem if an attribute in one data source is not set in the other one at all
+        
+        Returns default value if the attribute is not available in the given dictionery (key error).
         """
         try:
             return dict[key]
@@ -101,6 +106,8 @@ class CLICallback(pisiprogress.AbstractCallback):
     def _printConflictDetails(self,  entry1,  entry2,  nameSource1,  nameSource2):
         """
         Supporting function to show differences for two contact entries
+        
+        Prints a table with all attributes being different in the two sources for comparing two contact entries.
         """
         diffList = pisi.determineConflictDetails(entry1,  entry2)        
         
@@ -115,6 +122,8 @@ class CLICallback(pisiprogress.AbstractCallback):
     def askConfirmation(self, source,  idList):
         """
         Use interaction for choosing which contact entry to keep in case of a conflict
+        
+        Iterates through the given list of contact IDs and requests the user for choosing an action for every single entry.
         
         @return: A dictionary which contains the action for each conflict entry; the key is the id of the contact entry, 
         the value one out of a - keep entry from first source, b - keep value from second source and s - skip this entry (no change on either side)
@@ -138,6 +147,12 @@ class CLICallback(pisiprogress.AbstractCallback):
         return ret
      
 def testConfiguration():
+    """
+    Checks, whether configuration can be loaded from PISI core.
+    
+    If not possible, an error message is printed and False will be returned.
+    @return: False, if an Error occurs when loading the configration from core; otherwise True
+    """
     try:
         pisi.getConfiguration()
         return True
@@ -218,7 +233,7 @@ def parseArguments ():
     """
     Parses command line arguments
     
-    All information from the command line arguments are stored in global variables.
+    All information from the command line arguments are returned by this function.
     If the number of arguments given is not valid, a help text is printed on the console by calling function L{usage}.
     """
     mergeMode = MERGEMODE_SKIP 

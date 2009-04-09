@@ -1,29 +1,29 @@
 """
-    Our own contact-entry-object.
-    
-    This file is part of Pisi.
+Our own contact-entry-object.
 
-    You should first read the corresponding Wiki side for development of contact modules:
-    U{https://projects.openmoko.org/plugins/wiki/index.php?ContactsAPI&id=156&type=g}
+This file is part of Pisi.
 
-    Besides the two classes for a Contact instance and an abstract synchronization module for contacts
-    you can find a method L{assembleID} in here, which should be used to assemble an ID for a contact
-    entry when loaded from the data source. This way, it is made sure, that all implementation use exactly 
-    the same algorithm. (unfortunately, there is not option to have an additional attribute for this reason, 
-    which is stored in all the data sources for the entry.)
+You should first read the corresponding Wiki side for development of contact modules:
+U{https://projects.openmoko.org/plugins/wiki/index.php?ContactsAPI&id=156&type=g}
 
-    Pisi is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Besides the two classes for a Contact instance and an abstract synchronization module for contacts
+you can find a method L{assembleID} in here, which should be used to assemble an ID for a contact
+entry when loaded from the data source. This way, it is made sure, that all implementation use exactly 
+the same algorithm. (unfortunately, there is not option to have an additional attribute for this reason, 
+which is stored in all the data sources for the entry.)
 
-    Pisi is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+Pisi is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    You should have received a copy of the GNU General Public License
-    along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
+Pisi is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import datetime

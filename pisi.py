@@ -7,7 +7,7 @@ This file is part of Pisi.
 
 This file is the python module to be started for running PISI.
 Initialization is performed in here:
- - Loading of configuration from file
+ - Loading and parsing of configuration from file
  - Importing of modules (for data sources)
 
 Pisi is free software: you can redistribute it and/or modify

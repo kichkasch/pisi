@@ -3,6 +3,10 @@ Syncronize with Google Contacts
 
 This file is part of Pisi.
 
+Google provides a really straight forward API for accessing their contact information (gdata). 
+U{http://code.google.com/p/gdata-python-client/}. It is used for this implementation - the site package 
+has to be installed.
+
 Pisi is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -29,6 +33,10 @@ import gdata.contacts
 import gdata.contacts.service
 
 class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
+    """
+    The implementation of the interface L{contacts.AbstractContactSynchronizationModule} for the Google Contacts backend
+    """
+    
     def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
         """
         Constructor
@@ -36,6 +44,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         Super class constructor (L{contacts.AbstractContactSynchronizationModule.__init__}) is called.
         Local variables are initialized.
         The settings from the configuration file are loaded. 
+        The connection to the Google Gdata backend is established.
 
         @param modulesString: is a small string to help you make a unique id. It is the two modules configuration-names concatinated.
         @param config: is the configuration from ~/.pisi/conf. Use like config.get(configsection,'user')
@@ -99,7 +108,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         Takes one address line apart and identifies postal code and locality
         
-        This is really tricky - no never know how many parts belong to which side - and it's all in one line.
+        This is really tricky - you never know how many parts belong to which side - and it's all in one line.
         We do it this way: 
          - only one item indicates city only
          - two items one each
@@ -165,6 +174,8 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
     def load(self):
         """
         Load all data from backend
+        
+        A single query is performed and the result set is parsed afterwards.
         """
         query = gdata.contacts.service.ContactsQuery()
         query.max_results = GOOGLE_CONTACTS_MAXRESULTS
@@ -219,7 +230,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
 
     def _assembleTitle(self,  contactEntry):
         """
-        Assembles all information from a contact entry for the packed version of title in google contacts
+        Assembles all information from a contact entry for the packed version of a title in google contacts
         """
         ret = ""
         if contactEntry.attributes.has_key('title'):
@@ -327,7 +338,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
 
     def _saveOperationAdd(self,  id):
         """
-        Save all changes to SQLite database that have come by
+        Save all changes to Google contacts that have come by
         """
         contact = self.getContact(id)
         new_contact = gdata.contacts.ContactEntry(title=atom.Title(text=self._assembleTitle(contact)))
@@ -360,6 +371,8 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
     def saveModifications(self ):
         """
         Save whatever changes have come by
+        
+        The L{_history} variable is iterated. The corresponding function is called for each action.
         """
         i=0
         for listItem in self._history:
