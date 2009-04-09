@@ -1,0 +1,37 @@
+README for creation of LDAP libraries for Openmoko
+
+This file was created because of the 'dirtyness' of the process. The only aim was to get some ipk package assembled, which contains the required libraries for LDAP for getting PISI running. And that's all it is doing - it only installs some libraries - no executables - no crypto support; nothing!
+
+PART I - Legacy LDAP libraries
+(really quick and dirty - but it works)
+
+1) Get Openldap sources and crosscompile 
+wget http://sourceforge.net/project/downloading.php?group_id=2072&use_mirror=switch&filename=python-ldap-2.3.6.tar.gz
+./configure --host=arm-angstrom-linux-gnueabi --with-yielding_select=yes --prefix=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/usr
+make
+
+2) Install to local toolchain
+make install
+
+3) Create a temporar directory and copy required files underneath
+mkdir usr
+mkdir usr/lib
+cp /usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/usr/lib/libldap* usr/lib
+cp /usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/usr/lib/liblber* usr/lib
+
+4) Create a ipk from it using the PISI Makefile (deps)
+
+
+PART II - Python site-package for accessing LDAP
+
+1) Download and unpack source for Python-Ldap
+wget http://sourceforge.net/project/downloading.php?group_id=2072&use_mirror=dfn&filename=python-ldap-2.3.6.tar.gz
+tar xzf python-ldap-2.3.6.tar.gz
+
+2) Apply some changes to the configuration file for setup (setup.cfg)
+modified version attached
+
+3) Create a build distribution 
+python setup.py bdist
+
+4) Create a ipk from it using the PISI Makefile (deps)

@@ -1,0 +1,12 @@
+Package: python-dateutil
+Version: 1.4.1
+Description: The dateutil module provides powerful extensions to the standard datetime module, available in Python 2.3+.
+Section: openmoko/dev
+Priority: optional
+Maintainer: Michael Pilgermann <kichkasch@gmx.de>
+Architecture: armv4t
+OE: python-dateutil
+Homepage: http://labix.org/python-dateutil
+Tags: group::dev
+Depends: python
+Source: hello.sh

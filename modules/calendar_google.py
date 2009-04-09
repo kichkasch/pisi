@@ -3,8 +3,6 @@
 """
     Syncronize with Google Calendar
 
-
-
     This file is part of Pisi.
 
     Pisi is free software: you can redistribute it and/or modify
@@ -30,6 +28,7 @@ import pickle
 sys.path.insert(0,os.path.abspath(__file__+"/../.."))
 from events import events
 import datetime,time
+import pisiprogress
 
 class SynchronizationModule:
     def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
@@ -40,10 +39,17 @@ class SynchronizationModule:
         self.folder = folder
         self.localFile = dict()
         self.newEvents = dict()
+        self._description = config.get(configsection,'description')
         self.batchOperations = gdata.calendar.CalendarEventFeed()
         self._login( config.get(configsection,'user'),
                          config.get(configsection, 'password') )
         self.calendarid = config.get(configsection,'calendarid')
+
+    def getName(self):
+        return "Unkown calendar source"
+        
+    def getDescription(self):
+        return self._description
 
     def allEvents( self ):
         """Returns an Events instance with all events"""
@@ -62,7 +68,7 @@ class SynchronizationModule:
         self.googleevents = dict()
         for i, an_event in enumerate(feed.entry):
             self.googleevents[an_event.id.text] = an_event
-            print an_event
+            #print an_event
             """if self.verbose:
                 print '\tGoogleModule: %s. %s' % (i, an_event.title.text,)
                 print '\t\tId:%s' % (an_event.id.text)
@@ -83,8 +89,7 @@ class SynchronizationModule:
             self.localFile[an_event.id.text] = \
                  {'commonid':commonid , 'updated':updated, 'googleupdatedtime':googleupdatedtime }
 
-            if self.verbose:
-                print '\t\tCommonid:',commonid
+            pisiprogress.getCallback().verbose('\t\tCommonid: %s' %(commonid))
             # Create event
             tmpevent = self._geventToPisiEvent(an_event)
             tmpevent.commonid = commonid
@@ -114,14 +119,12 @@ class SynchronizationModule:
         # - at Google
         #no need for this
         # - localfile
-        if self.verbose:        
-            print "Adding commonid to id",id
+        pisiprogress.getCallback().verbose("Adding commonid to id %s" %(id))
         self.localFile[id]['commonid'] = commonid
 
     def replaceEvent( self, id, updatedevent ):
         """Replace event"""
-        if self.verbose:
-            print "We will replace event",id
+        pisiprogress.getCallback().verbose("We will replace event %s" %(id))
         if self.soft:
             return
         # - at Google
@@ -138,8 +141,7 @@ class SynchronizationModule:
 
     def removeEvent( self, id ):
         """Removes an event"""
-        if self.verbose:
-            print "We will delete event",id
+        pisiprogress.getCallback().verbose("We will delete event %s" %(id))
         if self.soft:
             return
         # - at Google
@@ -150,25 +152,22 @@ class SynchronizationModule:
 
     def saveModifications( self ):
         """Save whatever changes have come by"""
-        if self.verbose:
-            print "Saving Google-calendar modifications:"
-            print self.batchOperations
+        pisiprogress.getCallback().verbose("Saving Google-calendar modifications:")
+        pisiprogress.getCallback().verbose(self.batchOperations)
         if self.soft:
             return
         # Save batchoperations
         response_feed = self.cal_client.ExecuteBatch(self.batchOperations, '/calendar/feeds/'+self.calendarid+'/private/full/batch')
         # iterate the response feed to get the operation status
         for entry in response_feed.entry:
-            if self.verbose:
-                print 'batch id: %s' % (entry.batch_id.text,)
-                print 'status: %s' % (entry.batch_status.code,)
-                print 'reason: %s' % (entry.batch_status.reason,)
+            pisiprogress.getCallback().verbose('batch id: %s' % (entry.batch_id.text,))
+            pisiprogress.getCallback().verbose('status: %s' % (entry.batch_status.code,))
+            pisiprogress.getCallback().verbose('reason: %s' % (entry.batch_status.reason,))
                 #print '\n',entry
 
             if entry.batch_status.reason=="Created":
                 #commonid = self.newEvents[entry.batch_id.text]['commonid']
-                if self.verbose:
-                    print "\t We have just created a new event :)"
+                pisiprogress.getCallback().verbose("\t We have just created a new event :)")
                 updated  = self.newEvents[entry.batch_id.text]['updated']
                 commonid = self.newEvents[entry.batch_id.text]['commonid']
                 self.localFile[entry.GetSelfLink().href] = { \
@@ -180,11 +179,9 @@ class SynchronizationModule:
                 try:
                     # If we are deleting, this will fail
                     self.localFile[entry.batch_id.text]['googleupdatedtime'] = self._gtimeToDatetime(entry.updated.text)
-                    if self.verbose:
-                        print "We got a new googleupdatetime"
+                    pisiprogress.getCallback().verbose("We got a new googleupdatetime")
                 except:
-                    if self.verbose:
-                        print
+                    pisiprogress.getCallback().verbose("")
                 """selfLink = entry.GetSelfLink()
                 if entry.batch_id.text!=selfLink:
                     self.localFile[selfLink] = self.localFile[entry.batch_id.text]
@@ -209,9 +206,8 @@ class SynchronizationModule:
             return dateTimeObject.strftime('%Y-%m-%dT%H:%M:%S.000Z')
 
     def _convertPisiEventToGoogle( self, event ):
-        if self.verbose:
-            print "\n\nConverting this to Googleevent:"
-            event.prettyPrint()
+        pisiprogress.getCallback().verbose("\n\nConverting this to Googleevent:")
+        event.prettyPrint()
         gevent = gdata.calendar.CalendarEventEntry()
         gevent.title = atom.Title(text=event.attributes['title'])
         key = 'pisi'+self.modulesString+'commonid'
@@ -221,8 +217,7 @@ class SynchronizationModule:
                                 start_time=self._convertToGoogle(event.attributes['start'],event.attributes['allday']), \
                                 end_time=self._convertToGoogle(event.attributes['end'],event.attributes['allday'])))
         gevent.content = atom.Content(text=event.attributes['description'])
-        if self.verbose:
-            print "\n\nConverting done:",gevent
+        pisiprogress.getCallback().verbose("\n\nConverting done: %s" %(gevent))
         return gevent
 
     def _geventToPisiEvent( self, event ):
@@ -279,8 +274,7 @@ class SynchronizationModule:
         return (allday, onlyDandT)
 
     def _login( self, user, password ):
-        if self.verbose:
-            print "Logging in with user", user
+        pisiprogress.getCallback().verbose("Logging in with user %s" %(user))
         self.cal_client = gdata.calendar.service.CalendarService()
         self.cal_client.email = user
         self.cal_client.password = password

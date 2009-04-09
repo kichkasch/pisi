@@ -1,26 +1,28 @@
 #!/usr/bin/env python
 
 """
-    Our own calendar-event-object.
+Our own calendar-event-object.
 
+This file is part of Pisi.
 
-    This file is part of Pisi.
+Calendar-Events part does currently not make use of the inheritance infrastructure (Syncable and AbstractSyncronizationModule).
 
-    Pisi is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Pisi is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    Pisi is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+Pisi is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import datetime
+import pisiprogress
 
 # Recurrence constants
 YEARLY, MONTHLY, WEEKLY, DAILY = range(4)
@@ -28,16 +30,12 @@ MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
 
 class Event:
     def __init__( self, id, commonid, updated, attributes ):
-        """Initialize event.
-        Arguments:
-         * id - is the id the module uses to id the event
-         * commonid - This is the id for this event and the two modules. If it
-                      hasn't been synchronized (with the other module), it
-                      should be False.
-         * updated - datetime instance
-         * attributes - a dictionary with attributes. See
-                        http://projects.openmoko.org/plugins/wiki/index.php?Developer&id=156&type=g
-                        for more help.
+        """
+        Initialize event.
+        @param id: is the id the module uses to id the event
+        @param commonid: This is the id for this event and the two modules. If it hasn't been synchronized (with the other module), it should be False.
+        @param updated: datetime instance
+        @param attributes: a dictionary with attributes. See U{http://projects.openmoko.org/plugins/wiki/index.php?Developer&id=156&type=g} for more help.
         """
         self.id        = id
         self.commonid  = commonid
@@ -97,7 +95,7 @@ class Events:
         try:
             del self._events[id]
         except:
-            print "Couldn't remove event with id",id,". Wasn't found!"
+            pisiprogress.getCallback().error( "Couldn't remove event with id %s. Wasn't found!" %(id))
 
 
 class Recurrence:

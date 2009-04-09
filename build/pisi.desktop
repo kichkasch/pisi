@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=pisi
+Comment=PISI is synchronizing information
+Version=0.1
+Type=Application
+Exec=pisigui
+Terminal=false
+Categories=PIM
+X-MB-SingleInstance=true
+Icon=pisi
+

@@ -1,0 +1,12 @@
+Package: openldap
+Version: 2.3.43
+Description: Open source implementation of the Lightweight Directory Access Protocol - a really DIRTY compilation of a package, which is just doing the job for me. This is NOT a proper LDAP package. I will only keep it as long as no 'official' LDAP package is made available in the distribution(s).
+Section: openmoko/dev
+Priority: optional
+Maintainer: Michael Pilgermann <kichkasch@gmx.de>
+Architecture: armv4t
+OE: openldap
+Homepage: http://www.openldap.org/
+Tags: group::dev
+Depends: 
+Source: hello.sh

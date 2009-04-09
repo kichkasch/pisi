@@ -1,0 +1,104 @@
+## This is an example configuration for PISI
+##
+## Apply your settings by uncommenting relevant sections 
+## and place this file to ~/.pisi/conf
+##
+## The option "module" needs to be provided for each source - it
+## specifies the module to be loaded to handle the data source.
+## Description has to be provided as well - it helps you finding your data source
+## on the UI. Descriptions have to be unique all over the file.
+##
+## All remaining options are module specific - see module documentation for
+## more information.
+##
+## See https://projects.openmoko.org/plugins/wiki/index.php?EndUser&id=156&type=g for more details.
+##
+
+
+#########################################################
+#########################################################
+##
+## 1) Examples for calender event sources
+##
+#########################################################
+
+##########
+## 1.1)
+## Example for Google Calendar
+##
+# [googleMainSync]
+# description=My Google Calendar
+# module=calendar_google
+# user=<GOOGLE LOGIN>
+# password=<GOOGLE PASSWORD>
+# calendarid=default
+
+##########
+## 1.2)
+## Example for local ICS file (iCalendar) - not yet supported
+##
+# [localIcs]
+# description= ICalendar file
+# module=calendar_ics
+# path=/home/root/mycalendar.ics
+
+
+
+#########################################################
+#########################################################
+##
+## 2) Examples for contact information sources
+##
+#########################################################
+
+##########
+## 2.1)
+## Example for SQLite database
+## The shown setting uses the database of the QTopia contacts application
+##
+[om_sqlite]
+description=OM QTopia address book
+module=contacts_sqlite3
+database=/home/root/Applications/Qtopia/qtopia_db.sqlite
+
+##########
+## 2.2)
+## Example for LDAP directory
+##
+[ldap]
+description=Local LDAP Server
+module=contacts_ldap
+ldapHost=localhost
+ldapPort=389
+ldapDomain=dc=group,dc=de
+ldapFilter=objectClass=person
+ldapUser=
+ldapPassword=
+
+##########
+## 2.3)
+## Example for local VCF file
+##
+[vcf1]
+description=Local VCF file
+module=contacts_vcf
+vcfpath=/home/root/contacts.vcf
+
+##########
+## 2.4)
+## Example for local VCF file - file name has to be provided by user interactively
+##
+[vcf2]
+description=Local VCF file (interactive)
+module=contacts_vcf
+vcfpath=@interactive
+
+##########
+## 2.5)
+## Example for Google Account - Contact information
+##
+[googlecontacts]
+description=Google Contacts Account
+module=contacts_google
+user=<GOOGLE LOGIN>
+password=<GOOGLE PASSWORD>

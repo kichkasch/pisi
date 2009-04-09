@@ -1,0 +1,12 @@
+Package: python-vobject
+Version: 0.8.1
+Description: Python package for parsing and generating vCard and vCalendar files
+Section: openmoko/dev
+Priority: optional
+Maintainer: Michael Pilgermann <kichkasch@gmx.de>
+Architecture: armv4t
+OE: python-vobject
+Homepage: http://vobject.skyhouseconsulting.com/
+Tags: group::dev
+Depends: 
+Source: hello.sh

@@ -3,8 +3,6 @@
 """
     Syncronize with an iCalendar file
 
-
-
     This file is part of Pisi.
 
     Pisi is free software: you can redistribute it and/or modify
@@ -26,6 +24,7 @@ import sys,os,re
 sys.path.insert(0,os.path.abspath(__file__+"/../.."))
 from events import events
 import datetime,time
+import pisiprogress
 
 class SynchronizationModule:
     def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
@@ -39,9 +38,15 @@ class SynchronizationModule:
         self._localFile = dict()
         self.timezones = dict()
         self.file = open(config.get(configsection,'file'),'r+')
-        if self.verbose:
-            print 'ics-module using file %s' % (config.get(configsection,'file'))
+        self._description = config.get(configsection,'description')
+        pisiprogress.getCallback().verbose('ics-module using file %s' % (config.get(configsection,'file')))
         self._readFile()
+
+    def getName(self):
+        return "Unkown calendar source"
+        
+    def getDescription(self):
+        return self._description
 
     def allEvents( self ):
         """Returns an Events instance with all events"""
@@ -53,22 +58,19 @@ class SynchronizationModule:
     def addCommonid( self, id, commonid ):
         """Add commonid"""
         # - localfile
-        if self.verbose:
-            print "Adding commonid to id",id
+        pisiprogress.getCallback().verbose("Adding commonid to id",id)
         self._localFile[id]['commonid'] = commonid
 
     def replaceEvent( self, id, updatedevent ):
         """Replace event"""
-        if self.verbose:
-            print "We will replace event",id
+        pisiprogress.getCallback().verbose("We will replace event",id)
         # - localfile
         self._localFile[id] = \
             {'commonid':updatedevent.commonid , 'updated':updatedevent.updated }
 
     def removeEvent( self, id ):
         """Removes an event"""
-        if self.verbose:
-            print "We will delete event",id
+        pisiprogress.getCallback().verbose("We will delete event",id)
         # - localfile
         del self.localFile[id]
 

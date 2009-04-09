@@ -1,0 +1,12 @@
+Package: python-ldap
+Version: 2.3.6
+Description: LDAP client API for Python, C wrapper module around OpenLDAP 2.x with an object-oriented API
+Section: openmoko/dev
+Priority: optional
+Maintainer: Michael Pilgermann <kichkasch@gmx.de>
+Architecture: armv4t
+OE: python-ldap
+Homepage: http://python-ldap.sourceforge.net/
+Tags: group::dev
+Depends: openldap
+Source: hello.sh
