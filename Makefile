@@ -3,7 +3,7 @@
 # global parameters
 TITLE=		"PISI"
 URL=		"https://projects.openmoko.org/projects/pisi/"
-VERSION=	"0.1.2"
+VERSION=	"0.1.3"
 
 API_DOC_DIR=	apidoc/
 
@@ -17,7 +17,7 @@ PYTHONGDATA=	"deps/gdata.tar.gz"
 # epydoc needs to be installed prior to usage - the epydoc program must be in your path environement.
 api-docs:
 	rm -rf $(API_DOC_DIR)	
-	epydoc --inheritance listed -o $(API_DOC_DIR) -n $(TITLE) -u $(URL) *.py contacts/*.py events/*.py modules/*.py
+	epydoc --inheritance listed -o $(API_DOC_DIR) -n $(TITLE)_$(VERSION) -u $(URL) *.py contacts/*.py events/*.py modules/*.py
 	tar czf apidoc.tar.gz apidoc/
 
 clean:
@@ -35,7 +35,7 @@ dist:	clean
 	cp build/control build/template/CONTROL
 	mkdir -p build/template/opt/pisi
 	cp *.py COPYING README build/template/opt/pisi
-	cp -r contacts events modules scripts build/template/opt/pisi
+	cp -r contacts events modules scripts thirdparty build/template/opt/pisi
 	mkdir build/template/bin
 	ln -s /opt/pisi/pisi.py build/template/bin/pisi
 	ln -s /opt/pisi/pisigui.py build/template/bin/pisigui

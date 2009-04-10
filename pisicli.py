@@ -28,6 +28,7 @@ import pisi
 import sys
 import os
 import ConfigParser
+from thirdparty.epydocutil import TerminalController 
 
 class CLICallback(pisiprogress.AbstractCallback):
     """
@@ -42,11 +43,15 @@ class CLICallback(pisiprogress.AbstractCallback):
         """
         pisiprogress.AbstractCallback.__init__(self)
         self.isVerbose = verbose
+        if not verbose:
+            self.term = TerminalController()
     
     def message(self,  st):
         """
         Output the string to console
         """
+        if not self.isVerbose:
+            sys.stdout.write(self.term.CLEAR_LINE)
         print st
 
     def error(self,  st):
@@ -81,7 +86,15 @@ class CLICallback(pisiprogress.AbstractCallback):
         If we are not in verbose mode, we display the progress here
         """
         if not self.isVerbose:
-            print ("Progress: %d %% (%s)" %(self.progress.calculateOverallProgress(),  status))
+            percent = self.progress.calculateOverallProgress() / 100.0
+            message = status + " " * 20
+            background = "." * 80
+            dots = int(len(background)  * percent)
+            sys.stdout.write(self.term.CLEAR_LINE + '%3d%% '%(100*percent) + self.term.GREEN + '[' + self.term.BOLD + '='*dots + background[dots:] + self.term.NORMAL + self.term.GREEN + '] ' + self.term.NORMAL + message + self.term.BOL) 
+            sys.stdout.flush()            
+            if status == 'Finished':
+                print
+#            print ("Progress: %d %% (%s)" %(self.progress.calculateOverallProgress(),  status))
             
     def _strFixedLen(self, str,  width,  spaces = " "):
         """
