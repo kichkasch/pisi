@@ -3,7 +3,7 @@
 """
 Third party module for access to SIM card
 
-The original has been taken from from http://wiki.openmoko.org/wiki/Import_Sim_Contacts - all non-required stuff has been deleted
+The original has been taken from http://wiki.openmoko.org/wiki/Import_Sim_Contacts - all non-required stuff has been deleted
 """
 
 import sys, os

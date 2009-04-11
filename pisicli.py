@@ -87,8 +87,8 @@ class CLICallback(pisiprogress.AbstractCallback):
         """
         if not self.isVerbose:
             percent = self.progress.calculateOverallProgress() / 100.0
-            message = status + " " * 20
-            background = "." * 80
+            message = status 
+            background = "." * CONSOLE_PROGRESSBAR_WIDTH
             dots = int(len(background)  * percent)
             sys.stdout.write(self.term.CLEAR_LINE + '%3d%% '%(100*percent) + self.term.GREEN + '[' + self.term.BOLD + '='*dots + background[dots:] + self.term.NORMAL + self.term.GREEN + '] ' + self.term.NORMAL + message + self.term.BOL) 
             sys.stdout.flush()            
@@ -214,7 +214,6 @@ def startCLI():
         cb.progress.push(0, 50)
         source[0].load()
         cb.progress.drop()
-#        cb.progress.setProgress(50)
         cb.progress.push(50,  100)
         cb.update('Loading')
         source[1].load()

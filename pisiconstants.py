@@ -34,6 +34,9 @@ PISI_TRANSLATOR_CREDITS = None
 PISI_DOCUMENTERS = ['Michael Pilgermann']
 """'About'-information for user - list of documenters"""
 
+CONSOLE_PROGRESSBAR_WIDTH = 80
+"""Length of progress bar in CLI mode"""
+
 MODE_CALENDAR = 0
 """Type of sources to deal with are calendars"""
 MODE_CONTACTS = 1
