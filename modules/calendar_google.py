@@ -1,22 +1,20 @@
-#!/usr/bin/env python
-
 """
-    Syncronize with Google Calendar
+Syncronize with Google Calendar
 
-    This file is part of Pisi.
+This file is part of Pisi.
 
-    Pisi is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+Pisi is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    Pisi is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+Pisi is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with Pisi.  If not, see <http://www.gnu.org/licenses/>
+You should have received a copy of the GNU General Public License
+along with Pisi.  If not, see <http://www.gnu.org/licenses/>
 """
 
 import gdata.calendar.service
@@ -30,27 +28,16 @@ from events import events
 import datetime,time
 import pisiprogress
 
-class SynchronizationModule:
+class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
     def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
-        #TODO: Check if the configuration is in the correct format
-        self.verbose = verbose
-        self.soft = soft
-        self.modulesString = modulesString
+        events.AbstractCalendarSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "Google Calendar")
         self.folder = folder
         self.localFile = dict()
         self.newEvents = dict()
-        self._description = config.get(configsection,'description')
         self.batchOperations = gdata.calendar.CalendarEventFeed()
-        self._login( config.get(configsection,'user'),
-                         config.get(configsection, 'password') )
+        self._login( config.get(configsection,'user'), config.get(configsection, 'password') )
         self.calendarid = config.get(configsection,'calendarid')
-
-    def getName(self):
-        return "Unkown calendar source"
         
-    def getDescription(self):
-        return self._description
-
     def allEvents( self ):
         """Returns an Events instance with all events"""
         # Load all commonid & updatetimes from local file
@@ -191,7 +178,7 @@ class SynchronizationModule:
         pickle.dump(self.localFile, f)
         f.close()
 
-    def _saveSyncronizationTime( self ):
+    def _saveSyncronizationTime(self):
         """
         Simply saves the current time in a file
         """
@@ -281,10 +268,3 @@ class SynchronizationModule:
         self.cal_client.source = 'pisi-google_module'
         self.cal_client.ProgrammaticLogin()
         # We are now logged in
-
-
-#----------------------------------------------------------------------------#
-
-if __name__ == "__main__":
-    print "Testing the Google module"
-

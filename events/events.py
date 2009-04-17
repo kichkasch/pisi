@@ -23,6 +23,7 @@ along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
 import pisiprogress
+import pisiinterfaces
 
 # Recurrence constants
 YEARLY, MONTHLY, WEEKLY, DAILY = range(4)
@@ -141,3 +142,78 @@ class Recurrence:
 
 
 
+class AbstractCalendarSynchronizationModule(pisiinterfaces.AbstractSynchronizationModule):
+    """
+    Super class for all synchronization modules, which aim to synchronize contacts information.
+    
+    Each Synchronization class implementing contact synchronization should inherit from this class.
+    @ivar _allContacts: Dictionary to hold all contact instance for the implementation.
+    @ivar _history: Keeps track of all changes applied to the container for this data source (for later write through)
+    """
+    
+    def __init__(self,  verbose,  soft,  modulesString,  config,  configsection,  name = "unkown contact source"):
+        """
+        Constructor
+        
+        Instance variables are initialized.
+        """
+        pisiinterfaces.AbstractSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  name)
+#        self._allContacts = self._allEntries
+#        self._history = []
+#                
+#    def allContacts( self ):
+#        """
+#        Getter.
+#        
+#        @return: The link to the instance variable L{_allContacts}.
+#        """
+#        return self.allEntries()
+#        
+#    def getContact(self,  id):
+#        """
+#        GETTER
+#        
+#        @return: The link with the given ID.
+#        """
+#        return self.getEntry(id)
+
+#    def flush(self):
+#        """
+#        Remove all entries in repository
+#        
+#        An entry in the history list (L{_history}) is appended for each entry in the contact list with action id for 'delete'.
+#        Afterwards, the dictionary for all contacts (L{_allContacts}) is flushed.
+#        """
+#        for id in self._allEntries.keys():
+#            self._history.append([ACTIONID_DELETE,  id])
+#        pisiinterfaces.AbstractSynchronizationModule.flush(self)
+#        self._allContacts = self._allEntries
+#
+#    def addContact( self, contactInstance ):
+#        """
+#        Saves a contact for later writing
+#        
+#        One entry is added to the history list (L{_history}) with action id for 'add' and the new instance is stored in the contacts dictionary (L{_allContacts}).
+#        """
+#        self.addEntry(contactInstance)
+#        self._history.append([ACTIONID_ADD,  contactInstance.getID()])
+#
+#    def replaceContact( self, id, updatedContact):
+#        """
+#        Replaces an existing contact entry with a new one.
+#
+#        One entry is added to the history list (L{_history}) with action id for 'replace' and the old instance is replaced by the new one in the contacts dictionary (L{_allContacts}).
+#        """
+#        pisiprogress.getCallback().verbose("We will replace contact %s" %(id))
+#        self.replaceEntry(id, updatedContact)
+#        self._history.append([ACTIONID_MODIFY,  id])
+#
+#    def removeContact( self, id ):
+#        """
+#        Removes a contact entry
+#        
+#        One entry is added to the history list (L{_history}) with action id for 'delete' and the instance is as well removed from the contacts dictionary (L{_allContacts}).
+#        """
+#        pisiprogress.getCallback().verbose("We will delete contact %s" %(id))
+#        self.removeEntry(id)
+#        self._history.append([ACTIONID_DELETE,  id])
