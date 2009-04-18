@@ -26,16 +26,13 @@ import pisiprogress
 import pisiinterfaces
 from pisiconstants import *
 
-# Recurrence constants
-YEARLY, MONTHLY, WEEKLY, DAILY = range(4)
-MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = range(7)
+import vobject
 
 class Event(pisiinterfaces.Syncable):
     def __init__( self, id, updated, attributes ):
         """
         Initialize event.
         @param id: is the id the module uses to id the event
-        @param commonid: This is the id for this event and the two modules. If it hasn't been synchronized (with the other module), it should be False.
         @param updated: datetime instance
         @param attributes: a dictionary with attributes. See U{http://projects.openmoko.org/plugins/wiki/index.php?Developer&id=156&type=g} for more help.
         """
@@ -81,47 +78,45 @@ class Event(pisiinterfaces.Syncable):
         for key,value in self.attributes.iteritems():
             print "\t\t- ",key," = ",value
 
-#class Recurrence:
-#    def __init__( self ):
-#        # We don't have any information yet
-#        self.icsTextReady = False
-#        self.recurrenceElementsReady = False
-#    
-#    def setRecurrenceElements( self, startDate, endDate, frequency, count, untilDate, byMonth, byDay ):
-#        """Arguments according to iCalendar standard (RFC 2445)"""
-#        self.recurrenceElementsReady = True
-#        # Look for inspiration in: http://codespeak.net/icalendar/
-###        self.startDate = startDate
-###        self.endDate   = endDate
-###        self.frequency = frequency
-###        self.count     = count
-###        self.untilDate = untilDate
-###        self.byMonth   = byMonth
-###        self.byDay     = byDay
-#
-#    def setIcsText( self, icsText ):
-#        """Recurrence according to iCalendar standard (RFC 2445)"""
-#        self.icsTextReady = True
-#        self.icsText = icsText
-#    
-#    def getIcsText( self ):
-#        if not self.icsTextReady:
-#            self._compileIcsText
-#        return self.icsText
-#    
-#    def getRecurrenceElements( self ):
-#        # TODO
-#        return False
-#
-#    def _compileIcsText( self ):
-#        """Creates iCalendar recurrence text from 'recurrenceElements'"""
-#        # TODO
-#    
-#    def _compileRecurrenceElements( self ):
-#        """Creates 'recurrenceElements' from iCalendar recurrence text"""
-#        # TODO
+class Recurrence:
+    """
+    Recurrence infomation for an event; this is attached as an attribute to a "normal" event
+    
+    For now, we only support Google Calendar and (hopefully soon) ICS files; both use the ICalendar standard for Recurences.
+    """
+    def __init__(self,  data):
+        self._data = data
+        v = vobject.readComponents(data).next()
+        self._allDay = False
+        try:
+            self._dtstart = vobject.icalendar.stringToDateTime(v.dtstart.value)
+            if len(v.dtstart.value) == 10:
+                self._allDay = True
+        except BaseException:
+            self._dtstart = None
+        try:
+            self._dtend = vobject.icalendar.stringToDateTime(v.dtend.value)
+        except BaseException:
+            self._dtend = None
+        try:
+            self._rrule = vobject.icalendar.stringToDateTime(v.rrule.value)
+        except BaseException:
+            self._rrule = None
 
-
+    def getData(self):
+        return self._data
+        
+    def getDTStart(self):
+        return self._dtstart
+        
+    def getDTEnd(self):
+        return self._dtend
+        
+    def getRRule(self):
+        return self._rrule
+        
+    def isAllDay(self):
+        return self._allDay
 
 
 class AbstractCalendarSynchronizationModule(pisiinterfaces.AbstractSynchronizationModule):

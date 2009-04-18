@@ -103,6 +103,13 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         """
         pisiprogress.getCallback().verbose("Commiting Google-calendar modifications")
         response_feed = self.cal_client.ExecuteBatch(self.batchOperations, '/calendar/feeds/'+self.calendarid+'/private/full/batch')
+        for entry in response_feed.entry:
+            try:
+                pisiprogress.getCallback().verbose('batch id: %s' % (entry.batch_id.text,))
+                pisiprogress.getCallback().verbose('status: %s' % (entry.batch_status.code,))
+                pisiprogress.getCallback().verbose('reason: %s' % (entry.batch_status.reason,))
+            except AttributeError:
+                print entry.content.text,  entry.title.text
 
     def saveModifications(self ):
         """
@@ -138,6 +145,8 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         """
         Supporting function to assemble a date-time-object depending on the type of event (all day or special times)
         """
+        if not dateTimeObject:
+            return None
         if allday:
             return dateTimeObject.strftime('%Y-%m-%d')
         else:
@@ -155,6 +164,8 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
                                 end_time=self._convertToGoogle(event.attributes['end'],event.attributes['allday'])))
         gevent.content = atom.Content(text=event.attributes['description'])
         gevent.extended_property.append(gdata.calendar.ExtendedProperty(name='pisiid',  value=event.attributes['globalid'] ))
+        if event.attributes.has_key('recurrence') and event.attributes['recurrence']:
+            gevent.recurrence = gdata.calendar.Recurrence(text=event.attributes['recurrence'].getData())
         return gevent
 
     def _geventToPisiEvent( self, event ):
@@ -162,12 +173,11 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         Converts a Google event to Pisi event (internal format)
         """
         if event.recurrence:
+            recurrence = events.Recurrence(event.recurrence.text)
             # When there is a recurrence, the 'start' and 'end' is inside the recurrence text
-            recurrence = events.Recurrence()
-            recurrence.setIcsText( event.recurrence.text )
-            start = None
-            end = None
-            allday = None
+            start = recurrence.getDTStart()
+            end = recurrence.getDTEnd()
+            allday = recurrence.isAllDay()
         else:
             recurrence = None
             (allday, start) = self._gtimeToDatetime(event.when[0].start_time )
@@ -183,6 +193,7 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
              'alarm':False, 'alarmmin':0 \
             }
         (tmp, updated) = self._gtimeToDatetime(event.updated.text )
+                
         pisiID = None
         try:
             for prop in event.extended_property:
