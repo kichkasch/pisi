@@ -274,7 +274,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         self._saveOperationDelete(id,  database)
         self._saveOperationAdd(id,  database)
 
-    def saveModifications(self ):
+    def saveModifications(self):
         """
         Save whatever changes have come by
         

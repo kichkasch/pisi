@@ -26,12 +26,18 @@
 ## 1.1)
 ## Example for Google Calendar
 ##
-# [googleMainSync]
+## <User> is your Google email address; <password> your google account password
+## <calendarid> is the ID of the calendar inside your google account (you may have several ones); for your first calendar
+## this should be again your Google email address; for other calendars this is some non-readable ID - on Google calendar
+## check the settings for this (secondary) calendar - pretty much at the bottom of the settings page you can find the ID;
+## just copy and paste it here.
+##
+# [googleCalendar]
 # description=My Google Calendar
 # module=calendar_google
 # user=<GOOGLE LOGIN>
 # password=<GOOGLE PASSWORD>
-# calendarid=default
+# calendarid=<GOOGLE LOGIN>
 
 ##########
 ## 1.2)

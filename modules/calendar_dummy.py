@@ -1,5 +1,5 @@
 """
-A dummy to make a new module (here for contacts)
+A dummy to make a new module (here for calendar)
 
 This file is part of Pisi.
 
@@ -17,16 +17,16 @@ You should have received a copy of the GNU General Public License
 along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from contacts import contacts
+from events import events
 from pisiconstants import *
 import pisiprogress
 
-class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
+class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
     def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
         """
         Constructor
         
-        Super class constructor (L{contacts.AbstractContactSynchronizationModule.__init__}) is called.
+        Super class constructor (L{events.AbstractCalendarSynchronizationModule.__init__}) is called.
         Local variables are initialized.
         The settings from the configuration file are loaded. 
 
@@ -37,7 +37,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         @param verbose: should make your module "talk" more
         @param soft: should tell you if you should make changes (ie. save)
         """
-        contacts.AbstractContactSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "Contacts DUMMY")
+        events.AbstractCalendarSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "Calendar DUMMY")
         self.verbose = verbose
         pisiprogress.getCallback().verbose("Dummy module loaded")
             

@@ -21,194 +21,146 @@ import gdata.calendar.service
 import gdata.service
 import atom
 import sys,os
-import pickle
-# Allows us to import event
-sys.path.insert(0,os.path.abspath(__file__+"/../.."))
-from events import events
 import datetime,time
+
 import pisiprogress
+from pisiconstants import *
+from events import events
 
 class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
+    """
+    The implementation of the interface L{events.AbstractCalendarSynchronizationModule} for the Google Calendar backend
+    """
     def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
+        """
+        Constructor
+        
+        Super class constructor (L{contacts.AbstractContactSynchronizationModule.__init__}) is called.
+        Local variables are initialized.
+        The settings from the configuration file are loaded. 
+        The connection to the Google Gdata backend is established.
+        """
         events.AbstractCalendarSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "Google Calendar")
         self.folder = folder
-        self.localFile = dict()
-        self.newEvents = dict()
+        self.newEvents = {}
+        self._googleevents = {}
         self.batchOperations = gdata.calendar.CalendarEventFeed()
-        self._login( config.get(configsection,'user'), config.get(configsection, 'password') )
+        user = config.get(configsection,'user')
+        password = config.get(configsection, 'password')
         self.calendarid = config.get(configsection,'calendarid')
+        self._login( user, password )
         
-    def allEvents( self ):
-        """Returns an Events instance with all events"""
-        # Load all commonid & updatetimes from local file
-        if os.path.isfile(self.folder+'local'):
-            f = open( self.folder+'local', 'r' )
-            templocalFile = pickle.load(f)
-            f.close()
-        else:
-            templocalFile = dict()
-        # Retrieve all events from Google
-        allEvents = events.Events( )
-
-        # TODO: Iterate through results instead of fetching "all"
-        feed = self.cal_client.GetCalendarEventFeed('/calendar/feeds/'+self.calendarid+'/private/full?max-results=999999')
-        self.googleevents = dict()
+    def load(self):
+        """
+        Load all data from backend
+        
+        A single query is performed and the result set is parsed afterwards.
+        """
+        feed = self.cal_client.GetCalendarEventFeed('/calendar/feeds/'+self.calendarid+'/private/full?max-results=%d' %(GOOGLE_CALENDAR_MAXRESULTS))
         for i, an_event in enumerate(feed.entry):
-            self.googleevents[an_event.id.text] = an_event
-            #print an_event
-            """if self.verbose:
-                print '\tGoogleModule: %s. %s' % (i, an_event.title.text,)
-                print '\t\tId:%s' % (an_event.id.text)
-                print '\t\tStart:',an_event.when[0].start_time
-                print '\t\tEnd:',an_event.when[0].end_time
-                print '\t\tUpdated:',an_event.updated.text,'Like new:',self._gtimeToDatetime(an_event.updated.text )"""
+            globalId,  updated, attributes = self._geventToPisiEvent(an_event)
+            if globalId == None:
+                globalId = events.assembleID()
+                tmpEvent = events.Event( globalId, updated, attributes )
+                tmpEvent.attributes['globalid'] = globalId
+                self.replaceEvent(globalId,  tmpEvent)
+            else:
+                tmpEvent = events.Event( globalId, updated, attributes )
+            self._allEvents[globalId] = tmpEvent
+            self._googleevents[globalId] = an_event
 
-            # Get update-time and commonid from a local file
-            commonid = False
-            googleupdatedtime = self._gtimeToDatetime( an_event.updated.text )
-            updated = googleupdatedtime
-            if an_event.id.text in templocalFile:
-                commonid = templocalFile[an_event.id.text]['commonid']
-                if googleupdatedtime == templocalFile[an_event.id.text]['googleupdatedtime']:
-                    updated = templocalFile[an_event.id.text]['updated']
-
-            # Make sure event commonid and updatetime is saved in a local file
-            self.localFile[an_event.id.text] = \
-                 {'commonid':commonid , 'updated':updated, 'googleupdatedtime':googleupdatedtime }
-
-            pisiprogress.getCallback().verbose('\t\tCommonid: %s' %(commonid))
-            # Create event
-            tmpevent = self._geventToPisiEvent(an_event)
-            tmpevent.commonid = commonid
-            tmpevent.updated = updated
-            #tmpevent.prettyPrint()
-            # Insert event
-            allEvents.insertEvent( tmpevent )
-
-        return allEvents
-
-    def addEvent( self, eventInstance ):
-        """Saves an event for later writing"""
-        if self.soft:
-            return
-        # - at Google
-        gevent = self._convertPisiEventToGoogle( eventInstance )
+    def _saveAddEvent(self, id ):
+        """
+        Saves an event as part of saving modifications
+        """
+        eventInstance = self.getEvent(id)
+        gevent = self._convertPisiEventToGoogle(eventInstance)
         gevent.batch_id = gdata.BatchId(text=eventInstance.id)
         self.batchOperations.AddInsert(entry=gevent)
-        # - localfile (We can't, as we don't know id)
-        self.newEvents[eventInstance.id] = \
-           {'commonid':eventInstance.commonid , 'updated':eventInstance.updated }
 
-    def addCommonid( self, id, commonid ):
-        """Add commonid"""
-        if self.soft:
-            return
-        # - at Google
-        #no need for this
-        # - localfile
-        pisiprogress.getCallback().verbose("Adding commonid to id %s" %(id))
-        self.localFile[id]['commonid'] = commonid
-
-    def replaceEvent( self, id, updatedevent ):
-        """Replace event"""
-        pisiprogress.getCallback().verbose("We will replace event %s" %(id))
-        if self.soft:
-            return
-        # - at Google
-        gevent = self._convertPisiEventToGoogle( updatedevent )
+    def _saveReplaceEvent(self, id):
+        """
+        Replace event as part of saving modifications
+        """
+        updatedevent = self.getEvent(id)
+        gevent = self._convertPisiEventToGoogle(updatedevent)
         gevent.batch_id = gdata.BatchId(text=id)
         gevent.id = atom.Id( id )
-        # Get and insert edit link
-        editUri = self.googleevents[id].GetEditLink().href
+        editUri = self._googleevents[id].GetEditLink().href
         gevent.link.append( atom.Link(editUri, 'edit', 'application/atom+xml') )
         self.batchOperations.AddUpdate(gevent)
-        # - localfile
-        self.localFile[id] = \
-            {'commonid':updatedevent.commonid , 'updated':updatedevent.updated }
 
-    def removeEvent( self, id ):
-        """Removes an event"""
-        pisiprogress.getCallback().verbose("We will delete event %s" %(id))
-        if self.soft:
-            return
-        # - at Google
+    def _saveRemoveEvent( self, id ):
+        """
+        Removes an event as part of saving modifications
+        """
         self.googleevents[id].batch_id = gdata.BatchId(text=id)
         self.batchOperations.AddDelete(entry=self.googleevents[id])
-        # - localfile
-        del self.localFile[id]
 
-    def saveModifications( self ):
-        """Save whatever changes have come by"""
-        pisiprogress.getCallback().verbose("Saving Google-calendar modifications:")
-        pisiprogress.getCallback().verbose(self.batchOperations)
-        if self.soft:
-            return
-        # Save batchoperations
+    def _commitModifications(self):
+        """
+        Makes changes permanent
+        """
+        pisiprogress.getCallback().verbose("Commiting Google-calendar modifications")
         response_feed = self.cal_client.ExecuteBatch(self.batchOperations, '/calendar/feeds/'+self.calendarid+'/private/full/batch')
-        # iterate the response feed to get the operation status
-        for entry in response_feed.entry:
-            pisiprogress.getCallback().verbose('batch id: %s' % (entry.batch_id.text,))
-            pisiprogress.getCallback().verbose('status: %s' % (entry.batch_status.code,))
-            pisiprogress.getCallback().verbose('reason: %s' % (entry.batch_status.reason,))
-                #print '\n',entry
 
-            if entry.batch_status.reason=="Created":
-                #commonid = self.newEvents[entry.batch_id.text]['commonid']
-                pisiprogress.getCallback().verbose("\t We have just created a new event :)")
-                updated  = self.newEvents[entry.batch_id.text]['updated']
-                commonid = self.newEvents[entry.batch_id.text]['commonid']
-                self.localFile[entry.GetSelfLink().href] = { \
-                    'commonid':commonid , \
-                    'updated':updated, \
-                    'googleupdatedtime':self._gtimeToDatetime(entry.updated.text) \
-                    }
-            else:
-                try:
-                    # If we are deleting, this will fail
-                    self.localFile[entry.batch_id.text]['googleupdatedtime'] = self._gtimeToDatetime(entry.updated.text)
-                    pisiprogress.getCallback().verbose("We got a new googleupdatetime")
-                except:
-                    pisiprogress.getCallback().verbose("")
-                """selfLink = entry.GetSelfLink()
-                if entry.batch_id.text!=selfLink:
-                    self.localFile[selfLink] = self.localFile[entry.batch_id.text]
-                    del self.localFile[entry.batch_id.text]"""
-        # Save updatetime and commonid in a local file
-        f = open( self.folder+'local', 'w' )
-        pickle.dump(self.localFile, f)
-        f.close()
-
-    def _saveSyncronizationTime(self):
+    def saveModifications(self ):
         """
-        Simply saves the current time in a file
+        Save whatever changes have come by
+        
+        Iterates the history of actions and calls the corresponding supporting functions.
+        In the end, the commit supporting function L{_commitModifications} is called for writing through changes.
         """
-        f = open(self.folder+'lastSyncronization','w')
-        f.write( datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S') )
-        f.close()
+        pisiprogress.getCallback().verbose("\t\tSaving google calendar <%s> (%d)" %(self.getDescription(),  len(self._history)))
+        i=0
+        for listItem in self._history:
+            action = listItem[0]
+            id = listItem[1]
+            if action == ACTIONID_ADD:
+                pisiprogress.getCallback().verbose("\t\t<google calendar> adding %s" %(id))
+                self._saveAddEvent(id)
+            elif action == ACTIONID_DELETE:
+                pisiprogress.getCallback().verbose("\t\t<google calendar> deleting %s" %(id))
+                self._saveRemoveEvent(id)
+            elif action == ACTIONID_MODIFY:
+                pisiprogress.getCallback().verbose("\t\t<google calendar> replacing %s" %(id))
+                self._saveReplaceEvent(id)
+            i+=1
+            pisiprogress.getCallback().progress.setProgress(i * 80 / len(self._history))
+            pisiprogress.getCallback().update('Storing')
+        
+        self._commitModifications()
+        pisiprogress.getCallback().progress.setProgress(100)
+        pisiprogress.getCallback().update('Storing')
+        
 
-    def _convertToGoogle( self, dateTimeObject, allday ):
+    def _convertToGoogle(self, dateTimeObject, allday ):
+        """
+        Supporting function to assemble a date-time-object depending on the type of event (all day or special times)
+        """
         if allday:
             return dateTimeObject.strftime('%Y-%m-%d')
         else:
             return dateTimeObject.strftime('%Y-%m-%dT%H:%M:%S.000Z')
 
     def _convertPisiEventToGoogle( self, event ):
-        pisiprogress.getCallback().verbose("\n\nConverting this to Googleevent:")
-        event.prettyPrint()
+        """
+        Supporting function to convert a PISI event (internal format) into a Google Gdata Calendar event
+        """
         gevent = gdata.calendar.CalendarEventEntry()
         gevent.title = atom.Title(text=event.attributes['title'])
-        key = 'pisi'+self.modulesString+'commonid'
-        #gevent.extended_property.append(gdata.calendar.ExtendedProperty(name=key, value=event.commonid))
         gevent.where.append(gdata.calendar.Where(value_string=event.attributes['location']))
         gevent.when.append(gdata.calendar.When(\
                                 start_time=self._convertToGoogle(event.attributes['start'],event.attributes['allday']), \
                                 end_time=self._convertToGoogle(event.attributes['end'],event.attributes['allday'])))
         gevent.content = atom.Content(text=event.attributes['description'])
-        pisiprogress.getCallback().verbose("\n\nConverting done: %s" %(gevent))
+        gevent.extended_property.append(gdata.calendar.ExtendedProperty(name='pisiid',  value=event.attributes['globalid'] ))
         return gevent
 
     def _geventToPisiEvent( self, event ):
-        """Converts a Google event to Pisi"""
+        """
+        Converts a Google event to Pisi event (internal format)
+        """
         if event.recurrence:
             # When there is a recurrence, the 'start' and 'end' is inside the recurrence text
             recurrence = events.Recurrence()
@@ -231,11 +183,20 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
              'alarm':False, 'alarmmin':0 \
             }
         (tmp, updated) = self._gtimeToDatetime(event.updated.text )
-        return events.Event( event.id.text, False, updated, attributes )
+        pisiID = None
+        try:
+            for prop in event.extended_property:
+                if prop.name == 'pisiid':
+                    pisiID = prop.value
+                    attributes['globalid'] = pisiID
+        except BaseException:
+            pass    # fair enough; this event hasn't been synchronized before
+        return pisiID,  updated, attributes
 
     def _gtimeToDatetime( self, gtime ):
-        """Converts Google normal way (RFC3339) to write date and time
-        to a datetime instance"""
+        """
+        Converts Google normal way (RFC3339) to write date and time to a datetime instance
+        """
         allday = False
         if len(gtime)==10:
             allday = True
@@ -261,10 +222,12 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         return (allday, onlyDandT)
 
     def _login( self, user, password ):
-        pisiprogress.getCallback().verbose("Logging in with user %s" %(user))
+        """
+        Supporting function to perform login at Google's Calendar Web-Service API
+        """
+        pisiprogress.getCallback().verbose("Google Calendar: Logging in with user %s" %(user))
         self.cal_client = gdata.calendar.service.CalendarService()
         self.cal_client.email = user
         self.cal_client.password = password
-        self.cal_client.source = 'pisi-google_module'
+        self.cal_client.source = GOOGLE_CALENDAR_APPNAME
         self.cal_client.ProgrammaticLogin()
-        # We are now logged in

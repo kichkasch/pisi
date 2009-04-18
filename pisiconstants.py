@@ -21,7 +21,7 @@ PISI_NAME = 'PISI'
 """'About'-information for user - program name"""
 PISI_COMMENTS = "PISI is synchronizing information"
 """'About'-information for user - comments / explainations"""
-PISI_VERSION = '0.1.3'
+PISI_VERSION = '-svn-'
 """'About'-information for user - current version"""
 FILEPATH_COPYING = "/opt/pisi/COPYING"
 """'About'-information for user - where to find the 'licence' file"""
@@ -70,3 +70,7 @@ GOOGLE_CONTACTS_APPNAME = "pisi0.1"
 """application name to use for connecting against google contacts services"""
 GOOGLE_CONTACTS_MAXRESULTS = 1000
 """upper limit of result set when querying google contacts api"""
+GOOGLE_CALENDAR_APPNAME = "pisi0.1"
+"""application name to use for connecting against google calendar services"""
+GOOGLE_CALENDAR_MAXRESULTS = GOOGLE_CONTACTS_MAXRESULTS
+"""upper limit of result set when querying google calendar api"""

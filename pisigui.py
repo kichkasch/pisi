@@ -300,21 +300,20 @@ class Base(pisiprogress.AbstractCallback):
         
         self.progress.push(10, 40)
         self.update('Loading')
-        if mode == MODE_CONTACTS:   # this has to be reworked to apply also to calendar (they load on initialization already)
-            self.verbose("\n PHASE 1 - Loading ")
-            try:
-                self.progress.push(0, 50)
-                source[0].load()
-                self.progress.drop()
-                self.progress.push(50,  100)
-                self.update('Loading')
-                source[1].load()
-                self.progress.drop()
-            except BaseException,  m:
-                self.error(m.message)
-                self.progress.reset()
-                self.update("Error")
-                return
+        self.verbose("\n PHASE 1 - Loading ")
+        try:
+            self.progress.push(0, 50)
+            source[0].load()
+            self.progress.drop()
+            self.progress.push(50,  100)
+            self.update('Loading')
+            source[1].load()
+            self.progress.drop()
+        except BaseException,  m:
+            self.error(m.message)
+            self.progress.reset()
+            self.update("Error")
+            return
         self.progress.drop()
         
         self.progress.push(40, 70)

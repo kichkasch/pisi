@@ -209,15 +209,14 @@ def startCLI():
 
     cb.progress.push(10, 40)
     cb.update('Loading from sources')
-    if mode == MODE_CONTACTS:   # this has to be reworked to apply also to calendar
-        cb.verbose("\n" + "*" * 18 + " PHASE 1 - Loading " + "*" * 18)
-        cb.progress.push(0, 50)
-        source[0].load()
-        cb.progress.drop()
-        cb.progress.push(50,  100)
-        cb.update('Loading')
-        source[1].load()
-        cb.progress.drop()
+    cb.verbose("\n" + "*" * 18 + " PHASE 1 - Loading " + "*" * 18)
+    cb.progress.push(0, 50)
+    source[0].load()
+    cb.progress.drop()
+    cb.progress.push(50,  100)
+    cb.update('Loading')
+    source[1].load()
+    cb.progress.drop()
     cb.progress.drop()
 
     cb.progress.push(40, 70)
