@@ -2,7 +2,7 @@
 #
 # The original has been taken from: http://www.opkg.org/package_188.html
 #
-# Changes were applied by Michael Pilgermann (2009-04-03) in order to make it running in a very basic configuration on an Openmoko plattform
+# Changes were applied by Michael Pilgermann (2009-04-03) in order to make it running in a very basic configuration on the Openmoko plattform
 
 [_ldap]
 extra_objects = 

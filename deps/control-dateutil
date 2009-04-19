@@ -8,5 +8,5 @@ Architecture: armv4t
 OE: python-dateutil
 Homepage: http://labix.org/python-dateutil
 Tags: group::dev
-Depends: python
-Source: hello.sh
+Depends: python-core
+Source: http://labix.org/download/python-dateutil/python-dateutil-1.4.1.tar.gz

@@ -8,5 +8,5 @@ Architecture: armv4t
 OE: python-vobject
 Homepage: http://vobject.skyhouseconsulting.com/
 Tags: group::dev
-Depends: 
-Source: hello.sh
+Depends: python-core, python-dateutil
+Source: http://www.opkg.org/images/btn_src.jpg

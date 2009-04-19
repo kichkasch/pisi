@@ -8,5 +8,5 @@ Architecture: armv4t
 OE: python-gdata
 Homepage: http://code.google.com/p/gdata-python-client/
 Tags: group::dev
-Depends: python python-netclient
-Source: hello.sh
+Depends: python-core, python-netclient, python-netserver
+Source: http://gdata-python-client.googlecode.com/files/gdata-1.3.0.tar.gz

@@ -29,7 +29,7 @@ wget http://sourceforge.net/project/downloading.php?group_id=2072&use_mirror=dfn
 tar xzf python-ldap-2.3.6.tar.gz
 
 2) Apply some changes to the configuration file for setup (setup.cfg)
-modified version attached
+<modified version attached>
 
 3) Create a build distribution 
 python setup.py bdist

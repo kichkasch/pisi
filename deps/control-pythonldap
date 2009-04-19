@@ -8,5 +8,5 @@ Architecture: armv4t
 OE: python-ldap
 Homepage: http://python-ldap.sourceforge.net/
 Tags: group::dev
-Depends: openldap
-Source: hello.sh
+Depends: python-core, openldap
+Source: http://sourceforge.net/project/downloading.php?group_id=2072&use_mirror=dfn&filename=python-ldap-2.3.6.tar.gz

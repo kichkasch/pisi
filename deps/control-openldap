@@ -9,4 +9,4 @@ OE: openldap
 Homepage: http://www.openldap.org/
 Tags: group::dev
 Depends: 
-Source: hello.sh
+Source: ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/openldap-2.3.43.tgz
