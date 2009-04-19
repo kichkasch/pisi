@@ -82,7 +82,12 @@ class Recurrence:
     """
     Recurrence infomation for an event; this is attached as an attribute to a "normal" event
     
-    For now, we only support Google Calendar and (hopefully soon) ICS files; both use the ICalendar standard for Recurences.
+    For now, we only support Google Calendar and (hopefully soon) ICS files; both use the ICalendar standard for Recurences:
+    The entire ICS information is provided as one String in ICalendar format. This string is stored and returned on request; it is
+    as well parsed, so you can request single information chunks (DTStart, DTEnd, RROLE) from it.
+    
+    At some point we will also need a constructor for converting the other way around; giving the single data chunks as input
+    and create the overall ICS string from it. Well; as I say - at some point.
     """
     def __init__(self,  data):
         self._data = data
