@@ -278,8 +278,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
                 fn = c.attributes['firstname']
         else:
             fn = c.attributes['lastname']
-        self._createRawAttribute(c,  j,  'fn',  "'" + fn + "'")
-#        self._createRawAttribute(c,  j,  'fn',  "c.attributes['firstname'] + ' ' +  c.attributes['lastname']")
+        self._createRawAttribute(c,  j,  'fn',  "'''" + fn + "'''")
         self._createRawAttribute(c,  j,  'title',  "c.attributes['title']")
 
         self._createRawAttribute(c,  j,  'email',  "c.attributes['email']",  [['type_param',  "'INTERNET'"]])

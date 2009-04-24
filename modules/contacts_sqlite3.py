@@ -139,7 +139,8 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         Supporting function to get around problems with integrating 'None' values and KeyErrors if an attribute is not available
         """
         try:
-            return "'" +contact.attributes[st] + "'"
+            val = contact.attributes[st].replace("'",  "''")    # this is SQL standard; one apostrophe has to be quoted by another one
+            return "'" +val + "'"
         except TypeError:
             return "''"
         except KeyError:
