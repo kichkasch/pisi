@@ -65,7 +65,7 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
                 tmpEvent.attributes['globalid'] = globalId
                 self.replaceEvent(globalId,  tmpEvent)
             else:
-                tmpEvent = events.Event( globalId, updated, attributes )
+                tmpEvent = events.Event( globalId, updated, attributes)
             self._allEvents[globalId] = tmpEvent
             self._googleevents[globalId] = an_event
 
@@ -105,11 +105,11 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         response_feed = self.cal_client.ExecuteBatch(self.batchOperations, '/calendar/feeds/'+self.calendarid+'/private/full/batch')
         for entry in response_feed.entry:
             try:
-                pisiprogress.getCallback().verbose('batch id: %s' % (entry.batch_id.text,))
-                pisiprogress.getCallback().verbose('status: %s' % (entry.batch_status.code,))
-                pisiprogress.getCallback().verbose('reason: %s' % (entry.batch_status.reason,))
+                pisiprogress.getCallback().verbose('batch id: %s' % (entry.batch_id.text))
+                pisiprogress.getCallback().verbose('status: %s' % (entry.batch_status.code))
+                pisiprogress.getCallback().verbose('reason: %s' % (entry.batch_status.reason))
             except AttributeError:
-                print entry.content.text,  entry.title.text
+                print "<<",  entry.content.text,  entry.title.text, "\n",  entry
 
     def saveModifications(self ):
         """
@@ -150,7 +150,12 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         if allday:
             return dateTimeObject.strftime('%Y-%m-%d')
         else:
-            return dateTimeObject.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+            dt = dateTimeObject.strftime('%Y-%m-%dT%H:%M:%S.000%z')
+            if dateTimeObject.tzinfo:
+                dt = dt[:26] + ":" + dt[26:]
+            else:
+                dt+="Z"
+            return dt
 
     def _convertPisiEventToGoogle( self, event ):
         """
@@ -212,7 +217,8 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         allday = False
         if len(gtime)==10:
             allday = True
-            date = datetime.datetime.strptime(gtime[:19], '%Y-%m-%d')
+#            date = datetime.datetime.strptime(gtime[:10], '%Y-%m-%d')
+            date = datetime.datetime(int(gtime[0:4]),  int(gtime[5:7]),   int(gtime[8:10]),  tzinfo = events.UTC())
             return (allday, date)
 
         if gtime[23]=='Z':

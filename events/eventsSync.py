@@ -33,7 +33,11 @@ def syncEvents(verbose,  modulesToLoad,  source):
         else:
             sameEvent = allEventsRight[id]
             if not event.compare(sameEvent):    # only update if something really changed; update time is not an indicator - this was updated when we wrote the last entry
-                if event.updated < sameEvent.updated:
+                if event.updated == "":     # this event has never been updated
+                    source[0].replaceEvent( event.id, sameEvent )
+                elif sameEvent.updated == "":     # the other event has never been updated
+                    source[1].replaceEvent( event.id, event )
+                elif event.updated < sameEvent.updated:
                     source[0].replaceEvent( event.id, sameEvent )
                 elif event.updated > sameEvent.updated:
                     source[1].replaceEvent( sameEvent.id, event )

@@ -1,4 +1,4 @@
-"""&calendar_ics.py
+"""
 Syncronize with an iCalendar file
 
 This file is part of Pisi.
@@ -24,10 +24,12 @@ from events import events
 import datetime,time
 import pisiprogress
 import datetime
-
+import os.path
+import os
+from pisiconstants import *
 import vobject
 
-FIELD_PISI = "PISI_ID"
+FIELD_PISI = "X_PISI_ID"
 
 
 class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
@@ -40,9 +42,10 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         The settings from the configuration file are loaded.
         """
         events.AbstractCalendarSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "ICalendar file")
-        self.folder = folder
+        self._folder = folder
         self._path = config.get(configsection,'path')
         pisiprogress.getCallback().verbose('ics-module using file %s' % (self._path))
+        self._rawData = {}
 
     def _extractAtt(self, x,  st):
         """
@@ -58,6 +61,7 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
             return ''
             
     def _extractRecurrence(self,  x,  allDay):
+#        print x
         if self._extractAtt(x, 'x.dtend.value'):
             end = x.dtend
         else:
@@ -108,8 +112,11 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
                     atts['recurrence'] = None
                 updated = self._extractAtt(x, 'x.last_modified.value')
                 
-                globalId = self._extractAtt(x, 'x.x_pisi_id.value')
-                if globalId == "":
+                if x.contents.has_key('x-pisi-id'):
+                    globalId = x.contents['x-pisi-id'][0].value
+                else:
+                    globalId = None
+                if not globalId or globalId == "":
                     globalId = events.assembleID()
                     tmpEvent = events.Event( globalId, updated, atts)
                     tmpEvent.attributes['globalid'] = globalId
@@ -118,11 +125,95 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
                     tmpEvent = events.Event(globalId, updated, atts)
                     tmpEvent.attributes['globalid'] = globalId
                 self._allEvents[globalId] = tmpEvent
+                self._rawData[globalId] = x
+                
 
         file.close()
         pisiprogress.getCallback().progress.drop()
-        
+
+    def _createRecurrencePart(self, c,  cal):
+        if c.attributes['recurrence']:
+            rec = c.attributes['recurrence']
+            cal.add('rrule')
+            cal.rrule = rec.getRRule()
+            
+    def _createAlarmPart(self, c, cal):
+        if c.attributes['alarm']:
+            mins = c.attributes['alarmmin']
+            days = mins / (24 * 60)
+            seconds = (mins * (24*60)) * 60
+            cal.add("valarm")
+            cal.valarm.add("trigger")
+            cal.valarm.trigger.days = days
+            cal.valarm.trigger.seconds = seconds
+
+    def _createRawEventEntry(self,  c):
+        frame = vobject.iCalendar()
+        frame.add('vevent')
+        cal = frame.vevent
+        cal.add('dtstart')
+        cal.dtstart.value = c.attributes['start']   # all day is applied automatically due to datetime.datetime or datetime.date class
+        cal.add('dtend')
+        cal.dtend.value = c.attributes['end']
+        if c.attributes['title']:
+            cal.add('summary')
+            cal.summary.value = c.attributes['title']
+        if c.attributes['description']:
+            cal.add('description')
+            cal.description.value = c.attributes['description']
+        if c.attributes['location']:
+            cal.add('location')
+            cal.location.value = c.attributes['location']
+        cal.add('x-pisi-id')
+        cal.contents['x-pisi-id'][0].value = c.attributes['globalid']
+        self._createRecurrencePart(c,  cal)
+        self._createAlarmPart(c, cal)
+        cal.add('last-modified')
+        cal.last_modified.value = datetime.datetime.now(events.UTC())
+        return cal
         
     def saveModifications(self):
         pisiprogress.getCallback().verbose("ICalendar module: I apply %d changes now" %(len(self._history)))
-        pass        # implementation goes here
+        if len(self._history) == 0:
+            return      # don't touch anything if there haven't been any changes
+            
+        # rename old file         
+        try:
+            bakFilename = os.path.join(self._folder,  os.path.basename(self._path))
+            os.rename(self._path,  bakFilename)
+        except OSError,  e:
+            pisiprogress.getCallback().verbose("\tError when backing up old ICS file - we still carry on with processing:\n\t%s" %(e))
+        
+        file = open(self._path,  "w")
+        
+        i = 0
+        for actionItem in self._history:
+            action = actionItem[0]
+            globalId = actionItem[1]
+            if action == ACTIONID_DELETE:
+                pisiprogress.getCallback().verbose("\t\t<ics> deleting %s" %(globalId))
+                del self._rawData[globalId]
+            elif action == ACTIONID_ADD or action == ACTIONID_MODIFY:
+                pisiprogress.getCallback().verbose("\t\t<ics> adding or replacing %s" %(globalId))                
+                e = self.getEvent(globalId)
+                self._rawData[globalId] = self._createRawEventEntry(e)
+            i+=1
+            pisiprogress.getCallback().progress.setProgress(i * 70 / len(self._history))
+            pisiprogress.getCallback().update('Storing')
+
+        pisiprogress.getCallback().progress.setProgress(70)
+        pisiprogress.getCallback().update('Storing')
+
+        pisiprogress.getCallback().verbose("\tICS: Writing through file")
+        calendar = vobject.iCalendar()
+        calendar.add('vevent')
+        del calendar.contents['vevent'][0]
+        for x in self._rawData.values():
+            calendar.contents['vevent'].append(x)
+
+#        for x in calendar.contents['vevent']:
+#            print type(x.dtstart.value)
+#        calendar.prettyPrint()
+        file.write(calendar.serialize())
+        pisiprogress.getCallback().verbose("\tNew ICS file saved to %s; \n\tbackup file is located in %s." %(self._path,  bakFilename))
+        file.close()

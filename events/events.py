@@ -28,6 +28,7 @@ from pisiconstants import *
 
 import vobject
 #import tzinfo, timedelta
+KNOWN_ATTRIBUTES = ['start', 'end', 'recurrence', 'allday', 'title', 'description', 'location', 'alarm', 'alarmmin']
 
 class Event(pisiinterfaces.Syncable):
     def __init__( self, id, updated, attributes ):
@@ -47,6 +48,10 @@ class Event(pisiinterfaces.Syncable):
         @return: True, if all attributes match, otherwise False
         """
         for key,value in self.attributes.iteritems():
+            if key not in KNOWN_ATTRIBUTES:
+                continue
+            if (str(value) == "" or value == None) and (str(e.attributes[key] )== "" or e.attributes[key] == None):
+                continue
             if value != e.attributes[key]:
                 return False
         return True
@@ -101,6 +106,7 @@ class CustomOffset(datetime.tzinfo):
         self._hour = int(st[1:3])
         self._min = int(st[4:5])
         self._isPositive = st[0] == "+"
+#        print st,  "->", self._hour,  self._min,  "Pos: ", self._isPositive
         
     def utcoffset(self, dt):
         if self._isPositive:
@@ -110,6 +116,9 @@ class CustomOffset(datetime.tzinfo):
 
     def tzname(self, dt):
         return self._name
+
+    def dst(self, dt):
+        return ZERO
 
 class Recurrence:
     """
@@ -126,22 +135,26 @@ class Recurrence:
         pass
 
     def initFromData(self,  data):
+#        print data
         self._data = data
         v = vobject.readComponents(data).next()
+            
         self._allDay = False
         try:
-            self._dtstart = vobject.icalendar.stringToDateTime(v.dtstart.value, tzinfo = UTC())
-            if len(v.dtstart.value) == 10:
+            self._dtstart = vobject.icalendar.DateOrDateTimeBehavior.transformToNative(v.dtstart).value
+#            self._dtstart = vobject.icalendar.stringToDateTime(v.dtstart.value, tzinfo = UTC())
+            if type(self._dtstart) == datetime.date:
                 self._allDay = True
-        except BaseException:
+        except KeyError: #BaseException:
             self._dtstart = None
         try:
-            self._dtend = vobject.icalendar.stringToDateTime(v.dtend.value, tzinfo = UTC())
+            self._dtend = vobject.icalendar.DateOrDateTimeBehavior.transformToNative(v.dtend).value
+#            self._dtend = vobject.icalendar.stringToDateTime(v.dtend.value, tzinfo = UTC())
         except BaseException:
             self._dtend = None
         try:
-            self._rrule = vobject.icalendar.stringToDateTime(v.rrule.value, tzinfo = UTC())
-        except BaseException:
+            self._rrule = v.rrule
+        except KeyError: #BaseException:
             self._rrule = None
 
     def initFromAttributes(self,  rrule,  dtstart,  dtend = None,  isAllDay = False):   # just learned; there is no Constructor overwriting allowed in Python :(
@@ -149,9 +162,15 @@ class Recurrence:
         self._dtstart = dtstart
         self._dtend = dtend
         self._allDay = isAllDay
+                
         data = rrule.serialize() + dtstart.serialize()
         if dtend:
             data += dtend.serialize()
+#        cal = vobject.iCalendar()
+#        cal.add("vtimezone")
+#        vtimezone = cal.vtimezone
+#        data += vtimezone.serialize()
+#        print "*** ", data
         self._data = data
 
     def getData(self):
@@ -168,7 +187,21 @@ class Recurrence:
         
     def isAllDay(self):
         return self._allDay
+        
+    def __eq__(self,  other):
+        if other == None:
+            return False
+        return self._rrule == other._rrule and self._dtstart != other._dtstart and self._dtend != other._dtend
+        
+    def __ne__(self,  other):
+        return not self.__eq__(other)
 
+    def prettyPrint ( self ):
+        """Prints all attributes 'nicely'.."""
+        print "\t_PrettyPrint of Recurrence"
+        print "\t\tStart:\t%s" %(self._dtstart)
+        print "\t\tEnd:\t%s" %(self._dtend)
+        print "\t\tRRule:\t%s" %(self._rrule)
 
 class AbstractCalendarSynchronizationModule(pisiinterfaces.AbstractSynchronizationModule):
     """
@@ -223,7 +256,7 @@ class AbstractCalendarSynchronizationModule(pisiinterfaces.AbstractSynchronizati
         self.replaceEntry(id, updatedEvent)
         self._history.append([ACTIONID_MODIFY,  id])
 
-    def removeContact( self, id ):
+    def removeEvent( self, id ):
         """
         Removes an event entry
         

@@ -268,7 +268,6 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         j = vobject.vCard()
         self._createNameAttribute(c, j)
-#        self._createRawAttribute(c,  j,  'n',  "vobject.vcard.Name(family = c.attributes['lastname'],  given = c.attributes['firstname'],  additional = c.attributes['middlename'])")
         
         if c.attributes['firstname']:
             if c.attributes['lastname']:
@@ -303,8 +302,8 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
 
         if len(self._history) == 0:
             return      # don't touch anything if there haven't been any changes
-        # rename old file 
-        
+            
+        # rename old file         
         try:
             bakFilename = os.path.join(self._folder,  os.path.basename(self._vcfpath))
             os.rename(self._vcfpath,  bakFilename)
