@@ -63,6 +63,7 @@ def googleCalendarTest():
     print "testing google calendar"
     feed = gd_client.GetCalendarEventFeed('/calendar/feeds/kichkasch@gmx.de/private/full?max-results=1000')
     for event in feed.entry:
+        print type(event.when[0].start_time)
         try:
             for prop in event.extended_property:
                 if prop.name == 'pisiid':
@@ -71,8 +72,8 @@ def googleCalendarTest():
                 print event.recurrence.text
         except AttributeError:
             print ("%s\n\t%s" %(event.title.text,  'n.a.'))
-        event.extended_property.append(gdata.calendar.ExtendedProperty(name='pisiid',  value= str(random.randint(0,  100000000000000000000000))))
-        gd_client.UpdateEvent(event.GetEditLink().href, event)
+#        event.extended_property.append(gdata.calendar.ExtendedProperty(name='pisiid',  value= str(random.randint(0,  100000000000000000000000))))
+#        gd_client.UpdateEvent(event.GetEditLink().href, event)
     
 initCalendar()
 googleCalendarTest()

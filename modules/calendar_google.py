@@ -173,7 +173,8 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         Converts a Google event to Pisi event (internal format)
         """
         if event.recurrence:
-            recurrence = events.Recurrence(event.recurrence.text)
+            recurrence = events.Recurrence()
+            recurrence.initFromData(event.recurrence.text)
             # When there is a recurrence, the 'start' and 'end' is inside the recurrence text
             start = recurrence.getDTStart()
             end = recurrence.getDTEnd()
@@ -213,23 +214,12 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
             allday = True
             date = datetime.datetime.strptime(gtime[:19], '%Y-%m-%d')
             return (allday, date)
-        onlyDandT = datetime.datetime.strptime(gtime[:19], '%Y-%m-%dT%H:%M:%S')
-        timezone = gtime[23:24]
-        if timezone=='Z':
-            timezonehour = 0
-            timezonemin  = 0
+
+        if gtime[23]=='Z':
+            tz = events.UTC()
         else:
-            timezonehour = int(gtime[24:26])
-            timezonemin  = int(gtime[27:29])
-        if timezonehour>0 or timezonemin>0:
-            # Convert time to timestamp, the add or subtract timezone,
-            # and convert back
-            onlyDandT = time.mktime(onlyDandT.timetuple())
-            if timezone=='+':
-                onlyDandT -= (timezonehour*60 + timezonemin)*60
-            else:
-                onlyDandT += (timezonehour*60 + timezonemin)*60
-            onlyDandT = datetime.datetime.fromtimestamp(onlyDandT)
+            tz = events.CustomOffset("custom", gtime[23:])
+        onlyDandT = datetime.datetime(int(gtime[0:4]),  int(gtime[5:7]),   int(gtime[8:10]), int(gtime[11:13]),  int(gtime[14:16]), int(gtime[17:19]),  0, tz)
         return (allday, onlyDandT)
 
     def _login( self, user, password ):

@@ -27,6 +27,7 @@ import pisiinterfaces
 from pisiconstants import *
 
 import vobject
+#import tzinfo, timedelta
 
 class Event(pisiinterfaces.Syncable):
     def __init__( self, id, updated, attributes ):
@@ -78,6 +79,38 @@ class Event(pisiinterfaces.Syncable):
         for key,value in self.attributes.iteritems():
             print "\t\t- ",key," = ",value
 
+
+ZERO = datetime.timedelta(0)
+HOUR = datetime.timedelta(hours=1)
+
+class UTC(datetime.tzinfo):
+    """UTC"""
+
+    def utcoffset(self, dt):
+        return ZERO
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return ZERO
+
+class CustomOffset(datetime.tzinfo):
+    def __init__(self, name, st):
+        self._name = name
+        self._hour = int(st[1:3])
+        self._min = int(st[4:5])
+        self._isPositive = st[0] == "+"
+        
+    def utcoffset(self, dt):
+        if self._isPositive:
+            return datetime.timedelta(hours = self._hour,  minutes = self._min)
+        else:
+            return datetime.timedelta(hours = - self._hour,  minutes = - self._min)
+
+    def tzname(self, dt):
+        return self._name
+
 class Recurrence:
     """
     Recurrence infomation for an event; this is attached as an attribute to a "normal" event
@@ -89,24 +122,37 @@ class Recurrence:
     At some point we will also need a constructor for converting the other way around; giving the single data chunks as input
     and create the overall ICS string from it. Well; as I say - at some point.
     """
-    def __init__(self,  data):
+    def __init__(self):
+        pass
+
+    def initFromData(self,  data):
         self._data = data
         v = vobject.readComponents(data).next()
         self._allDay = False
         try:
-            self._dtstart = vobject.icalendar.stringToDateTime(v.dtstart.value)
+            self._dtstart = vobject.icalendar.stringToDateTime(v.dtstart.value, tzinfo = UTC())
             if len(v.dtstart.value) == 10:
                 self._allDay = True
         except BaseException:
             self._dtstart = None
         try:
-            self._dtend = vobject.icalendar.stringToDateTime(v.dtend.value)
+            self._dtend = vobject.icalendar.stringToDateTime(v.dtend.value, tzinfo = UTC())
         except BaseException:
             self._dtend = None
         try:
-            self._rrule = vobject.icalendar.stringToDateTime(v.rrule.value)
+            self._rrule = vobject.icalendar.stringToDateTime(v.rrule.value, tzinfo = UTC())
         except BaseException:
             self._rrule = None
+
+    def initFromAttributes(self,  rrule,  dtstart,  dtend = None,  isAllDay = False):   # just learned; there is no Constructor overwriting allowed in Python :(
+        self._rrule = rrule
+        self._dtstart = dtstart
+        self._dtend = dtend
+        self._allDay = isAllDay
+        data = rrule.serialize() + dtstart.serialize()
+        if dtend:
+            data += dtend.serialize()
+        self._data = data
 
     def getData(self):
         return self._data

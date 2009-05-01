@@ -105,7 +105,6 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         pisiprogress.getCallback().progress.push(0, 100)
         comps = vobject.readComponents(file)
         pisiprogress.getCallback().progress.setProgress(20) 
-        #TODO: maybe we can do something more detailled here - the progress bar is a rather long time idle when loading a large vcf file - but; we don't know about the number of entries in the file - what can we do?
         pisiprogress.getCallback().update("Loading")
         for x in comps:
             atts = {}
