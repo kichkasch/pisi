@@ -40,7 +40,7 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         """
         Constructor
         
-        Super class constructor (L{contacts.AbstractContactSynchronizationModule.__init__}) is called.
+        Super class constructor (L{events.AbstractCalendarSynchronizationModule.__init__}) is called.
         Local variables are initialized.
         The settings from the configuration file are loaded.
         """

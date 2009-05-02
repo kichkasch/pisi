@@ -3,8 +3,6 @@ Our own calendar-event-object.
 
 This file is part of Pisi.
 
-Calendar-Events part does currently not make use of the inheritance infrastructure (Syncable and AbstractSyncronizationModule).
-
 Pisi is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -35,7 +33,7 @@ class Event(pisiinterfaces.Syncable):
     Holds information for a single event (Calendar entry) instance
     """
     
-    def __init__( self, id, updated, attributes ):
+    def __init__( self, id, updated, attributes,  attributesToUTF = True):
         """
         Initialize event.
         @param id: is the id the module uses to id the event
@@ -44,6 +42,10 @@ class Event(pisiinterfaces.Syncable):
         """
         pisiinterfaces.Syncable.__init__(self, id,  attributes)
         self.updated = updated
+        if attributesToUTF:
+            for key in attributes.keys():
+                if type(attributes[key]) == str:
+                    attributes[key] = attributes[key].decode("utf-8")
 
     def compare(self,  e):
         """
@@ -98,8 +100,11 @@ HOUR = datetime.timedelta(hours=1)
 """Pre-set timedelta of 1 for L{UTC}"""
 
 class UTC(datetime.tzinfo):
-    """UTC"""
-
+    """
+    Timezone-Info for UTC
+    
+    See U{http://iorich.caltech.edu/~t/transfer/python-trunk-doc/library/datetime.html} for details.
+    """
     def utcoffset(self, dt):
         return ZERO
 
@@ -110,14 +115,28 @@ class UTC(datetime.tzinfo):
         return ZERO
 
 class CustomOffset(datetime.tzinfo):
+    """
+    Custom Timezone-Info
+    
+    Takes a String containing Timezone Information (e.g. +04:00) and creates the corresponding Timezone Info Object.
+    
+    See U{http://iorich.caltech.edu/~t/transfer/python-trunk-doc/library/datetime.html} for more information.
+    """
     def __init__(self, name, st):
+        """
+        Constructor
+        
+        Parses the string and saves the details in local variables.
+        """
         self._name = name
         self._hour = int(st[1:3])
         self._min = int(st[4:5])
         self._isPositive = st[0] == "+"
-#        print st,  "->", self._hour,  self._min,  "Pos: ", self._isPositive
         
     def utcoffset(self, dt):
+        """
+        Calculates timedelta
+        """
         if self._isPositive:
             return datetime.timedelta(hours = self._hour,  minutes = self._min)
         else:
@@ -133,17 +152,23 @@ class Recurrence:
     """
     Recurrence infomation for an event; this is attached as an attribute to a "normal" event
     
-    For now, we only support Google Calendar and ICS files; both use the ICalendar standard for Recurences:
     The entire ICS information is provided as one String in ICalendar format. This string is stored and returned on request; it is
     as well parsed, so you can request single information chunks (DTStart, DTEnd, RROLE) from it.
     
-    At some point we will also need a constructor for converting the other way around; giving the single data chunks as input
-    and create the overall ICS string from it. Well; as I say - at some point.
+    The other way around is working as well; provide the information chunks and the ICalendar formatted string is computed.
     """
     def __init__(self):
+        """
+        Empty Constructor
+        
+        Call L{initFromData} or L{initFromAttributes} to initialize.
+        """
         pass
 
     def initFromData(self,  data):
+        """
+        Initialize a recurrence from ICalendar formatted String
+        """
 #        print data
         self._data = data
         v = vobject.readComponents(data).next()
@@ -165,6 +190,9 @@ class Recurrence:
             self._rrule = None
 
     def initFromAttributes(self,  rrule,  dtstart,  dtend = None,  isAllDay = False):   # just learned; there is no Constructor overwriting allowed in Python :(
+        """
+        Initialize a recurrence from the information chunks
+        """
         self._rrule = rrule
         self._dtstart = dtstart
         self._dtend = dtend
@@ -179,25 +207,44 @@ class Recurrence:
             frame.add("standard")
             frame.standard = vobject.icalendar.TimezoneComponent(UTC())
             data += frame.standard.serialize()
-
         self._data = data
 
     def getData(self):
+        """
+        GETTER
+        """
         return self._data
         
     def getDTStart(self):
+        """
+        GETTER
+        """
         return self._dtstart
         
     def getDTEnd(self):
+        """
+        GETTER
+        """
         return self._dtend
         
     def getRRule(self):
+        """
+        GETTER
+        """
         return self._rrule
         
     def isAllDay(self):
+        """
+        GETTER
+        """
         return self._allDay
         
     def __eq__(self,  other):
+        """
+        Operator overload
+        
+        Checks whether all items in the recurrences (rrule, dtstart, dtend) match.
+        """
         if other == None:
             return False
         if type(other) == str:
@@ -205,21 +252,29 @@ class Recurrence:
         return self._rrule == other._rrule and self._dtstart != other._dtstart and self._dtend != other._dtend
         
     def __ne__(self,  other):
+        """
+        Operator overload
+        
+        @return: NOT L{__eq__}
+        """
         return not self.__eq__(other)
 
     def prettyPrint ( self ):
-        """Prints all attributes 'nicely'.."""
+        """
+        Prints all attributes 'nicely'..
+        """
         print "\t_PrettyPrint of Recurrence"
         print "\t\tStart:\t%s" %(self._dtstart)
         print "\t\tEnd:\t%s" %(self._dtend)
         print "\t\tRRule:\t%s" %(self._rrule)
+
 
 class AbstractCalendarSynchronizationModule(pisiinterfaces.AbstractSynchronizationModule):
     """
     Super class for all synchronization modules, which aim to synchronize contacts information.
     
     Each Synchronization class implementing contact synchronization should inherit from this class.
-    @ivar _allContacts: Dictionary to hold all contact instance for the implementation.
+    @ivar _allEvents: Dictionary to hold all Calendar instances for the implementation.
     @ivar _history: Keeps track of all changes applied to the container for this data source (for later write through)
     """
     
@@ -237,7 +292,7 @@ class AbstractCalendarSynchronizationModule(pisiinterfaces.AbstractSynchronizati
         """
         Getter.
         
-        @return: The link to the instance variable L{_allContacts}.
+        @return: The link to the instance variable L{_allEvents}.
         """
         return self.allEntries()
 
@@ -277,4 +332,9 @@ class AbstractCalendarSynchronizationModule(pisiinterfaces.AbstractSynchronizati
         self._history.append([ACTIONID_DELETE,  id])
         
 def assembleID():
+    """
+    Assembles a unique ID for PISI events
+    
+    A random number is generated.
+    """
     return str(random.randint(0,  100000000000000000000000))
