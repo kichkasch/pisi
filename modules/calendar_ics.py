@@ -152,6 +152,11 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         frame.add('vevent')
         cal = frame.vevent
         cal.add('dtstart')
+        if c.attributes['allday']:
+            if type(c.attributes['start']) == datetime.datetime:
+                c.attributes['start'] = c.attributes['start'].date()
+            if type(c.attributes['end']) == datetime.datetime:
+                c.attributes['end'] = c.attributes['end'].date()
         cal.dtstart.value = c.attributes['start']   # all day is applied automatically due to datetime.datetime or datetime.date class
         cal.add('dtend')
         cal.dtend.value = c.attributes['end']

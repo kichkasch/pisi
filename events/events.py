@@ -142,14 +142,12 @@ class Recurrence:
         self._allDay = False
         try:
             self._dtstart = vobject.icalendar.DateOrDateTimeBehavior.transformToNative(v.dtstart).value
-#            self._dtstart = vobject.icalendar.stringToDateTime(v.dtstart.value, tzinfo = UTC())
             if type(self._dtstart) == datetime.date:
                 self._allDay = True
         except KeyError: #BaseException:
             self._dtstart = None
         try:
             self._dtend = vobject.icalendar.DateOrDateTimeBehavior.transformToNative(v.dtend).value
-#            self._dtend = vobject.icalendar.stringToDateTime(v.dtend.value, tzinfo = UTC())
         except BaseException:
             self._dtend = None
         try:
@@ -162,15 +160,17 @@ class Recurrence:
         self._dtstart = dtstart
         self._dtend = dtend
         self._allDay = isAllDay
-                
-        data = rrule.serialize() + dtstart.serialize()
-        if dtend:
+                                
+        data = self._rrule.serialize() + self._dtstart.serialize()
+        if self._dtend:
             data += dtend.serialize()
-#        cal = vobject.iCalendar()
-#        cal.add("vtimezone")
-#        vtimezone = cal.vtimezone
-#        data += vtimezone.serialize()
-#        print "*** ", data
+            
+        if type(self._dtstart.value) == datetime.date:  # special handling for all day recurrences
+            frame = vobject.iCalendar()
+            frame.add("standard")
+            frame.standard = vobject.icalendar.TimezoneComponent(UTC())
+            data += frame.standard.serialize()
+
         self._data = data
 
     def getData(self):
