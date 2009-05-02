@@ -101,6 +101,11 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
                     atts['allday'] = True
                 else:
                     atts['allday'] = False
+                    # For all stupid ICS files coming without timezone information
+                    if atts['start'].tzinfo == None:
+                        atts['start'] = atts['start'].replace(tzinfo = events.UTC())
+                    if atts['end'].tzinfo == None:
+                        atts['end'] = atts['end'].replace(tzinfo = events.UTC())
                 atts['title'] = self._extractAtt(x, 'x.summary.value')
                 atts['description'] = self._extractAtt(x, 'x.description.value')
                 atts['location'] = self._extractAtt(x, 'x.location.value')

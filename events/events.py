@@ -54,7 +54,7 @@ class Event(pisiinterfaces.Syncable):
         for key,value in self.attributes.iteritems():
             if key not in KNOWN_ATTRIBUTES:
                 continue
-            if (str(value) == "" or value == None) and (str(e.attributes[key] )== "" or e.attributes[key] == None):
+            if (value == "" or value == None) and (e.attributes[key] == "" or e.attributes[key] == None):
                 continue
             if value != e.attributes[key]:
                 return False
@@ -199,6 +199,8 @@ class Recurrence:
         
     def __eq__(self,  other):
         if other == None:
+            return False
+        if type(other) == str:
             return False
         return self._rrule == other._rrule and self._dtstart != other._dtstart and self._dtend != other._dtend
         

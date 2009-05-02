@@ -210,7 +210,7 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
             pass    # fair enough; this event hasn't been synchronized before
         return pisiID,  updated, attributes
 
-    def _gtimeToDatetime( self, gtime ):
+    def _gtimeToDatetime(self, gtime):
         """
         Converts Google normal way (RFC3339) to write date and time to a datetime instance
         """
@@ -218,7 +218,7 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         if len(gtime)==10:
             allday = True
             date = datetime.datetime(int(gtime[0:4]),  int(gtime[5:7]),   int(gtime[8:10]),  tzinfo = events.UTC())
-            return (allday, date)
+            return (allday, date.date())
 
         if gtime[23]=='Z':
             tz = events.UTC()
