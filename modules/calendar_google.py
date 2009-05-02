@@ -217,7 +217,6 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         allday = False
         if len(gtime)==10:
             allday = True
-#            date = datetime.datetime.strptime(gtime[:10], '%Y-%m-%d')
             date = datetime.datetime(int(gtime[0:4]),  int(gtime[5:7]),   int(gtime[8:10]),  tzinfo = events.UTC())
             return (allday, date)
 

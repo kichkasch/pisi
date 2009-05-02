@@ -21,16 +21,20 @@ along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
 import random
+import vobject
 
 import pisiprogress
 import pisiinterfaces
 from pisiconstants import *
 
-import vobject
-#import tzinfo, timedelta
 KNOWN_ATTRIBUTES = ['start', 'end', 'recurrence', 'allday', 'title', 'description', 'location', 'alarm', 'alarmmin']
+"""List of attribute names, which have to be set for Event instances"""
 
 class Event(pisiinterfaces.Syncable):
+    """
+    Holds information for a single event (Calendar entry) instance
+    """
+    
     def __init__( self, id, updated, attributes ):
         """
         Initialize event.
@@ -39,13 +43,13 @@ class Event(pisiinterfaces.Syncable):
         @param attributes: a dictionary with attributes. See U{http://projects.openmoko.org/plugins/wiki/index.php?Developer&id=156&type=g} for more help.
         """
         pisiinterfaces.Syncable.__init__(self, id,  attributes)
-        self.updated   = updated
+        self.updated = updated
 
     def compare(self,  e):
         """
-        Compares two events against each other
+        Compares this event with another one
         
-        @return: True, if all attributes match, otherwise False
+        @return: True, if all attributes (L{KNOWN_ATTRIBUTES}) match, otherwise False
         """
         for key,value in self.attributes.iteritems():
             if key not in KNOWN_ATTRIBUTES:
@@ -57,8 +61,9 @@ class Event(pisiinterfaces.Syncable):
         return True
 
     def merge( self, e ):
-        """Merges the event (e) with itself. If two sections are different, use
-        the section from the newest updated."""
+        """
+        Merges the event (e) with itself. If two sections are different, use the section from the newest updated.
+        """
         # Find which is newer
         selfNew=False
         if e.updated < self.updated:
@@ -78,7 +83,9 @@ class Event(pisiinterfaces.Syncable):
         return self
 
     def prettyPrint ( self ):
-        """Prints all attributes 'nicely'.."""
+        """
+        Prints all attributes 'nicely'..
+        """
         print "\t_PrettyPrint of id: %s" %self.id
         print "\t\t- Updated = ",self.updated
         for key,value in self.attributes.iteritems():
@@ -86,7 +93,9 @@ class Event(pisiinterfaces.Syncable):
 
 
 ZERO = datetime.timedelta(0)
+"""Pre-set timedelta of 0 for L{UTC}"""
 HOUR = datetime.timedelta(hours=1)
+"""Pre-set timedelta of 1 for L{UTC}"""
 
 class UTC(datetime.tzinfo):
     """UTC"""
@@ -124,7 +133,7 @@ class Recurrence:
     """
     Recurrence infomation for an event; this is attached as an attribute to a "normal" event
     
-    For now, we only support Google Calendar and (hopefully soon) ICS files; both use the ICalendar standard for Recurences:
+    For now, we only support Google Calendar and ICS files; both use the ICalendar standard for Recurences:
     The entire ICS information is provided as one String in ICalendar format. This string is stored and returned on request; it is
     as well parsed, so you can request single information chunks (DTStart, DTEnd, RROLE) from it.
     
@@ -165,7 +174,7 @@ class Recurrence:
         if self._dtend:
             data += dtend.serialize()
             
-        if type(self._dtstart.value) == datetime.date:  # special handling for all day recurrences
+        if type(self._dtstart.value) == datetime.date or self._dtstart.serialize(len(self._dtstart.serialize())-1):  # special handling for all day recurrences and UTCs
             frame = vobject.iCalendar()
             frame.add("standard")
             frame.standard = vobject.icalendar.TimezoneComponent(UTC())

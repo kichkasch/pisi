@@ -29,10 +29,13 @@ import os
 from pisiconstants import *
 import vobject
 
-FIELD_PISI = "X_PISI_ID"
-
+FIELD_PISI = "X-PISI-ID"
+"""Name of additional field in ICS file for PISI ID (must start with X-)"""
 
 class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
+    """
+    The implementation of the interface L{events.AbstractCalendarSynchronizationModule} for the ICalendar file backend
+    """
     def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
         """
         Constructor
@@ -61,7 +64,9 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
             return ''
             
     def _extractRecurrence(self,  x,  allDay):
-#        print x
+        """
+        Transforms VObject recurrence information into PISI internal object L{events.Recurrence}
+        """
         if self._extractAtt(x, 'x.dtend.value'):
             end = x.dtend
         else:
@@ -74,7 +79,7 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         """
         Load all data from local ICS file
         
-        File opened and the entries are parsed. For each entry a L{events.events.Event} instance is created and stored in the instance dictionary.
+        File is opened and the entries are parsed. For each entry an L{events.events.Event} instance is created and stored in the instance dictionary.
         """
         pisiprogress.getCallback().verbose("ICalendar: Loading")
         file = None
@@ -127,17 +132,22 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
                 self._allEvents[globalId] = tmpEvent
                 self._rawData[globalId] = x
                 
-
         file.close()
         pisiprogress.getCallback().progress.drop()
 
     def _createRecurrencePart(self, c,  cal):
+        """
+        Transforms PISI internal recurrence information (L{events.Recurrence}) into vobject representation
+        """
         if c.attributes['recurrence']:
             rec = c.attributes['recurrence']
             cal.add('rrule')
             cal.rrule = rec.getRRule()
             
     def _createAlarmPart(self, c, cal):
+        """
+        Transforms PISI internal alarm information (1 single integer for minutes) into vobject representation
+        """
         if c.attributes['alarm']:
             mins = c.attributes['alarmmin']
             days = mins / (24 * 60)
@@ -148,6 +158,9 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
             cal.valarm.trigger.seconds = seconds
 
     def _createRawEventEntry(self,  c):
+        """
+        Transforms PISI internal Calendar event information (L{events.Event}) into vobject representation        
+        """
         frame = vobject.iCalendar()
         frame.add('vevent')
         cal = frame.vevent
@@ -178,6 +191,12 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         return cal
         
     def saveModifications(self):
+        """
+        Save whatever changes have come by
+        
+        Iterates the history of actions and replaces the corresponding items with new vobject instances.
+        In the end, the vobject representation is written to the ICS file.
+        """
         pisiprogress.getCallback().verbose("ICalendar module: I apply %d changes now" %(len(self._history)))
         if len(self._history) == 0:
             return      # don't touch anything if there haven't been any changes
@@ -215,10 +234,6 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         del calendar.contents['vevent'][0]
         for x in self._rawData.values():
             calendar.contents['vevent'].append(x)
-
-#        for x in calendar.contents['vevent']:
-#            print type(x.dtstart.value)
-#        calendar.prettyPrint()
         file.write(calendar.serialize())
         pisiprogress.getCallback().verbose("\tNew ICS file saved to %s; \n\tbackup file is located in %s." %(self._path,  bakFilename))
         file.close()
