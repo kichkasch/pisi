@@ -58,6 +58,7 @@ class Event(pisiinterfaces.Syncable):
                 continue
             if (value == "" or value == None) and (e.attributes[key] == "" or e.attributes[key] == None):
                 continue
+#            print key,  value,  e.attributes[key]
             if value != e.attributes[key]:
                 return False
         return True
@@ -178,15 +179,19 @@ class Recurrence:
             self._dtstart = vobject.icalendar.DateOrDateTimeBehavior.transformToNative(v.dtstart).value
             if type(self._dtstart) == datetime.date:
                 self._allDay = True
-        except KeyError: #BaseException:
+            elif self._dtstart.tzinfo == None:
+                self._dtstart = self._dtstart.replace(tzinfo = UTC())
+        except BaseException:
             self._dtstart = None
         try:
             self._dtend = vobject.icalendar.DateOrDateTimeBehavior.transformToNative(v.dtend).value
+            if type(self._dtend) == datetime.datetime and self._dtend.tzinfo == None:
+                self._dtend = self._dtend.replace(tzinfo = UTC())
         except BaseException:
             self._dtend = None
         try:
             self._rrule = v.rrule
-        except KeyError: #BaseException:
+        except BaseException:
             self._rrule = None
 
     def initFromAttributes(self,  rrule,  dtstart,  dtend = None,  isAllDay = False):   # just learned; there is no Constructor overwriting allowed in Python :(
@@ -202,7 +207,7 @@ class Recurrence:
         if self._dtend:
             data += dtend.serialize()
             
-        if type(self._dtstart.value) == datetime.date or self._dtstart.serialize(len(self._dtstart.serialize())-1):  # special handling for all day recurrences and UTCs
+        if type(self._dtstart.value) == datetime.date or self._dtstart.serialize()[len(self._dtstart.serialize())-1]=="Z":  # special handling for all day recurrences and UTCs
             frame = vobject.iCalendar()
             frame.add("standard")
             frame.standard = vobject.icalendar.TimezoneComponent(UTC())
