@@ -32,21 +32,21 @@
 ## check the settings for this (secondary) calendar - pretty much at the bottom of the settings page you can find the ID;
 ## just copy and paste it here.
 ##
-# [googleCalendar]
-# description=My Google Calendar
-# module=calendar_google
-# user=<GOOGLE LOGIN>
-# password=<GOOGLE PASSWORD>
-# calendarid=<GOOGLE LOGIN>
+[googleCalendar]
+description=My Google Calendar
+module=calendar_google
+user=<GOOGLE LOGIN>
+password=<GOOGLE PASSWORD>
+calendarid=<GOOGLE LOGIN>
 
 ##########
 ## 1.2)
 ## Example for local ICS file (iCalendar) - not yet supported
 ##
-# [localIcs]
-# description= ICalendar file
-# module=calendar_ics
-# path=/home/root/mycalendar.ics
+[localIcs]
+description= ICalendar file
+module=calendar_ics
+path=/home/root/mycalendar.ics
 
 
 
