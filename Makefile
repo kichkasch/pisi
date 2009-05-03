@@ -3,7 +3,7 @@
 # global parameters
 TITLE=		"PISI"
 URL=		"https://projects.openmoko.org/projects/pisi/"
-VERSION=	"0.2.0"
+VERSION=	"0.2"
 
 API_DOC_DIR=	apidoc/
 
@@ -97,3 +97,22 @@ dep_pythongdata:
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 
+# PISI might be good for desktop use as well ...
+# here go instructions for building Desktop packages
+# 1. Ubuntu deb
+# (install with: sudo apt-get python-vobject python-gdata && sudo dpkg -i pisi-$VERSION.deb)
+dist_ubuntu:
+	mkdir -p build/ubuntu/DEBIAN
+	cp build/control-ubuntudeb build/ubuntu/DEBIAN/control
+	mkdir -p build/ubuntu/usr/bin
+	ln -s /opt/pisi/pisi.py build/ubuntu/usr/bin/pisi
+	ln -s /opt/pisi/pisigui.py build/ubuntu/usr/bin/pisigui
+	mkdir -p build/ubuntu/usr/share/applications
+	cp build/pisi.desktop-ubuntu build/ubuntu/usr/share/applications/pisi.desktop
+	mkdir -p build/ubuntu/usr/share/pixmaps
+	cp build/pisi.png build/ubuntu/usr/share/pixmaps
+	mkdir -p build/ubuntu/opt/pisi
+	cp *.py COPYING README build/ubuntu/opt/pisi
+	cp -r contacts events modules scripts thirdparty build/ubuntu/opt/pisi
+	cd build && dpkg --build ubuntu/ pisi-$(VERSION).deb
+	rm -rf build/ubuntu

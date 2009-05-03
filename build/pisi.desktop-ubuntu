@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=pisi
+Comment=PISI is synchronizing information
+Version=0.2
+GenericName=PISI is synchronizing information
+Terminal=false
+Icon=pisi.png
+Type=Application
+Exec=python /opt/pisi/pisigui.py
+Categories=Office;

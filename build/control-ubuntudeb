@@ -1,0 +1,8 @@
+Package: pisi
+Version: 0.2
+Section: apps
+Maintainer: Michael Pilgermann <kichkasch@gmx.de>
+Architecture: all
+Depends: python, python-gtk2, python-vobject, python-gdata
+Homepage: http://projects.openmoko.org/projects/pisi/
+Description: PISI is synchronizing information
