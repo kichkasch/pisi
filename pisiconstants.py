@@ -66,11 +66,11 @@ ACTIONID_DELETE = 1
 ACTIONID_MODIFY = 2
 """Entry in the history of activities for synchronization modules - here for MODIFY"""
 
-GOOGLE_CONTACTS_APPNAME = "pisi0.1"
+GOOGLE_CONTACTS_APPNAME = "pisi" + PISI_VERSION
 """application name to use for connecting against google contacts services"""
 GOOGLE_CONTACTS_MAXRESULTS = 1000
 """upper limit of result set when querying google contacts api"""
-GOOGLE_CALENDAR_APPNAME = "pisi0.1"
+GOOGLE_CALENDAR_APPNAME = "pisi" + PISI_VERSION
 """application name to use for connecting against google calendar services"""
 GOOGLE_CALENDAR_MAXRESULTS = GOOGLE_CONTACTS_MAXRESULTS
 """upper limit of result set when querying google calendar api"""
