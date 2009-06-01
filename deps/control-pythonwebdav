@@ -1,0 +1,12 @@
+Package: python-webdav
+Version: 0.1.2
+Description: This project aims to provide an object-oriented Python WebDAV client-side library based on Python`s standard httplib and Greg Stein`s davlib. The client shall fully support RFCs 4918 (basic specification), 3744 (access control), and 3253 (versioning).
+Section: openmoko/dev
+Priority: optional
+Maintainer: Michael Pilgermann <kichkasch@gmx.de>
+Architecture: armv4t
+OE: python-webdav
+Homepage: http://sourceforge.net/projects/pythonwebdavlib/
+Tags: group::dev
+Depends: python-core
+Source: http://dfn.dl.sourceforge.net/sourceforge/pythonwebdavlib/Python_WebDAV_Library-0.1.2.zip

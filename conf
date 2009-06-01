@@ -57,6 +57,18 @@ description= Pimlico Dates
 module=calendar_ics
 path=/home/root/.evolution/calendar/local/system/calendar.ics
 
+##########
+## 1.4)
+## Remote ICS file (on a Webdav-Server)
+##
+[remoteIcs]
+description= Remote ICS on Webdav
+module=calendar_remoteics
+url=http://webdav.davserver.net/private/pim/
+file=remotecalendar.ics
+username=<LOGIN>
+password=<PASSWORD>
+
 
 #########################################################
 #########################################################

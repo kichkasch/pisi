@@ -15,6 +15,8 @@ VOBJECT2.6=	"deps/vobject-py2.6.tar.gz"
 PYTHONLDAP=	"deps/python-ldap.tar.gz"
 PYTHONGDATA2.5=	"deps/gdata-py2.5.tar.gz"
 PYTHONGDATA2.6=	"deps/gdata-py2.6.tar.gz"
+PYTHONWEBDAV2.5=	"deps/python-webdav-py2.5.tar.gz"
+PYTHONWEBDAV2.6=	"deps/python-webdav-py2.6.tar.gz"
 
 # this generates API documentation in HTML format
 # epydoc needs to be installed prior to usage - the epydoc program must be in your path environement.
@@ -54,7 +56,7 @@ dist:	clean
 sdist: clean
 	tar czf build/pisi-src-$(VERSION).tar.gz *.py contacts/*.py events/*.py modules/*.py scripts/*.sql conf COPYING Makefile README
 
-deps:	dep_dateutil dep_vobject dep_openldap dep_pythonldap dep_pythongdata
+deps:	dep_dateutil dep_vobject dep_openldap dep_pythonldap dep_pythongdata dep_pythonwebdav
 	
 
 # creates an ipk for the correspondig dependency package
@@ -100,6 +102,15 @@ dep_pythongdata:
 	cp deps/control-pythongdata deps/template/CONTROL/control
 	cd deps/template && tar xzf ../../$(PYTHONGDATA2.5)
 	cd deps/template && tar xzf ../../$(PYTHONGDATA2.6)
+	cd deps && fakeroot ../build/ipkg-build template
+	rm -rf deps/template
+
+dep_pythonwebdav:
+	mkdir deps/template
+	mkdir deps/template/CONTROL
+	cp deps/control-pythonwebdav deps/template/CONTROL/control
+	cd deps/template && tar xzf ../../$(PYTHONWEBDAV2.5)
+	cd deps/template && tar xzf ../../$(PYTHONWEBDAV2.6)
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 

@@ -77,3 +77,5 @@ GOOGLE_CALENDAR_MAXRESULTS = GOOGLE_CONTACTS_MAXRESULTS
 
 FILEDOWNLOAD_TIMEOUT = 10
 """Timeout for socket opeations (e.g. http download) in seconds - None for disable"""
+FILEDOWNLOAD_TMPFILE = "/tmp/pisi-remotebuffer.data"
+"""Temporary file for buffering information from remote file sources"""

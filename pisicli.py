@@ -29,6 +29,7 @@ import sys
 import os
 import ConfigParser
 from thirdparty.epydocutil import TerminalController 
+import warnings
 
 class CLICallback(pisiprogress.AbstractCallback):
     """
@@ -45,6 +46,7 @@ class CLICallback(pisiprogress.AbstractCallback):
         self.isVerbose = verbose
         if not verbose:
             self.term = TerminalController()
+            warnings.filterwarnings("ignore")
     
     def message(self,  st):
         """
