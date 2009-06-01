@@ -8,10 +8,13 @@ VERSION=	"0.2"
 API_DOC_DIR=	apidoc/
 
 # dependency parameters
-DATEUTIL=	"deps/python-dateutil.tar.gz"
-VOBJECT=	"deps/vobject.tar.gz"
+DATEUTIL2.5=	"deps/python-dateutil-py2.5.tar.gz"
+DATEUTIL2.6=	"deps/python-dateutil-py2.6.tar.gz"
+VOBJECT2.5=	"deps/vobject-py2.5.tar.gz"
+VOBJECT2.6=	"deps/vobject-py2.6.tar.gz"
 PYTHONLDAP=	"deps/python-ldap.tar.gz"
-PYTHONGDATA=	"deps/gdata.tar.gz"
+PYTHONGDATA2.5=	"deps/gdata-py2.5.tar.gz"
+PYTHONGDATA2.6=	"deps/gdata-py2.6.tar.gz"
 
 # this generates API documentation in HTML format
 # epydoc needs to be installed prior to usage - the epydoc program must be in your path environement.
@@ -61,7 +64,8 @@ dep_dateutil:
 	mkdir deps/template
 	mkdir deps/template/CONTROL
 	cp deps/control-dateutil deps/template/CONTROL/control
-	cd deps/template && tar xzf ../../$(DATEUTIL)
+	cd deps/template && tar xzf ../../$(DATEUTIL2.5)
+	cd deps/template && tar xzf ../../$(DATEUTIL2.6)
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 
@@ -69,7 +73,8 @@ dep_vobject:
 	mkdir deps/template
 	mkdir deps/template/CONTROL
 	cp deps/control-vobject deps/template/CONTROL/control
-	cd deps/template && tar xzf ../../$(VOBJECT)
+	cd deps/template && tar xzf ../../$(VOBJECT2.5)
+	cd deps/template && tar xzf ../../$(VOBJECT2.6)
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 
@@ -93,7 +98,8 @@ dep_pythongdata:
 	mkdir deps/template
 	mkdir deps/template/CONTROL
 	cp deps/control-pythongdata deps/template/CONTROL/control
-	cd deps/template && tar xzf ../../$(PYTHONGDATA)
+	cd deps/template && tar xzf ../../$(PYTHONGDATA2.5)
+	cd deps/template && tar xzf ../../$(PYTHONGDATA2.6)
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 
