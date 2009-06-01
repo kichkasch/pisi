@@ -74,3 +74,6 @@ GOOGLE_CALENDAR_APPNAME = "pisi" + PISI_VERSION
 """application name to use for connecting against google calendar services"""
 GOOGLE_CALENDAR_MAXRESULTS = GOOGLE_CONTACTS_MAXRESULTS
 """upper limit of result set when querying google calendar api"""
+
+FILEDOWNLOAD_TIMEOUT = 10
+"""Timeout for socket opeations (e.g. http download) in seconds - None for disable"""

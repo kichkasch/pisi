@@ -41,13 +41,21 @@ calendarid=<GOOGLE LOGIN>
 
 ##########
 ## 1.2)
-## Example for local ICS file (iCalendar) - not yet supported
+## Example for local ICS file (iCalendar)
 ##
 [localIcs]
 description= ICalendar file
 module=calendar_ics
 path=/home/root/mycalendar.ics
 
+##########
+## 1.3)
+## Local ICS file (iCalendar) for "dates" software from pimlico (openmoko-dates2 in some distros)
+##
+[pimlicodates]
+description= Pimlico Dates
+module=calendar_ics
+path=/home/root/.evolution/calendar/local/system/calendar.ics
 
 
 #########################################################
