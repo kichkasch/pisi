@@ -63,54 +63,58 @@ deps:	dep_dateutil dep_vobject dep_openldap dep_pythonldap dep_pythongdata dep_p
 # make sure a binary distribution is located in the subfolder 'deps' (probably created by 'python setup.py bdist')
 # make sure, you have provided all required up-to-date information in deps/control-XXX before building a package
 dep_dateutil:
-	mkdir deps/template
-	mkdir deps/template/CONTROL
+	mkdir -p deps/template/CONTROL
 	cp deps/control-dateutil deps/template/CONTROL/control
 	cd deps/template && tar xzf ../../$(DATEUTIL2.5)
 	cd deps/template && tar xzf ../../$(DATEUTIL2.6)
+	mkdir -p deps/template/usr/lib/python2.6/site-packages
+	ln -s /usr/local/lib/python2.6/dist-packages/dateutil/ deps/template/usr/lib/python2.6/site-packages/dateutil
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 
 dep_vobject:
-	mkdir deps/template
-	mkdir deps/template/CONTROL
+	mkdir -p deps/template/CONTROL
 	cp deps/control-vobject deps/template/CONTROL/control
 	cd deps/template && tar xzf ../../$(VOBJECT2.5)
 	cd deps/template && tar xzf ../../$(VOBJECT2.6)
+	mkdir -p deps/template/usr/lib/python2.6/site-packages
+	ln -s /usr/local/lib/python2.6/dist-packages/vobject/ deps/template/usr/lib/python2.6/site-packages/vobject
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 
 dep_openldap:
-	mkdir deps/template
-	mkdir deps/template/CONTROL
+	mkdir -p deps/template/CONTROL
 	cp deps/control-openldap deps/template/CONTROL/control
 	cp -r deps/ldap/usr deps/template
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 
 dep_pythonldap:
-	mkdir deps/template
-	mkdir deps/template/CONTROL
+	mkdir -p deps/template/CONTROL
 	cp deps/control-pythonldap deps/template/CONTROL/control
 	cd deps/template && tar xzf ../../$(PYTHONLDAP)
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 
 dep_pythongdata:
-	mkdir deps/template
-	mkdir deps/template/CONTROL
+	mkdir -p deps/template/CONTROL
 	cp deps/control-pythongdata deps/template/CONTROL/control
 	cd deps/template && tar xzf ../../$(PYTHONGDATA2.5)
 	cd deps/template && tar xzf ../../$(PYTHONGDATA2.6)
+	mkdir -p deps/template/usr/lib/python2.6/site-packages
+	ln -s /usr/local/lib/python2.6/dist-packages/gdata deps/template/usr/lib/python2.6/site-packages/gdata
+	ln -s /usr/local/lib/python2.6/dist-packages/atom deps/template/usr/lib/python2.6/site-packages/atom
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 
 dep_pythonwebdav:
-	mkdir deps/template
-	mkdir deps/template/CONTROL
+	mkdir -p deps/template/CONTROL
 	cp deps/control-pythonwebdav deps/template/CONTROL/control
 	cd deps/template && tar xzf ../../$(PYTHONWEBDAV2.5)
 	cd deps/template && tar xzf ../../$(PYTHONWEBDAV2.6)
+	mkdir -p deps/template/usr/lib/python2.6/site-packages
+	ln -s /usr/local/lib/python2.6/dist-packages/webdav deps/template/usr/lib/python2.6/site-packages/webdav
+	cp deps/template/usr/local/lib/python2.6/dist-packages/*.p* deps/template/usr/lib/python2.6/site-packages/
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 

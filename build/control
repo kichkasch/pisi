@@ -8,5 +8,5 @@ Architecture: armv4t
 OE: pisi
 Homepage: http://projects.openmoko.org/projects/pisi/
 Tags: group::pim
-Depends: python-core, python-dateutil, python-vobject, python-sqlite3, python-pygtk, python-pygobject, python-pycairo, python-netserver, python-netclient, python-ldap, python-gdata, openldap, python-webdav
+Depends: python-core, python-dateutil, python-vobject, python-sqlite3, python-pygtk, python-pygobject, python-pycairo, python-netserver, python-netclient, python-gdata, python-webdav
 Source: https://projects.openmoko.org/frs/download.php/762/pisi-src-0.1.2.tar.gz
