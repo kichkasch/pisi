@@ -46,3 +46,26 @@ def parseFullName(fullName):
     except IndexError:
         pass    # that's fine - we cannot have everything
     return retTitle, retFirstname, retLastname, retMiddlename
+
+def assembleFullName(contactEntry):
+        """
+        Assembles all information from a contact entry for the packed version of a one line full name
+        """
+        ret = ""
+        if contactEntry.attributes.has_key('title'):
+            title = contactEntry.attributes['title']
+            if title and title != '':
+                ret += title + " "
+        if contactEntry.attributes.has_key('firstname'):
+            firstname = contactEntry.attributes['firstname']
+            if firstname and firstname != '':
+                ret += firstname + " "
+        if contactEntry.attributes.has_key('middlename'):
+            middlename = contactEntry.attributes['middlename']
+            if middlename and middlename != '':
+                ret += middlename  + " "
+        if contactEntry.attributes.has_key('lastname'):
+            lastname = contactEntry.attributes['lastname']
+            if lastname and lastname != '':
+                ret += lastname
+        return ret.strip()    

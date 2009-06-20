@@ -81,34 +81,6 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         atts['firstname'] = first
         atts['lastname'] = last
         atts['middlename'] = middle
-#        atts['firstname'] = atts['lastname'] = atts['middlename'] = ''
-#        gtitle = gtitle.strip()
-#        list = gtitle.split(" ")
-#        try:
-#            title = ''
-#            moreTitles = True
-#            while moreTitles:
-#                moreTitles = False
-#                if list[0].upper().startswith("PROF"):
-#                    title += 'Prof. '
-#                    del list[0]
-#                    moreTitles = True
-#                if list[0].upper().startswith("DR"):
-#                    title += 'Dr. '
-#                    del list[0]
-#                    moreTitles = True
-#            atts['title'] = title.strip()
-#            atts['firstname'] = list[0]
-#            del list[0]
-#            atts['lastname'] = list[len(list)-1]
-#            del list[len(list)-1]
-#            if len(list) > 0:
-#                middlename = ''
-#                for item in list:
-#                    middlename += item + ' '
-#                atts['middlename'] = middlename.strip() # remove trailing white space
-#        except IndexError:
-#            pass    # that's fine - we cannot have everything
 
     def _unpackPostalCity(self,  line):
         """
@@ -238,24 +210,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         Assembles all information from a contact entry for the packed version of a title in google contacts
         """
-        ret = ""
-        if contactEntry.attributes.has_key('title'):
-            title = contactEntry.attributes['title']
-            if title and title != '':
-                ret += title + " "
-        if contactEntry.attributes.has_key('firstname'):
-            firstname = contactEntry.attributes['firstname']
-            if firstname and firstname != '':
-                ret += firstname + " "
-        if contactEntry.attributes.has_key('middlename'):
-            middlename = contactEntry.attributes['middlename']
-            if middlename and middlename != '':
-                ret += middlename  + " "
-        if contactEntry.attributes.has_key('lastname'):
-            lastname = contactEntry.attributes['lastname']
-            if lastname and lastname != '':
-                ret += lastname
-        return ret.strip()
+        return pisitools.assembleFullName(contactEntry)
 
     def _savePhones(self,  contact,  new_contact):
         """

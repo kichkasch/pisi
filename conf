@@ -133,7 +133,11 @@ password=<GOOGLE PASSWORD>
 ## 2.6)
 ## Example for SIM (via DBUS; as used in SHR)
 ## - no configuration required; everything hard coded; just keep it uncommented for activation -
+## <max_simentries> is the maximum number of allowed contact entries on the SIM card (mine could do no more than 100)
+## <simentry_name_maxlength> is the maximum length a name entry may have on the SIM card (18 was working well on my OM)
 ##
 [shrsim]
 description=SHR SIM Card Contacts
 module=contacts_dbussim
+max_simentries = 100
+simentry_name_maxlength=18

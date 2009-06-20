@@ -3,6 +3,11 @@ Synchronize with SIM card via DBUS (currently used as default contacts storage i
 
 This file is part of Pisi.
 
+Check these links for background information:
+- U{http://git.freesmartphone.org/?p=specs.git;a=blob_plain;f=html/org.freesmartphone.GSM.SIM.html;hb=HEAD}
+- U{http://dbus.freedesktop.org/doc/dbus-python/doc/tutorial.html#data-types}
+- U{http://wiki.openmoko.org/wiki/Dbus}
+
 Pisi is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -30,8 +35,13 @@ DBUS_SIM = 'org.freesmartphone.GSM.SIM'
 """Addressing information in DBUS"""
 DBUS_CONTACTS = 'contacts'
 """Addressing information in DBUS"""
+#NAME_MAXLENGTH = 18
+#"""Maximum numbers of letters allowed within a name entry"""
 
 class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
+    """
+    The implementation of the interface L{contacts.AbstractContactSynchronizationModule} for SIM Card backend accesed via DBUS
+    """
     def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
         """
         Constructor
@@ -49,6 +59,12 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         contacts.AbstractContactSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "Contacts DBUS SIM")
         self.verbose = verbose
+        self._max_simentries = int(config.get(configsection, 'max_simentries'))
+        self._name_maxlength = int(config.get(configsection,'simentry_name_maxlength'))
+        self._availableIds = {}
+        for i in range (1, 101):
+            self._availableIds[i] = 1
+        self._idMappings = {}
         pisiprogress.getCallback().verbose("DBUS_SIM module loaded")
 
     def load(self):
@@ -65,9 +81,12 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         pisiprogress.getCallback().update("Loading")
         i = 0
         for c in dbusContacts:
-            id = c[0]
+            dbus_id = c[0]
             name = c[1]
             number = c[2]
+            
+            del self._availableIds[dbus_id]
+            
             atts = {}
             title,  first,  last,  middle = pisitools.parseFullName(name)
             atts['title'] = title
@@ -79,26 +98,68 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             id = contacts.assembleID(atts)
             c = contacts.Contact(id,  atts)
             self._allContacts[id] = c
+            self._idMappings[id] = dbus_id
             i+=1
             pisiprogress.getCallback().progress.setProgress(20 + ((i*80) / len(dbusContacts)))
             pisiprogress.getCallback().update('Loading')
-
         pisiprogress.getCallback().progress.drop()
+
+    def _saveOperationAdd(self, sim, id):
+        """
+        Writing through: Adds a single value to the SIM Card
+        """
+#        if self._highestId >= self._max_simentries:
+        if len(self._availableIds) == 0:
+            return
+        c = self.getContact(id)
+        fullName = pisitools.assembleFullName(c)
+        if len(fullName) > self._name_maxlength:
+            fullName = fullName[:self._name_maxlength]
+        try:
+            number = c.attributes['mobile']
+            if number and number != '':
+                myid = self._availableIds.keys()[0]
+                sim.StoreEntry(DBUS_CONTACTS, myid, fullName, number)
+                del self._availableIds[myid]
+        except KeyError:
+            pass # fine - no mobile; no entry!
+
+    def _saveOperationDelete(self, sim, id):
+        """
+        Writing through: Removes a single value from the SIM card
+        """
+        dbus_id = self._idMappings[id]
+        sim.DeleteEntry(DBUS_CONTACTS, dbus_id)
+        self._availableIds[dbus_id] = 1
 
     def saveModifications( self ):
         """
         Save whatever changes have come by
         """
+        pisiprogress.getCallback().verbose("DBUS_SIM module: I apply %d changes now" %(len(self._history)))
+        bus = dbus.SystemBus()
+        gsm_device_obj = bus.get_object(DBUS_GSM_DEVICE[0], DBUS_GSM_DEVICE[1])
+        sim = dbus.Interface(gsm_device_obj, DBUS_SIM)
+
+        i = 0
         for listItem in self._history:
             action = listItem[0]
             id = listItem[1]
             if action == ACTIONID_ADD:
-                pisiprogress.getCallback().verbose("\t\t<dummy> adding %s" %(id))
-                pass    # implementation goes here
+                pisiprogress.getCallback().verbose("\t\t<DBUS_SIM> adding %s" %(id))
+                self._saveOperationAdd(sim, id)
             elif action == ACTIONID_DELETE:
-                pisiprogress.getCallback().verbose("\t\t<dummy> deleting %s" %(id))
-                pass    # implementation goes here
+                pisiprogress.getCallback().verbose("\t\t<DBUS_SIM> deleting %s" %(id))
+                self._saveOperationDelete(sim, id)
             elif action == ACTIONID_MODIFY:
-                pisiprogress.getCallback().verbose("\t\t<dummy> replacing %s" %(id))
-                pass    # implementation goes here
- 
+                pisiprogress.getCallback().verbose("\t\t<DBUS_SIM> replacing %s" %(id))
+                self._saveOperationDelete(sim, id)
+                self._saveOperationAdd(sim, id)
+            pisiprogress.getCallback().progress.setProgress(100 / len(self._history))
+            pisiprogress.getCallback().update('Storing')
+
+        i += 1
+        pisiprogress.getCallback().progress.setProgress(100)
+        pisiprogress.getCallback().update('Storing')
+        if len(self._availableIds.keys()) == 0:
+            pisiprogress.getCallback().message("Applying changes to SIM card:\nMaximum number of entries on SIM card (%d) reached.\nSome entries were possibly dopped." %(self._max_simentries))
