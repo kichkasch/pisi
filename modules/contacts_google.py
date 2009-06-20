@@ -27,6 +27,7 @@ sys.path.insert(0,os.path.abspath(__file__+"/../.."))
 from contacts import contacts
 from pisiconstants import *
 import pisiprogress
+import pisitools
 
 import atom
 import gdata.contacts
@@ -75,34 +76,39 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         The whole thing is about guessing - check code for details.
         """
         pisiprogress.getCallback().verbose("Google Contacts: Loading")
-        atts['firstname'] = atts['lastname'] = atts['middlename'] = ''
-        gtitle = gtitle.strip()
-        list = gtitle.split(" ")
-        try:
-            title = ''
-            moreTitles = True
-            while moreTitles:
-                moreTitles = False
-                if list[0].upper().startswith("PROF"):
-                    title += 'Prof. '
-                    del list[0]
-                    moreTitles = True
-                if list[0].upper().startswith("DR"):
-                    title += 'Dr. '
-                    del list[0]
-                    moreTitles = True
-            atts['title'] = title.strip()
-            atts['firstname'] = list[0]
-            del list[0]
-            atts['lastname'] = list[len(list)-1]
-            del list[len(list)-1]
-            if len(list) > 0:
-                middlename = ''
-                for item in list:
-                    middlename += item + ' '
-                atts['middlename'] = middlename.strip() # remove trailing white space
-        except IndexError:
-            pass    # that's fine - we cannot have everything
+        title,  first,  last,  middle = pisitools.parseFullName(gtitle)
+        atts['title'] = title
+        atts['firstname'] = first
+        atts['lastname'] = last
+        atts['middlename'] = middle
+#        atts['firstname'] = atts['lastname'] = atts['middlename'] = ''
+#        gtitle = gtitle.strip()
+#        list = gtitle.split(" ")
+#        try:
+#            title = ''
+#            moreTitles = True
+#            while moreTitles:
+#                moreTitles = False
+#                if list[0].upper().startswith("PROF"):
+#                    title += 'Prof. '
+#                    del list[0]
+#                    moreTitles = True
+#                if list[0].upper().startswith("DR"):
+#                    title += 'Dr. '
+#                    del list[0]
+#                    moreTitles = True
+#            atts['title'] = title.strip()
+#            atts['firstname'] = list[0]
+#            del list[0]
+#            atts['lastname'] = list[len(list)-1]
+#            del list[len(list)-1]
+#            if len(list) > 0:
+#                middlename = ''
+#                for item in list:
+#                    middlename += item + ' '
+#                atts['middlename'] = middlename.strip() # remove trailing white space
+#        except IndexError:
+#            pass    # that's fine - we cannot have everything
 
     def _unpackPostalCity(self,  line):
         """

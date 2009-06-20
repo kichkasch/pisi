@@ -128,3 +128,12 @@ description=Google Contacts Account
 module=contacts_google
 user=<GOOGLE LOGIN>
 password=<GOOGLE PASSWORD>
+
+##########
+## 2.6)
+## Example for SIM (via DBUS; as used in SHR)
+## - no configuration required; everything hard coded; just keep it uncommented for activation -
+##
+[shrsim]
+description=SHR SIM Card Contacts
+module=contacts_dbussim
