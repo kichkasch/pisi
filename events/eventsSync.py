@@ -16,9 +16,16 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Pisi.  If not, see <http://www.gnu.org/licenses/>
 """
+import pickle, os
+
 import pisiprogress
 
 def syncEvents(verbose,  modulesToLoad,  source):
+    modulesToLoad.sort() # Sort our modules
+    modulesNamesCombined = modulesToLoad[0] + modulesToLoad[1]
+    previousEvents = _readModulesPreviousEvents( modulesNamesCombined )
+    newEvents = []
+    
     allEventsLeft = source[0].allEvents()
     allEventsRight = source[1].allEvents()
     pisiprogress.getCallback().verbose("")
@@ -28,9 +35,16 @@ def syncEvents(verbose,  modulesToLoad,  source):
     for id in allEventsLeft.keys():
         event = allEventsLeft[id]
         if not id in allEventsRight.keys():    
-            # This event is new to the right side
-            source[1].addEvent(event)
+            # This event is not in the right side
+            if id in previousEvents:
+                # It is deleted from the right side
+                source[0].removeEntry(id)
+            else:
+                # It's new
+                source[1].addEvent(event)
+                newEvents.append(id)
         else:
+            newEvents.append(id)
             sameEvent = allEventsRight[id]
             if not event.compare(sameEvent):    # only update if something really changed; update time is not an indicator - this was updated when we wrote the last entry
                 if event.updated == "":     # this event has never been updated
@@ -47,5 +61,32 @@ def syncEvents(verbose,  modulesToLoad,  source):
     for id in allEventsRight.keys():
         event = allEventsRight[id]
         if not id in allEventsLeft.keys():
-            # This event is new to the left side
-            source[0].addEvent( event )
+            # This event is not in the left side
+            if id in previousEvents:
+                # It is deleted from the left side
+                source[1].removeEntry(id)
+            else:
+                source[0].addEvent( event )
+                newEvents.append(id)
+    
+    _saveModulesNewEvent(modulesNamesCombined, newEvents)
+
+def _readModulesPreviousEvents( moduleNames ):
+    homedir = os.environ.get('HOME')
+    configfolder = homedir + '/.pisi/modules/'
+    if not os.path.exists(configfolder):
+        os.mkdir( configfolder )
+    modulesFile = configfolder + moduleNames
+    if not os.path.exists(modulesFile):
+        tmplist = []
+        file = open(modulesFile, 'w')
+        pickle.dump(tmplist, file)
+        return []
+    file = open(modulesFile, 'r')
+    return pickle.load(file)
+
+def _saveModulesNewEvent( moduleNames, list ):
+    homedir = os.environ.get('HOME')
+    modulesFile = homedir + '/.pisi/modules/' + moduleNames
+    file = open(modulesFile, 'w')
+    pickle.dump(list, file)
