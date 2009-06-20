@@ -35,8 +35,16 @@ DBUS_SIM = 'org.freesmartphone.GSM.SIM'
 """Addressing information in DBUS"""
 DBUS_CONTACTS = 'contacts'
 """Addressing information in DBUS"""
-#NAME_MAXLENGTH = 18
-#"""Maximum numbers of letters allowed within a name entry"""
+DBUS_NAME_MOBILEPHONE_SUFFIX = '*'
+"""String to be appended to an entry when phone number is of type 'mobile'"""
+DBUS_NAME_WORKPHONE_SUFFIX = '-'
+"""String to be appended to an entry when phone number is of type 'work'"""
+DBUS_NAME_HOMEPHONE_SUFFIX = '+'
+"""String to be appended to an entry when phone number is of type 'home'"""
+
+PHONE_TYPE_MOBILE = 0
+PHONE_TYPE_HOME = 1
+PHONE_TYPE_WORK = 2
 
 class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
     """
@@ -87,18 +95,44 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             
             del self._availableIds[dbus_id]
             
+            type = PHONE_TYPE_MOBILE
+            if name.endswith(DBUS_NAME_MOBILEPHONE_SUFFIX):
+                name = name[:len(name) - len(DBUS_NAME_MOBILEPHONE_SUFFIX)]
+            if name.endswith(DBUS_NAME_WORKPHONE_SUFFIX):
+                type = PHONE_TYPE_WORK
+                name = name[:len(name) - len(DBUS_NAME_WORKPHONE_SUFFIX)]
+            elif name.endswith(DBUS_NAME_HOMEPHONE_SUFFIX):
+                type = PHONE_TYPE_HOME
+                name = name[:len(name) - len(DBUS_NAME_HOMEPHONE_SUFFIX)]
+            
             atts = {}
             title,  first,  last,  middle = pisitools.parseFullName(name)
             atts['title'] = title
             atts['firstname'] = first
             atts['lastname'] = last
             atts['middlename'] = middle
-            atts['mobile'] = number.strip()
 
             id = contacts.assembleID(atts)
-            c = contacts.Contact(id,  atts)
-            self._allContacts[id] = c
-            self._idMappings[id] = dbus_id
+            if self._allContacts.has_key(id):
+                c = self._allContacts[id]
+                if type == PHONE_TYPE_MOBILE:
+                    c.attributes['mobile'] = number.strip()
+                elif type == PHONE_TYPE_WORK:
+                    c.attributes['officePhone'] = number.strip()
+                elif type == PHONE_TYPE_HOME:
+                    c.attributes['phone'] = number.strip()
+                
+            else:
+                if type == PHONE_TYPE_MOBILE:
+                    atts['mobile'] = number.strip()
+                elif type == PHONE_TYPE_WORK:
+                    atts['officePhone'] = number.strip()
+                elif type == PHONE_TYPE_HOME:
+                    atts['phone'] = number.strip()
+                c = contacts.Contact(id,  atts)
+                self._allContacts[id] = c
+                self._idMappings[id] = []
+            self._idMappings[id].append(dbus_id)
             i+=1
             pisiprogress.getCallback().progress.setProgress(20 + ((i*80) / len(dbusContacts)))
             pisiprogress.getCallback().update('Loading')
@@ -108,29 +142,55 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         Writing through: Adds a single value to the SIM Card
         """
-#        if self._highestId >= self._max_simentries:
-        if len(self._availableIds) == 0:
-            return
         c = self.getContact(id)
         fullName = pisitools.assembleFullName(c)
-        if len(fullName) > self._name_maxlength:
-            fullName = fullName[:self._name_maxlength]
+#        if len(fullName) > self._name_maxlength:
+#            fullName = fullName[:self._name_maxlength]
+        if len(fullName) > self._name_maxlength - len(DBUS_NAME_MOBILEPHONE_SUFFIX):  # let's assume, all suffixes are of same length
+            fullName = fullName[:self._name_maxlength - len(DBUS_NAME_MOBILEPHONE_SUFFIX)] 
+        # 1st - mobile
+        if len(self._availableIds) == 0:
+            return
         try:
             number = c.attributes['mobile']
             if number and number != '':
                 myid = self._availableIds.keys()[0]
-                sim.StoreEntry(DBUS_CONTACTS, myid, fullName, number)
+                sim.StoreEntry(DBUS_CONTACTS, myid, fullName + DBUS_NAME_MOBILEPHONE_SUFFIX, number)
                 del self._availableIds[myid]
         except KeyError:
             pass # fine - no mobile; no entry!
+        
+        #2nd - home phone
+        if len(self._availableIds) == 0:
+            return
+        try:
+            number = c.attributes['phone']
+            if number and number != '':
+                myid = self._availableIds.keys()[0]
+                sim.StoreEntry(DBUS_CONTACTS, myid, fullName + DBUS_NAME_HOMEPHONE_SUFFIX, number)
+                del self._availableIds[myid]
+        except KeyError:
+            pass # fine - no home phone; no entry!
+            
+        #3rd - office phone
+        if len(self._availableIds) == 0:
+            return
+        try:
+            number = c.attributes['officePhone']
+            if number and number != '':
+                myid = self._availableIds.keys()[0]
+                sim.StoreEntry(DBUS_CONTACTS, myid, fullName + DBUS_NAME_WORKPHONE_SUFFIX, number)
+                del self._availableIds[myid]
+        except KeyError:
+            pass # fine - no work phone; no entry!
 
     def _saveOperationDelete(self, sim, id):
         """
         Writing through: Removes a single value from the SIM card
         """
-        dbus_id = self._idMappings[id]
-        sim.DeleteEntry(DBUS_CONTACTS, dbus_id)
-        self._availableIds[dbus_id] = 1
+        for dbus_id in self._idMappings[id]:
+            sim.DeleteEntry(DBUS_CONTACTS, dbus_id)
+            self._availableIds[dbus_id] = 1
 
     def saveModifications( self ):
         """
@@ -155,10 +215,10 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
                 pisiprogress.getCallback().verbose("\t\t<DBUS_SIM> replacing %s" %(id))
                 self._saveOperationDelete(sim, id)
                 self._saveOperationAdd(sim, id)
-            pisiprogress.getCallback().progress.setProgress(100 / len(self._history))
+            i += 1
+            pisiprogress.getCallback().progress.setProgress(i * 100 / len(self._history))
             pisiprogress.getCallback().update('Storing')
 
-        i += 1
         pisiprogress.getCallback().progress.setProgress(100)
         pisiprogress.getCallback().update('Storing')
         if len(self._availableIds.keys()) == 0:
