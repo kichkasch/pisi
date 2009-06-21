@@ -12,7 +12,8 @@ DATEUTIL2.5=	"deps/python-dateutil-py2.5.tar.gz"
 DATEUTIL2.6=	"deps/python-dateutil-py2.6.tar.gz"
 VOBJECT2.5=	"deps/vobject-py2.5.tar.gz"
 VOBJECT2.6=	"deps/vobject-py2.6.tar.gz"
-PYTHONLDAP=	"deps/python-ldap.tar.gz"
+PYTHONLDAP2.5=	"deps/python-ldap-py2.5.tar.gz"
+PYTHONLDAP2.6=	"deps/python-ldap-py2.6.tar.gz"
 PYTHONGDATA2.5=	"deps/gdata-py2.5.tar.gz"
 PYTHONGDATA2.6=	"deps/gdata-py2.6.tar.gz"
 PYTHONWEBDAV2.5=	"deps/python-webdav-py2.5.tar.gz"
@@ -92,7 +93,14 @@ dep_openldap:
 dep_pythonldap:
 	mkdir -p deps/template/CONTROL
 	cp deps/control-pythonldap deps/template/CONTROL/control
-	cd deps/template && tar xzf ../../$(PYTHONLDAP)
+	cd deps/template && tar xzf ../../$(PYTHONLDAP2.5)
+	cd deps/template && tar xzf ../../$(PYTHONLDAP2.6)
+	mkdir -p deps/template/usr/lib/python2.6/site-packages
+	ln -s /usr/local/lib/python2.6/dist-packages/ldap deps/template/usr/lib/python2.6/site-packages/ldap
+	cp deps/template/usr/local/lib/python2.6/dist-packages/*.p* deps/template/usr/lib/python2.6/site-packages/
+	cp deps/template/usr/local/lib/python2.6/dist-packages/_ldap.so deps/template/usr/lib/python2.6/site-packages/
+	ln -s /usr/lib/libssl.so.0.9.8 deps/template/usr/lib/libssl.so.0.9.7
+	ln -s /usr/lib/libcrypto.so.0.9.8 deps/template/usr/lib/libcrypto.so.0.9.7
 	cd deps && fakeroot ../build/ipkg-build template
 	rm -rf deps/template
 

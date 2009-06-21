@@ -32,6 +32,7 @@ tar xzf python-ldap-2.3.6.tar.gz
 <modified version attached>
 
 3) Create a build distribution 
+- there is some 'magic ' step in between for creating a proper _ldap.so (can't figure out, how I managed to get this one; luckily there is sstill one available -
 python setup.py bdist
 
 4) Create a ipk from it using the PISI Makefile (deps)
