@@ -84,6 +84,13 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         except AttributeError:
             return ''
 
+    def _guessAmount(self):
+        """
+        Try to determine roughly how many entries are in this file (we can't know prior to parsing; but we have a guess using the file size)
+        """
+        info = os.stat(self._vcfpath)
+        return info.st_size / VCF_BYTES_PER_ENTRY
+
     def load(self):
         """
         Load all data from local VCF file
@@ -106,6 +113,8 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         comps = vobject.readComponents(file)
         pisiprogress.getCallback().progress.setProgress(20) 
         pisiprogress.getCallback().update("Loading")
+        amount = self._guessAmount()
+        i = 0
         for x in comps:
             atts = {}
             atts['firstname'] = self._extractAtt(x, 'x.n.value.given')
@@ -157,6 +166,11 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             c = contacts.Contact(id,  atts)
             self._allContacts[id] = c
             self._rawData[id] = x
+            if i < amount:
+                i += 1
+            pisiprogress.getCallback().progress.setProgress(20 + ((i*80) / amount))
+            pisiprogress.getCallback().update('Loading')
+            
         file.close()
         pisiprogress.getCallback().progress.drop()
 

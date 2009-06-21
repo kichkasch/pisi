@@ -79,3 +79,6 @@ FILEDOWNLOAD_TIMEOUT = 10
 """Timeout for socket opeations (e.g. http download) in seconds - None for disable"""
 FILEDOWNLOAD_TMPFILE = "/tmp/pisi-remotebuffer.data"
 """Temporary file for buffering information from remote file sources"""
+
+VCF_BYTES_PER_ENTRY = 200
+"""For guessing the number of entries inside a VCF file by evaluating its size we need an estimation of the size for a single entry - for the purpose of showing some progress"""
