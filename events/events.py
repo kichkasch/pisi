@@ -194,7 +194,7 @@ class Recurrence:
         except BaseException:
             self._rrule = None
 
-    def initFromAttributes(self,  rrule,  dtstart,  dtend = None,  isAllDay = False):   # just learned; there is no Constructor overwriting allowed in Python :(
+    def initFromAttributes(self,  rrule,  dtstart,  dtend = None,  isAllDay = False):   
         """
         Initialize a recurrence from the information chunks
         """
@@ -207,7 +207,7 @@ class Recurrence:
         if self._dtend:
             data += dtend.serialize()
             
-        if type(self._dtstart.value) == datetime.date or self._dtstart.serialize().endswith("Z"):  # special handling for all day recurrences and UTCs
+        if type(self._dtstart.value) == datetime.date or self._dtstart.serialize().strip().endswith("Z"):  # special handling for all day recurrences and UTCs
             frame = vobject.iCalendar()
             frame.add("standard")
             frame.standard = vobject.icalendar.TimezoneComponent(UTC())

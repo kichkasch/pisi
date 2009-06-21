@@ -82,6 +82,12 @@ class AbstractCallback():
         Prompt the user for a single entry to type in
         """
         return None
+        
+    def promptGenericConfirmation(self,  prompt):
+        """
+        Ask user for a single confirmation (OK / Cancel)
+        """
+        return False
 
     def promptFilename(self, prompt,  default):
         """

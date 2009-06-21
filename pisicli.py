@@ -82,7 +82,14 @@ class CLICallback(pisiprogress.AbstractCallback):
             if st == '':
                 return default
         return st
-        
+
+    def promptGenericConfirmation(self,  prompt):
+        """
+        Ask user for a single confirmation (OK / Cancel)
+        """
+        st = raw_input(prompt + " (Y/N): ")
+        return st.strip().upper() == 'Y'
+
     def update(self,  status):
         """
         If we are not in verbose mode, we display the progress here

@@ -94,7 +94,7 @@ database=/home/root/Applications/Qtopia/qtopia_db.sqlite
 [ldap]
 description=Local LDAP Server
 module=contacts_ldap
-ldapHost=localhost
+ldapHost=192.168.0.200
 ldapPort=389
 ldapDomain=dc=group,dc=de
 ldapFilter=objectClass=person
@@ -121,6 +121,18 @@ vcfpath=@interactive
 
 ##########
 ## 2.5)
+## Remote VCF file (on a Webdav-Server)
+##
+[remoteVCF]
+description= Remote VCF on Webdav
+module=contacts_remotevcf
+url=http://webdav.davserver.net/private/pim/
+file=contacts.vcf
+username=<LOGIN>
+password=<PASSWORD>
+
+##########
+## 2.6)
 ## Example for Google Account - Contact information
 ##
 [googlecontacts]
@@ -130,7 +142,7 @@ user=<GOOGLE LOGIN>
 password=<GOOGLE PASSWORD>
 
 ##########
-## 2.6)
+## 2.7)
 ## Example for SIM (via DBUS; as used in SHR)
 ## - no configuration required; everything hard coded; just keep it uncommented for activation -
 ## <max_simentries> is the maximum number of allowed contact entries on the SIM card (mine could do no more than 100)

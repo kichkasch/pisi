@@ -143,5 +143,5 @@ class AbstractSynchronizationModule:
         
         The instance is removed from the dictionary (L{_allEntries}).
         """
-        del self._allContacts[id]
+        del self._allEntries[id]
 

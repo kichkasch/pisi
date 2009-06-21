@@ -305,15 +305,23 @@ class Base(pisiprogress.AbstractCallback):
             self.progress.push(0, 50)
             source[0].load()
             self.progress.drop()
+        except BaseException,  m:
+            if not self.promptGenericConfirmation("The following error occured when loading:\n%s\nContinue processing?" %(m.message)):
+                self.progress.reset()
+                self.update("Error")
+                return
+            self.progress.drop()
+        try:
             self.progress.push(50,  100)
             self.update('Loading')
             source[1].load()
             self.progress.drop()
         except BaseException,  m:
-            self.error(m.message)
-            self.progress.reset()
-            self.update("Error")
-            return
+            if not self.promptGenericConfirmation("The following error occured when loading:\n%s\nContinue processing?" %(m.message)):
+                self.progress.reset()
+                self.update("Error")
+                return
+            self.progress.drop()
         self.progress.drop()
         
         self.progress.push(40, 70)
@@ -367,6 +375,15 @@ class Base(pisiprogress.AbstractCallback):
         print "** Error: %s" %(str(st))
         self.message(str(st),  gtk.MESSAGE_ERROR)
 
+    def promptGenericConfirmation(self,  prompt):
+        """
+        Ask user for a single confirmation (OK / Cancel)
+        """
+        d = gtk.MessageDialog(self.window, type = gtk.MESSAGE_QUESTION, buttons = gtk.BUTTONS_YES_NO, message_format = prompt)
+        ret = d.run()
+        d.destroy()
+        return ret == gtk.RESPONSE_YES
+
     def promptGeneric(self,  prompt,  default):
         """
         Prompt the user for a single entry to type in - not implemented in GUI
@@ -380,7 +397,6 @@ class Base(pisiprogress.AbstractCallback):
         d = gtk.FileChooserDialog(prompt,  self.window,  buttons =(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.RESPONSE_OK) )
         d.set_select_multiple(False)
         ret = d.run()
-#        print ret
         filename = d.get_filename()
         d.destroy()
         if ret == gtk.RESPONSE_CANCEL or ret == -4:

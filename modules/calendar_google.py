@@ -90,8 +90,6 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         gevent.link.append( atom.Link(editUri, 'edit', 'application/atom+xml') )
         self.batchOperations.AddUpdate(gevent)
 
-    def removeEntry( self, id ):
-        self._saveRemoveEvent( id ) # Made this alias, because I don't know it it's used in legacy-code..
     def _saveRemoveEvent( self, id ):
         """
         Removes an event as part of saving modifications
