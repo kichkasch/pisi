@@ -67,13 +67,23 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         contacts.AbstractContactSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "Contacts DBUS SIM")
         self.verbose = verbose
-        self._max_simentries = int(config.get(configsection, 'max_simentries'))
-        self._name_maxlength = int(config.get(configsection,'simentry_name_maxlength'))
         self._availableIds = {}
         for i in range (1, 101):
             self._availableIds[i] = 1
         self._idMappings = {}
+        self._determineSimLimitations()        
         pisiprogress.getCallback().verbose("DBUS_SIM module loaded")
+
+    def _determineSimLimitations(self):
+        """
+        Supporting function in order to auto-determine limitation of SIM card (max number of entries and max length of name)
+        """
+        bus = dbus.SystemBus()
+        gsm_device_obj = bus.get_object(DBUS_GSM_DEVICE[0], DBUS_GSM_DEVICE[1])
+        sim = dbus.Interface(gsm_device_obj,DBUS_SIM)
+        infos = sim.GetPhonebookInfo(DBUS_CONTACTS)
+        self._max_simentries = infos["max_index"]
+        self._name_maxlength = infos["name_length"]
 
     def load(self):
         """
@@ -81,6 +91,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         pisiprogress.getCallback().verbose ("DBUS_SIM: Loading")
         pisiprogress.getCallback().progress.push(0, 100)        
+        pisiprogress.getCallback().verbose ("  >SIM Card Limitations: %d entries maximum; no more than %d characters per name" %(self._max_simentries, self._name_maxlength))
         bus = dbus.SystemBus()
         gsm_device_obj = bus.get_object(DBUS_GSM_DEVICE[0], DBUS_GSM_DEVICE[1])
         sim = dbus.Interface(gsm_device_obj,DBUS_SIM)
