@@ -112,7 +112,7 @@ vcfpath=/home/root/contacts.vcf
 
 ##########
 ## 2.4)
-## Example for local VCF file - file name has to be provided by user interactively
+## Configuration for local VCF file - file name has to be provided by user interactively
 ##
 [vcf2]
 description=Local VCF file (interactive)
@@ -143,9 +143,18 @@ password=<GOOGLE PASSWORD>
 
 ##########
 ## 2.7)
-## Example for SIM (via DBUS; as used in SHR)
+## Configuration for SIM (via DBUS; as used in SHR)
 ## - no configuration required; everything hard coded; just keep it uncommented for activation -
 ##
 [shrsim]
 description=SHR SIM Card Contacts
 module=contacts_dbussim
+
+##########
+## 2.8)
+## Configuration for Paroli
+##
+[shrsim]
+description=SHR SIM Card Contacts
+module=contacts_dbussim
+path=/home/root/.paroli/contacts/phone

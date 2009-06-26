@@ -22,6 +22,8 @@ from contacts import contacts
 from pisiconstants import *
 import pisiprogress
 
+from tichy.service import Service
+
 class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
     def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
         """
@@ -41,19 +43,52 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         contacts.AbstractContactSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "Contacts Paroli")
         self.verbose = verbose
         pisiprogress.getCallback().verbose("Paroli module loaded")
-            
-        # pull configuration data and whatever initialization might be required
         self._path = config.get(configsection,'path')
 
     def load(self):
         """
         Load all data from backend
         """
-        pass    # implementation goes here
+        pass
+
+    def _saveOperationAdd(self, id):
+        """
+        Writing through: Adds a single value to the Paroli backend
+        """
+        c = self.getContact(id)
+        fullName = pisitools.assembleFullName(c)
+        number = c.attributes['mobile']
+        pass
+
+    def _saveOperationDelete(self, sim, id):
+        """
+        Writing through: Removes a single value from the Paroli backend
+        """
+        pass
 
     def saveModifications( self ):
         """
         Save whatever changes have come by
         """
-        pass
-        
+        pisiprogress.getCallback().verbose("Paroli module: I apply %d changes now" %(len(self._history)))
+
+        i = 0
+        for listItem in self._history:
+            action = listItem[0]
+            id = listItem[1]
+            if action == ACTIONID_ADD:
+                pisiprogress.getCallback().verbose("\t\t<Paroli> adding %s" %(id))
+                self._saveOperationAdd(sim, id)
+            elif action == ACTIONID_DELETE:
+                pisiprogress.getCallback().verbose("\t\t<Paroli> deleting %s" %(id))
+                self._saveOperationDelete(sim, id)
+            elif action == ACTIONID_MODIFY:
+                pisiprogress.getCallback().verbose("\t\t<Paroli> replacing %s" %(id))
+                self._saveOperationDelete(sim, id)
+                self._saveOperationAdd(sim, id)
+            i += 1
+            pisiprogress.getCallback().progress.setProgress(i * 100 / len(self._history))
+            pisiprogress.getCallback().update('Storing')
+
+        pisiprogress.getCallback().progress.setProgress(100)
+        pisiprogress.getCallback().update('Storing')

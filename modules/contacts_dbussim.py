@@ -155,8 +155,6 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         c = self.getContact(id)
         fullName = pisitools.assembleFullName(c)
-#        if len(fullName) > self._name_maxlength:
-#            fullName = fullName[:self._name_maxlength]
         if len(fullName) > self._name_maxlength - len(DBUS_NAME_MOBILEPHONE_SUFFIX):  # let's assume, all suffixes are of same length
             fullName = fullName[:self._name_maxlength - len(DBUS_NAME_MOBILEPHONE_SUFFIX)] 
         # 1st - mobile
