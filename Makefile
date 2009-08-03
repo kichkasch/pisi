@@ -41,7 +41,14 @@ dist:	clean
 	cp build/control build/template/CONTROL
 	mkdir -p build/template/opt/pisi
 	cp *.py COPYING README build/template/opt/pisi
-	cp -r contacts events modules scripts thirdparty build/template/opt/pisi
+	mkdir -p build/template/opt/pisi/contacts
+	cp  contacts/*.py build/template/opt/pisi/contacts
+	mkdir -p build/template/opt/pisi/events
+	cp  events/*.py build/template/opt/pisi/events
+	mkdir -p build/template/opt/pisi/modules
+	cp  modules/*.py build/template/opt/pisi/modules
+	mkdir -p build/template/opt/pisi/thirdparty
+	cp  thirdparty/*.py build/template/opt/pisi/thirdparty
 	mkdir build/template/bin
 	ln -s /opt/pisi/pisi.py build/template/bin/pisi
 	ln -s /opt/pisi/pisigui.py build/template/bin/pisigui
@@ -142,6 +149,13 @@ dist_ubuntu:
 	cp build/pisi.png build/ubuntu/usr/share/pixmaps
 	mkdir -p build/ubuntu/opt/pisi
 	cp *.py COPYING README build/ubuntu/opt/pisi
-	cp -r contacts events modules scripts thirdparty build/ubuntu/opt/pisi
+	mkdir -p build/ubuntu/opt/pisi/contacts
+	cp  contacts/*.py build/ubuntu/opt/pisi/contacts
+	mkdir -p build/ubuntu/opt/pisi/events
+	cp  events/*.py build/ubuntu/opt/pisi/events
+	mkdir -p build/ubuntu/opt/pisi/modules
+	cp  modules/*.py build/ubuntu/opt/pisi/modules
+	mkdir -p build/ubuntu/opt/pisi/thirdparty
+	cp  thirdparty/*.py build/ubuntu/opt/pisi/thirdparty
 	cd build && dpkg --build ubuntu/ pisi-$(VERSION).deb
 	rm -rf build/ubuntu
