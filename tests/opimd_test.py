@@ -31,8 +31,6 @@ sqlite> root@om-gta02 ~/programming $
 
 
 import dbus, e_dbus
-import warnings
-warnings.filterwarnings('ignore', '.*')
 
 
 def testLoad():
@@ -71,5 +69,20 @@ def testWrite():
     contact['Email'] = 'michael.pilgermann@gmx.de'
     path = contacts.Add(contact)
 
+def deleteAll():
+    bus = dbus.SystemBus(mainloop = e_dbus.DBusEcoreMainLoop()) 
+    dbusObject = bus.get_object("org.freesmartphone.opimd", "/org/freesmartphone/PIM/Contacts")
+    contacts = dbus.Interface(dbusObject, dbus_interface="org.freesmartphone.PIM.Contacts")
+    query = contacts.Query({}) 
+    dbusObject = bus.get_object("org.freesmartphone.opimd", query)
+    query = dbus.Interface(dbusObject, dbus_interface="org.freesmartphone.PIM.ContactQuery")
+    count = query.GetResultCount()
+    for contact in query.GetMultipleResults(count):
+        dbusObject = bus.get_object("org.freesmartphone.opimd", contact.get('Path'))
+        contactObject = dbus.Interface(dbusObject, dbus_interface="org.freesmartphone.PIM.Contact")
+        print "Deleting",  contact.get('Name')
+        contactObject.Delete()
+    
 #testWrite()
-testLoad()
+#testLoad()
+deleteAll()

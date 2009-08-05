@@ -152,9 +152,9 @@ module=contacts_dbussim
 
 ##########
 ## 2.8)
-## Configuration for Paroli
+## Configuration for OPIMD
+## - no configuration required; everything hard coded; just keep it uncommented for activation -
 ##
-[shrsim]
-description=SHR SIM Card Contacts
-module=contacts_dbussim
-path=/home/root/.paroli/contacts/phone
+[opimd]
+description=OPIMD Contacts
+module=contacts_opimd

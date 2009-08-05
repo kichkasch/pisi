@@ -316,6 +316,12 @@ def list_configurations():
     """
     config = pisi.getConfiguration()
     print 'You have these configurations:'
+    print '  [1] Contacts sources'
     for con in config.sections():
-        print ('\t-%s which uses module <%s>: %s'  %(con, config.get(con,'module'),  config.get(con,'description')))
+        if config.get(con,'module').startswith('contacts'):
+            print ('\t-%s which uses module <%s>: %s'  %(con, config.get(con,'module'),  config.get(con,'description')))
+    print '  [2] Calendar sources'
+    for con in config.sections():
+        if config.get(con,'module').startswith('calendar'):
+            print ('\t-%s which uses module <%s>: %s'  %(con, config.get(con,'module'),  config.get(con,'description')))
     sys.exit(0)
