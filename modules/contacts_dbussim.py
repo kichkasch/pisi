@@ -67,11 +67,11 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         contacts.AbstractContactSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "Contacts DBUS SIM")
         self.verbose = verbose
+        self._determineSimLimitations()        
         self._availableIds = {}
-        for i in range (1, 101):
+        for i in range (1, self._max_simentries + 1):
             self._availableIds[i] = 1
         self._idMappings = {}
-        self._determineSimLimitations()        
         pisiprogress.getCallback().verbose("DBUS_SIM module loaded")
 
     def _determineSimLimitations(self):
