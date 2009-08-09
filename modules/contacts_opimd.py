@@ -128,6 +128,12 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             pisiprogress.getCallback().progress.setProgress(20 + ((i*80) / count))
             pisiprogress.getCallback().update('Loading')
 
+    def _saveOneEntry(self, fields, fieldName, contact,  attribute):
+        try:
+            fields[fieldName] = contact.attributes[attribute]
+        except KeyError:
+            fields[fieldName] = None
+
     def _saveOperationAdd(self, id):
         """
         Making changes permanent: Add a single contact instance to backend
@@ -139,30 +145,30 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         contacts = dbus.Interface(dbusObject, dbus_interface=INTERFACE_CONTACTS)
 
         fields = {}
-        fields['Name'] = contact.attributes['firstname']
-        fields['Surname'] = contact.attributes['lastname']
-        fields['Middlename'] = contact.attributes['middlename']
-        fields['E-mail'] = contact.attributes['email']
-        fields['Cell phone'] = contact.attributes['mobile']
-        fields['Work phone'] = contact.attributes['officePhone']
-        fields['Home phone'] = contact.attributes['phone']
-        fields['Fax phone'] = contact.attributes['fax']
+        self._saveOneEntry(fields, 'Name', contact,'firstname' )
+        self._saveOneEntry(fields, 'Surname', contact, 'lastname')
+        self._saveOneEntry(fields, 'Middlename', contact,'middlename' )
+        self._saveOneEntry(fields, 'E-mail', contact, 'email')
+        self._saveOneEntry(fields, 'Cell phone', contact, 'mobile')
+        self._saveOneEntry(fields, 'Work phone', contact, 'officePhone')
+        self._saveOneEntry(fields, 'Home phone', contact, 'phone')
+        self._saveOneEntry(fields, 'Fax phone', contact,'fax' )
 
-        fields['Title'] = contact.attributes['title']
-        fields['Organisation'] = contact.attributes['businessOrganisation']
-        fields['Departement'] = contact.attributes['businessDepartment']
+        self._saveOneEntry(fields, 'Title', contact, 'title')
+        self._saveOneEntry(fields, 'Organisation', contact,'businessOrganisation' )
+        self._saveOneEntry(fields, 'Departement', contact, 'businessDepartment')
 
-        fields['BusinessStreet'] = contact.attributes['businessStreet']
-        fields['BusinessPostalCode'] = contact.attributes['businessPostalCode']
-        fields['BusinessCity'] = contact.attributes['businessCity']
-        fields['BusinessCountry'] = contact.attributes['businessCountry']
-        fields['BusinessState'] = contact.attributes['businessState']
+        self._saveOneEntry(fields, 'BusinessStreet', contact, 'businessStreet')
+        self._saveOneEntry(fields, 'BusinessPostalCode', contact, 'businessPostalCode')
+        self._saveOneEntry(fields, 'BusinessCity', contact, 'businessCity')
+        self._saveOneEntry(fields, 'BusinessCountry', contact, 'businessCountry')
+        self._saveOneEntry(fields, 'BusinessState', contact, 'businessState')
         
-        fields['HomeStreet'] = contact.attributes['homeStreet']
-        fields['HomePostalCode'] = contact.attributes['homePostalCode']
-        fields['HomeCity'] = contact.attributes['homeCity']
-        fields['HomeCountry'] = contact.attributes['homeCountry']
-        fields['HomeState'] = contact.attributes['homeState']
+        self._saveOneEntry(fields, 'HomeStreet', contact,'homeStreet' )
+        self._saveOneEntry(fields, 'HomePostalCode', contact, 'homePostalCode')
+        self._saveOneEntry(fields, 'HomeCity', contact,'homeCity' )
+        self._saveOneEntry(fields, 'HomeCountry', contact, 'homeCountry')
+        self._saveOneEntry(fields,'HomeState' , contact, 'homeState')
         
         contacts.Add(fields)
     
