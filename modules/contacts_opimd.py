@@ -48,12 +48,19 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         
         Super class constructor (L{contacts.AbstractContactSynchronizationModule.__init__}) is called.
         Local variables are initialized.
-        The settings from the configuration file are loaded. 
         """
         contacts.AbstractContactSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "OPIMD")
         pisiprogress.getCallback().verbose('contact opimd module loaded using file')
         self._idMappingInternalGlobal = {}
         self._idMappingGlobalInternal = {}
+
+    def _extractValue(self, atts, attName, contactObject, opimdField):
+        """
+        Supporting function to extract a single attribute value
+        """
+        atts[attName] = contactObject.GetContent().get(opimdField)
+        if not atts[attName]:
+            atts[attName] = ''
 
     def load(self):
         """
@@ -83,37 +90,33 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             
             if contactObject.GetUsedBackends()[0]!= BACKEND_TYPE_SQLITE:
                 continue    # let's only go for sqlite entries
-                
-            atts['firstname'] = contactObject.GetContent().get('Name')
-            if not atts['firstname']:
-                atts['firstname'] = ''
-            atts['middlename'] = contactObject.GetContent().get('Middlename')
-            if not atts['middlename']:
-                atts['middlename'] = ''
-            atts['lastname'] =  contactObject.GetContent().get('Surname')
-            if not atts['lastname']:
-                atts['lastname'] = ''
-            atts['title'] = contactObject.GetContent().get('Title')
-            if not atts['title']:
-                atts['title'] = ''
-            atts['email'] = contactObject.GetContent().get('Email')
-            if not atts['email']:
-                atts['email'] = ''
-            atts['mobile'] = contactObject.GetContent().get('Phone')
+            
+            self._extractValue(atts, 'firstname', contactObject, 'Name')
+            self._extractValue(atts, 'middlename', contactObject, 'Middlename')
+            self._extractValue(atts, 'lastname', contactObject, 'Surname')
+            self._extractValue(atts, 'email', contactObject, 'Email')
+            self._extractValue(atts, 'mobile', contactObject, 'Phone')
             if not atts['mobile']:
-                atts['mobile'] = contactObject.GetContent().get('Cellphone')
-                if not atts['mobile']:
-                    atts['mobile'] = ''
-            atts['phone'] = contactObject.GetContent().get('HomePhone')
-            if not atts['phone']:
-                atts['phone'] = ''
-            atts['officePhone'] = contactObject.GetContent().get('WorkPhone')
-            if not atts['officePhone']:
-                atts['officePhone'] = ''
-
-            #
-            # that's it for now - not clear, which attributes will finally be supported :(
-            # todo: Finish off!
+                self._extractValue(atts, 'mobile', contactObject, 'Cellphone')
+            self._extractValue(atts, 'phone', contactObject, 'HomePhone')
+            self._extractValue(atts, 'officePhone', contactObject, 'WorkPhone')
+            self._extractValue(atts, 'fax', contactObject, 'FaxPhone')
+            
+            self._extractValue(atts, 'title', contactObject, 'Title')
+            self._extractValue(atts, 'businessOrganisation', contactObject, 'Organisation')
+            self._extractValue(atts, 'businessDepartment', contactObject, 'Departement')
+            
+            self._extractValue(atts, 'businessStreet', contactObject, 'BusinessStreet')
+            self._extractValue(atts, 'businessPocalCode', contactObject, 'BusinessPocalCode')
+            self._extractValue(atts, 'businessCity', contactObject, 'BusinessCity')
+            self._extractValue(atts, 'businessCountry', contactObject, 'BusinessCountry')
+            self._extractValue(atts, 'businessState', contactObject, 'BusinessState')
+            
+            self._extractValue(atts, 'homeStreet', contactObject, 'HomeStreet')
+            self._extractValue(atts, 'homePocalCode', contactObject, 'HomePocalCode')
+            self._extractValue(atts, 'homeCity', contactObject, 'HomeCity')
+            self._extractValue(atts, 'homeCountry', contactObject, 'HomeCountry')
+            self._extractValue(atts, 'homeState', contactObject, 'HomeState')
 
             id = contacts.assembleID(atts)
             c = contacts.Contact(id,  atts)
@@ -126,6 +129,9 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             pisiprogress.getCallback().update('Loading')
 
     def _saveOperationAdd(self, id):
+        """
+        Making changes permanent: Add a single contact instance to backend
+        """
         contact = self.getContact(id)
 
         bus = dbus.SystemBus(mainloop = e_dbus.DBusEcoreMainLoop()) 
@@ -136,14 +142,34 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         fields['Name'] = contact.attributes['firstname']
         fields['Surname'] = contact.attributes['lastname']
         fields['Middlename'] = contact.attributes['middlename']
-        fields['Title'] = contact.attributes['title']
         fields['Email'] = contact.attributes['email']
         fields['Cellphone'] = contact.attributes['mobile']
         fields['WorkPhone'] = contact.attributes['officePhone']
         fields['HomePhone'] = contact.attributes['phone']
+        fields['FaxPhone'] = contact.attributes['fax']
+
+        fields['Title'] = contact.attributes['title']
+        fields['Organisation'] = contact.attributes['businessOrganisation']
+        fields['Departement'] = contact.attributes['businessDepartment']
+
+        fields['BusinessStreet'] = contact.attributes['businessStreet']
+        fields['BusinessPostalCode'] = contact.attributes['businessPostalCode']
+        fields['BusinessCity'] = contact.attributes['businessCity']
+        fields['BusinessCountry'] = contact.attributes['businessCountry']
+        fields['BusinessState'] = contact.attributes['businessState']
+        
+        fields['HomeStreet'] = contact.attributes['homeStreet']
+        fields['HomePostalCode'] = contact.attributes['homePostalCode']
+        fields['HomeCity'] = contact.attributes['homeCity']
+        fields['HomeCountry'] = contact.attributes['homeCountry']
+        fields['HomeState'] = contact.attributes['homeState']
+        
         contacts.Add(fields)
     
     def _saveOperationDelete(self, id):
+        """
+        Making changes permanent: Remove a single contact instance from backend
+        """
         path = self._idMappingGlobalInternal[id]
         bus = dbus.SystemBus(mainloop = e_dbus.DBusEcoreMainLoop()) 
         dbusObject = bus.get_object(BUSNAME, path)
@@ -151,6 +177,9 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         contactObject.Delete()
 
     def _saveOperationModify(self,  id):
+        """
+        Making changes permanent: Update a single contact instance in backend
+        """
         self._saveOperationDelete(id)
         self._saveOperationAdd(id)
 
