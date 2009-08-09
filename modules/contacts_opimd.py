@@ -94,26 +94,26 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             self._extractValue(atts, 'firstname', contactObject, 'Name')
             self._extractValue(atts, 'middlename', contactObject, 'Middlename')
             self._extractValue(atts, 'lastname', contactObject, 'Surname')
-            self._extractValue(atts, 'email', contactObject, 'Email')
+            self._extractValue(atts, 'email', contactObject, 'E-mail')
             self._extractValue(atts, 'mobile', contactObject, 'Phone')
             if not atts['mobile']:
-                self._extractValue(atts, 'mobile', contactObject, 'Cellphone')
-            self._extractValue(atts, 'phone', contactObject, 'HomePhone')
-            self._extractValue(atts, 'officePhone', contactObject, 'WorkPhone')
-            self._extractValue(atts, 'fax', contactObject, 'FaxPhone')
+                self._extractValue(atts, 'mobile', contactObject, 'Cell phone')
+            self._extractValue(atts, 'phone', contactObject, 'Home phone')
+            self._extractValue(atts, 'officePhone', contactObject, 'Work phone')
+            self._extractValue(atts, 'fax', contactObject, 'Fax phone')
             
             self._extractValue(atts, 'title', contactObject, 'Title')
             self._extractValue(atts, 'businessOrganisation', contactObject, 'Organisation')
             self._extractValue(atts, 'businessDepartment', contactObject, 'Departement')
             
             self._extractValue(atts, 'businessStreet', contactObject, 'BusinessStreet')
-            self._extractValue(atts, 'businessPocalCode', contactObject, 'BusinessPocalCode')
+            self._extractValue(atts, 'businessPostalCode', contactObject, 'BusinessPostalCode')
             self._extractValue(atts, 'businessCity', contactObject, 'BusinessCity')
             self._extractValue(atts, 'businessCountry', contactObject, 'BusinessCountry')
             self._extractValue(atts, 'businessState', contactObject, 'BusinessState')
             
             self._extractValue(atts, 'homeStreet', contactObject, 'HomeStreet')
-            self._extractValue(atts, 'homePocalCode', contactObject, 'HomePocalCode')
+            self._extractValue(atts, 'homePostalCode', contactObject, 'HomePostalCode')
             self._extractValue(atts, 'homeCity', contactObject, 'HomeCity')
             self._extractValue(atts, 'homeCountry', contactObject, 'HomeCountry')
             self._extractValue(atts, 'homeState', contactObject, 'HomeState')
@@ -142,11 +142,11 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         fields['Name'] = contact.attributes['firstname']
         fields['Surname'] = contact.attributes['lastname']
         fields['Middlename'] = contact.attributes['middlename']
-        fields['Email'] = contact.attributes['email']
-        fields['Cellphone'] = contact.attributes['mobile']
-        fields['WorkPhone'] = contact.attributes['officePhone']
-        fields['HomePhone'] = contact.attributes['phone']
-        fields['FaxPhone'] = contact.attributes['fax']
+        fields['E-mail'] = contact.attributes['email']
+        fields['Cell phone'] = contact.attributes['mobile']
+        fields['Work phone'] = contact.attributes['officePhone']
+        fields['Home phone'] = contact.attributes['phone']
+        fields['Fax phone'] = contact.attributes['fax']
 
         fields['Title'] = contact.attributes['title']
         fields['Organisation'] = contact.attributes['businessOrganisation']
