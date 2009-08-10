@@ -132,7 +132,9 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         try:
             fields[fieldName] = contact.attributes[attribute]
         except KeyError:
-            fields[fieldName] = None
+            fields[fieldName] = ""
+        if not fields[fieldName]:
+            fields[fieldName] = ""
 
     def _saveOperationAdd(self, id):
         """

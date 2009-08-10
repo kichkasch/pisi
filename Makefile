@@ -3,7 +3,7 @@
 # global parameters
 TITLE=		"PISI"
 URL=		"https://projects.openmoko.org/projects/pisi/"
-VERSION=	"0.4.3"
+VERSION=	"0.4.4"
 
 API_DOC_DIR=	apidoc/
 
