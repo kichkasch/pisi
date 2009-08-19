@@ -247,7 +247,6 @@ def _extractRecurrence(x,  allDay):
     return rec
 
 def extractICSEntry(x):
-    print x, "\n"
     atts = {}
     atts['start'] = _extractAtt(x, 'x.dtstart.value')
     atts['end'] = _extractAtt(x, 'x.dtend.value')
@@ -256,10 +255,20 @@ def extractICSEntry(x):
     else:
         atts['allday'] = False
         # For all stupid ICS files coming without timezone information
-#        print atts['start'].tzinfo()
+
+        # start stupid
         if type (atts['start']) == unicode:
-            print type(vobject.icalendar.DateOrDateTimeBehavior.transformToNative(atts['start']).value)
-        
+            if atts['start'].endswith('Z'):
+                atts['start'] = datetime.datetime.strptime(atts['start'], "%Y%m%dT%H%M%SZ")
+            else:
+                atts['start'] = datetime.datetime.strptime(atts['start'], "%Y%m%dT%H%M%S")
+        if type (atts['end']) == unicode:
+            if atts['end'].endswith('Z'):
+                atts['end'] = datetime.datetime.strptime(atts['end'], "%Y%m%dT%H%M%SZ")
+            else:
+                atts['end'] = datetime.datetime.strptime(atts['end'], "%Y%m%dT%H%M%S")
+        # end stupid
+
         if atts['start'].tzinfo == None:
             atts['start'] = atts['start'].replace(tzinfo = events.UTC())
         if atts['end'].tzinfo == None:

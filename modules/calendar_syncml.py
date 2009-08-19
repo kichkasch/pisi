@@ -72,14 +72,12 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         pisiprogress.getCallback().update("Loading")
 
         i = 0
-        print events_raw
         for x in events_raw.keys():
             content = vobject.readOne(events_raw[x])
 
             if content.contents.has_key('vevent'):     # maybe it's an empty file - you new know ;)
                 for y in content.contents['vevent']:
                     atts, globalId, updated = vobjecttools.extractICSEntry(y)
-
                     if not globalId or globalId == "":
                         globalId = events.assembleID()
                         tmpEvent = events.Event( globalId, updated, atts)

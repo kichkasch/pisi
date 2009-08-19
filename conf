@@ -80,7 +80,7 @@ password=<PASSWORD>
 ## Remote ICS file (on a SSH-Server (scp))
 ##
 ## - make sure, you don't need a password for this account (e.g. key file without password)
-## - I notied, you should create your key file on Openmoko - otherwise will bring an error:
+## - I noticed, you should create your key file on Openmoko - otherwise will bring an error:
 ##      dropbearkey -t rsa -f ~/.ssh/id_rsa
 ## This example is an ICalendar on your desktop machine, which you have configured in
 ## Sunbird / Lightning as 'file:///home/username/test.ics' (on the desktop)
@@ -93,7 +93,7 @@ preprocess=scp -i /home/root/.ssh/id_rsa username@192.168.0.200:/home/username/t
 postprocess=scp /tmp/pisi-tmpcal.ics username@192.168.0.200:/home/username/test.ics && rm /tmp/pisi-tmpcal.ics
 
 ##########
-## 2.9)
+## 1.6)
 ## Configuration for SyncML server (Calendar)
 ## - here Mobilcal example (https://www.mobical.net/mobical/startpage/index.jsp?page=start&tab=home)
 ##
