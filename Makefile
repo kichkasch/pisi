@@ -3,7 +3,7 @@
 # global parameters
 TITLE=		"PISI"
 URL=		"https://projects.openmoko.org/projects/pisi/"
-VERSION=	"0.4.4"
+VERSION=	"0.4.5"
 
 API_DOC_DIR=	apidoc/
 
@@ -23,7 +23,7 @@ PYTHONWEBDAV2.6=	"deps/python-webdav-py2.6.tar.gz"
 # epydoc needs to be installed prior to usage - the epydoc program must be in your path environement.
 api-docs:
 	rm -rf $(API_DOC_DIR)	
-	epydoc --inheritance listed -o $(API_DOC_DIR) -n $(TITLE)_$(VERSION) -u $(URL) *.py contacts/*.py events/*.py modules/*.py
+	epydoc --inheritance listed -o $(API_DOC_DIR) -n $(TITLE)_$(VERSION) -u $(URL) *.py contacts/*.py events/*.py modules/*.py thirdparty/conduit/*.py
 	tar czf apidoc.tar.gz apidoc/
 
 clean:

@@ -197,7 +197,7 @@ def startCLI():
     cb = CLICallback(verbose)
     pisiprogress.registerCallback(cb)
     
-    cb.progress.push(0, 10)
+    cb.progress.push(0, 8)
     cb.update('Starting Configuration')
     cb.verbose('')
     cb.verbose("*" * 55)
@@ -214,6 +214,15 @@ def startCLI():
     config,  configfolder = pisi.readConfiguration()
     source = pisi.importModules(configfolder,  config,  modulesToLoad,  modulesNamesCombined, soft)
     mode = pisi.determineMode(config,  modulesToLoad)
+    cb.progress.drop()
+
+    cb.progress.push(8, 10)
+    cb.update('Pre-Processing sources')
+    cb.verbose("\tSource 1")
+    source[0].preProcess()
+    cb.verbose("\tSource 2")
+    source[1].preProcess()
+    cb.verbose("  Pre-Processing Done")
     cb.progress.drop()
 
     cb.progress.push(10, 40)
@@ -237,7 +246,7 @@ def startCLI():
         pisi.contactsSync.syncContacts(verbose,  modulesToLoad,  source,  mergeMode)    
     cb.progress.drop()
 
-    cb.progress.push(70, 100)
+    cb.progress.push(70, 95)
     cb.update('Making changes permanent')
     cb.verbose ("\n" + "*" * 18 + " PHASE 3 - Saving  " + "*" * 18)
     if soft:
@@ -246,6 +255,16 @@ def startCLI():
         pisi.applyChanges(source)
     cb.verbose( "*" * 24 + " DONE  " + "*" * 24)
     cb.progress.drop()
+    
+    cb.progress.push(95, 100)
+    cb.update('Post-Processing sources')
+    cb.verbose("\tSource 1")
+    source[0].postProcess()
+    cb.verbose("\tSource 2")
+    source[1].postProcess()
+    cb.verbose("  Post-Processing Done")
+    cb.progress.drop()
+    
     cb.update('Finished')
 
 

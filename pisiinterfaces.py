@@ -16,6 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
 """
+import os
 
 class Syncable:
     """
@@ -73,6 +74,15 @@ class AbstractSynchronizationModule:
         self.modulesString = modulesString
         self._name = name
         self._description = config.get(configsection,'description')
+        
+        try:
+            self._preProcess = config.get(configsection,'preprocess')
+        except:
+            self._preProcess = None
+        try:
+            self._postProcess = config.get(configsection,'postprocess')
+        except:
+            self._postProcess = None
         self._allEntries = {}
         
     def getName(self):
@@ -145,3 +155,16 @@ class AbstractSynchronizationModule:
         """
         del self._allEntries[id]
 
+    def preProcess(self):
+        """
+        Executes the shell command that has been configured for this source under 'preprocess'
+        """
+        if self._preProcess:
+            ret = os.system(self._preProcess)
+            
+    def postProcess(self):
+        """
+        Executes the shell command that has been configured for this source under 'postprocess'
+        """
+        if self._postProcess:
+            ret = os.system(self._postProcess)

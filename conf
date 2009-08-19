@@ -8,6 +8,11 @@
 ## Description has to be provided as well - it helps you finding your data source
 ## on the UI. Descriptions have to be unique all over the file.
 ##
+## Pre- / Postprocessing
+## There are two more optional fields, you can use for any configuration (e.g. copying stuff back and forward):
+##      * preprocess: a shell command, that will be executed before the data is loaded from the source
+##      * postprocess: a shell command, that will be executed after the writing through was finished
+##
 ## All remaining options are module specific - see module documentation for
 ## more information.
 ##
@@ -50,12 +55,13 @@ path=/home/root/mycalendar.ics
 
 ##########
 ## 1.3)
-## Local ICS file (iCalendar) for "dates" software from pimlico (openmoko-dates2 in some distros)
+## Local ICS file (iCalendar) for "dates" software from pimlico (dates in some distros)
 ##
 [pimlicodates]
 description= Pimlico Dates
 module=calendar_ics
 path=/home/root/.evolution/calendar/local/system/calendar.ics
+postprocess=killall e-calendar-factory
 
 ##########
 ## 1.4)
@@ -68,6 +74,36 @@ url=http://webdav.davserver.net/private/pim/
 file=remotecalendar.ics
 username=<LOGIN>
 password=<PASSWORD>
+
+##########
+## 1.5)
+## Remote ICS file (on a SSH-Server (scp))
+##
+## - make sure, you don't need a password for this account (e.g. key file without password)
+## - I notied, you should create your key file on Openmoko - otherwise will bring an error:
+##      dropbearkey -t rsa -f ~/.ssh/id_rsa
+## This example is an ICalendar on your desktop machine, which you have configured in
+## Sunbird / Lightning as 'file:///home/username/test.ics' (on the desktop)
+##
+[sshIcs]
+description=ICalendar on SSH Server
+module=calendar_ics
+path=/tmp/pisi-tmpcal.ics
+preprocess=scp -i /home/root/.ssh/id_rsa username@192.168.0.200:/home/username/test.ics /tmp/pisi-tmpcal.ics
+postprocess=scp /tmp/pisi-tmpcal.ics username@192.168.0.200:/home/username/test.ics && rm /tmp/pisi-tmpcal.ics
+
+##########
+## 2.9)
+## Configuration for SyncML server (Calendar)
+## - here Mobilcal example (https://www.mobical.net/mobical/startpage/index.jsp?page=start&tab=home)
+##
+[syncmlMobicalCalendar]
+description=SyncML Mobical (Calendar)
+module=calendar_syncml
+username=USERNAME
+password=PASSWORD
+url=http://www.mobical.net/sync/server
+database=cal
 
 
 #########################################################
@@ -158,3 +194,16 @@ module=contacts_dbussim
 [opimd]
 description=OPIMD Contacts
 module=contacts_opimd
+
+##########
+## 2.9)
+## Configuration for SyncML server (Contacts)
+## - here Mobilcal example (https://www.mobical.net/mobical/startpage/index.jsp?page=start&tab=home)
+##
+[syncmlMobical]
+description=SyncML Mobical (Contacts)
+module=contacts_syncml
+username=USERNAME
+password=PASSWORD
+url=http://www.mobical.net/sync/server
+database=con

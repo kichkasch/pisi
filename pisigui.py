@@ -294,10 +294,17 @@ class Base(pisiprogress.AbstractCallback):
 
         config,  configfolder = pisi.readConfiguration()
         source = pisi.importModules(configfolder,  config,  modulesToLoad,  modulesNamesCombined, False)
-        
-        self.progress.setProgress(10)
-        self.update('Loading')
-        
+
+        self.progress.push(8, 10)
+        self.update('Pre-Processing sources')
+        self.verbose('Pre-Processing sources')
+        self.verbose("\tSource 1")
+        source[0].preProcess()
+        self.verbose("\tSource 2")
+        source[1].preProcess()
+        self.verbose("  Pre-Processing Done")
+        self.progress.drop()
+
         self.progress.push(10, 40)
         self.update('Loading')
         self.verbose("\n PHASE 1 - Loading ")
@@ -333,13 +340,24 @@ class Base(pisiprogress.AbstractCallback):
             pisi.contactsSync.syncContacts(True,  modulesToLoad,  source,  mergeMode)    
         self.progress.drop()
         
-        self.progress.push(70, 100)
+        self.progress.push(70, 95)
         self.update('Storing')
         self.verbose ("\n PHASE 3 - Saving  ")
         try:
             pisi.applyChanges(source)
             self.verbose( " DONE  ")
             self.progress.drop()
+            
+            self.progress.push(95, 100)
+            self.update('Post-Processing sources')
+            self.verbose('Post-Processing sources')
+            self.verbose("\tSource 1")
+            source[0].postProcess()
+            self.verbose("\tSource 2")
+            source[1].postProcess()
+            self.verbose("  Post-Processing Done")
+            self.progress.drop()
+            
             self.progress.setProgress(100)
             self.update('Finished')
         except BaseException,  m:

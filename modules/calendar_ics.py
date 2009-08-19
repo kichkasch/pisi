@@ -27,7 +27,8 @@ import datetime
 import os.path
 import os
 from pisiconstants import *
-import vobject
+#import vobject
+from vobjecttools import *
 
 FIELD_PISI = "X-PISI-ID"
 """Name of additional field in ICS file for PISI ID (must start with X-)"""
@@ -50,31 +51,14 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         pisiprogress.getCallback().verbose('ics-module using file %s' % (self._path))
         self._rawData = {}
 
-    def _extractAtt(self, x,  st):
+            
+    def _guessAmount(self):
         """
-        Supporting function for pulling information out of a attribute
+        Try to determine roughly how many entries are in this file (we can't know prior to parsing; but we have a guess using the file size)
+        """
+        info = os.stat(self._path)
+        return info.st_size / ICS_BYTES_PER_ENTRY
         
-        Gets around problems with non available attributes without the need for checking this beforehand for each attribute.
-        """
-        try:
-            ret = None
-            exec "ret = " + st
-            return ret
-        except AttributeError:
-            return ''
-            
-    def _extractRecurrence(self,  x,  allDay):
-        """
-        Transforms VObject recurrence information into PISI internal object L{events.Recurrence}
-        """
-        if self._extractAtt(x, 'x.dtend.value'):
-            end = x.dtend
-        else:
-            end = None
-        rec = events.Recurrence()
-        rec.initFromAttributes(x.rrule,  x.dtstart,  end,  allDay)
-        return rec
-            
     def load(self):
         """
         Load all data from local ICS file
@@ -92,40 +76,11 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         vcal = vobject.readOne(file)
         pisiprogress.getCallback().progress.setProgress(20) 
         pisiprogress.getCallback().update("Loading")
+        amount = self._guessAmount()
+        i = 0        
         if vcal.contents.has_key('vevent'):     # maybe it's an empty file - you new know ;)
             for x in vcal.contents['vevent']:
-                atts = {}
-                atts['start'] = self._extractAtt(x, 'x.dtstart.value')
-                atts['end'] = self._extractAtt(x, 'x.dtend.value')
-                if type(x.dtstart.value) ==datetime.date:
-                    atts['allday'] = True
-                else:
-                    atts['allday'] = False
-                    # For all stupid ICS files coming without timezone information
-                    if atts['start'].tzinfo == None:
-                        atts['start'] = atts['start'].replace(tzinfo = events.UTC())
-                    if atts['end'].tzinfo == None:
-                        atts['end'] = atts['end'].replace(tzinfo = events.UTC())
-                atts['title'] = self._extractAtt(x, 'x.summary.value')
-                atts['description'] = self._extractAtt(x, 'x.description.value')
-                atts['location'] = self._extractAtt(x, 'x.location.value')
-                try:
-                    atts['alarmmin'] = x.valarm.trigger.value.days * 24 * 60 + x.valarm.trigger.value.seconds / 60
-                    atts['alarm'] = True
-                except AttributeError:
-                    atts['alarm'] = False
-                    atts['alarmmin'] = 0
-                    
-                try:
-                    atts['recurrence'] = self._extractRecurrence(x, atts['allday'] )
-                except AttributeError:
-                    atts['recurrence'] = None
-                updated = self._extractAtt(x, 'x.last_modified.value')
-                
-                if x.contents.has_key('x-pisi-id'):
-                    globalId = x.contents['x-pisi-id'][0].value
-                else:
-                    globalId = None
+                atts, globalId, updated = extractICSEntry(x)
                 if not globalId or globalId == "":
                     globalId = events.assembleID()
                     tmpEvent = events.Event( globalId, updated, atts)
@@ -134,8 +89,14 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
                 else:
                     tmpEvent = events.Event(globalId, updated, atts)
                     tmpEvent.attributes['globalid'] = globalId
+
                 self._allEvents[globalId] = tmpEvent
                 self._rawData[globalId] = x
+                
+                if i < amount:
+                    i += 1
+                pisiprogress.getCallback().progress.setProgress(20 + ((i*80) / amount))
+                pisiprogress.getCallback().update('Loading')
                 
         file.close()
         pisiprogress.getCallback().progress.drop()

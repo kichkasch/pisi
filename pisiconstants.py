@@ -21,7 +21,7 @@ PISI_NAME = 'PISI'
 """'About'-information for user - program name"""
 PISI_COMMENTS = "PISI is synchronizing information"
 """'About'-information for user - comments / explainations"""
-PISI_VERSION = '0.4.4' #'-svn-' # 
+PISI_VERSION = '0.4.5' #'-svn-' # 
 """'About'-information for user - current version"""
 FILEPATH_COPYING = "/opt/pisi/COPYING"
 """'About'-information for user - where to find the 'licence' file"""
@@ -82,3 +82,5 @@ FILEDOWNLOAD_TMPFILE = "/tmp/pisi-remotebuffer.data"
 
 VCF_BYTES_PER_ENTRY = 200
 """For guessing the number of entries inside a VCF file by evaluating its size we need an estimation of the size for a single entry - for the purpose of showing some progress"""
+ICS_BYTES_PER_ENTRY = 200
+"""For guessing the number of entries inside an ICS file by evaluating its size we need an estimation of the size for a single entry - for the purpose of showing some progress"""
