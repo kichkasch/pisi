@@ -88,9 +88,55 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
                         tmpEvent.attributes['globalid'] = globalId
 
                     self._allEvents[globalId] = tmpEvent
+                    self._mapping[globalId] = x
+                    
             i += 1
             pisiprogress.getCallback().progress.setProgress(20 + ((i*80) / len(events_raw)))
             pisiprogress.getCallback().update('Loading')
             
         pisiprogress.getCallback().progress.drop()
 
+    def saveModifications(self):
+        """
+        Save whatever changes have come by
+        
+        The history of actions for this data source is iterated. For each item in there the corresponding action is carried out on the item in question.
+        For data assembling (ICS) the tools layer in L{vobjecttools} is used.
+        """
+        pisiprogress.getCallback().verbose("SyncML module: I apply %d changes now" %(len(self._history)))
+        if_events = SyncmlModule.SyncmlCalendarInterface(self._url, self._username, self._password, self._database, SYNCMLSERVER_IDENTIFIER)
+        
+        mods = {}
+        dels = {}
+        adds = {}
+        
+        i=0
+        for listItem in self._history:
+            action = listItem[0]
+            id = listItem[1]
+            if action == ACTIONID_ADD:
+                pisiprogress.getCallback().verbose( "\t\t<syncml> adding %s" %(id))
+                c = self.getEvent(id)
+                ics = vobjecttools.createRawEventEntry(c)
+                print ics.serialize()
+                adds[str(i)] = ics.serialize()
+            elif action == ACTIONID_DELETE:
+                pisiprogress.getCallback().verbose("\t\t<syncml> deleting %s" %(id))
+                syncml_id = self._mapping[id]
+                dels[syncml_id] = ""
+            elif action == ACTIONID_MODIFY:
+                pisiprogress.getCallback().verbose("\t\t<syncml> replacing %s" %(id))
+                c = self.getEvent(id)
+                syncml_id = self._mapping[id]
+                ics = vobjecttools.createRawEventEntry(c)
+#                mods[syncml_id] = vcard.serialize()    # causing problems - no proper replacement
+                dels[syncml_id] = ""
+                adds[str(i)] = ics.serialize()
+            i+=1
+            pisiprogress.getCallback().progress.setProgress(i * 90 / len(self._history))
+            pisiprogress.getCallback().update('Storing')
+        
+        if_events.applyChanges(mods = mods, dels = dels,  adds = adds)
+        if_events.finish()
+        pisiprogress.getCallback().progress.setProgress(100)
+        pisiprogress.getCallback().update('Storing')

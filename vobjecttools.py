@@ -256,7 +256,9 @@ def extractICSEntry(x):
         atts['allday'] = False
         # For all stupid ICS files coming without timezone information
 
-        # start stupid
+        # start even more stupid
+        # some funny date entries within ics files cannot be parsed by vobject
+        # I realized that with Mobical Syncml for instance
         if type (atts['start']) == unicode:
             if atts['start'].endswith('Z'):
                 atts['start'] = datetime.datetime.strptime(atts['start'], "%Y%m%dT%H%M%SZ")
@@ -267,7 +269,7 @@ def extractICSEntry(x):
                 atts['end'] = datetime.datetime.strptime(atts['end'], "%Y%m%dT%H%M%SZ")
             else:
                 atts['end'] = datetime.datetime.strptime(atts['end'], "%Y%m%dT%H%M%S")
-        # end stupid
+        # end even more stupid
 
         if atts['start'].tzinfo == None:
             atts['start'] = atts['start'].replace(tzinfo = events.UTC())
@@ -301,3 +303,57 @@ def extractICSEntry(x):
 # PART 4: SAVING (Calendar)
 #
 
+def _createRecurrencePart(c,  cal):
+    """
+    Transforms PISI internal recurrence information (L{events.Recurrence}) into vobject representation
+    """
+    if c.attributes['recurrence']:
+        rec = c.attributes['recurrence']
+        cal.add('rrule')
+        cal.rrule = rec.getRRule()
+        
+def _createAlarmPart(c, cal):
+    """
+    Transforms PISI internal alarm information (1 single integer for minutes) into vobject representation
+    """
+    if c.attributes['alarm']:
+        mins = c.attributes['alarmmin']
+        days = mins / (24 * 60)
+        seconds = (mins * (24*60)) * 60
+        cal.add("valarm")
+        cal.valarm.add("trigger")
+        cal.valarm.trigger.days = days
+        cal.valarm.trigger.seconds = seconds
+
+def createRawEventEntry(c):
+    """
+    Transforms PISI internal Calendar event information (L{events.Event}) into vobject representation
+    """
+    frame = vobject.iCalendar()
+    frame.add('vevent')
+    cal = frame.vevent
+    cal.add('dtstart')
+    if c.attributes['allday']:
+        if type(c.attributes['start']) == datetime.datetime:
+            c.attributes['start'] = c.attributes['start'].date()
+        if type(c.attributes['end']) == datetime.datetime:
+            c.attributes['end'] = c.attributes['end'].date()
+    cal.dtstart.value = c.attributes['start']   # all day is applied automatically due to datetime.datetime or datetime.date class
+    cal.add('dtend')
+    cal.dtend.value = c.attributes['end']
+    if c.attributes['title']:
+        cal.add('summary')
+        cal.summary.value = c.attributes['title']
+    if c.attributes['description']:
+        cal.add('description')
+        cal.description.value = c.attributes['description']
+    if c.attributes['location']:
+        cal.add('location')
+        cal.location.value = c.attributes['location']
+    cal.add('x-pisi-id')
+    cal.contents['x-pisi-id'][0].value = c.attributes['globalid']
+    _createRecurrencePart(c,  cal)
+    _createAlarmPart(c, cal)
+    cal.add('last-modified')
+    cal.last_modified.value = datetime.datetime.now(events.UTC())
+    return cal

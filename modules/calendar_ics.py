@@ -101,60 +101,6 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         file.close()
         pisiprogress.getCallback().progress.drop()
 
-    def _createRecurrencePart(self, c,  cal):
-        """
-        Transforms PISI internal recurrence information (L{events.Recurrence}) into vobject representation
-        """
-        if c.attributes['recurrence']:
-            rec = c.attributes['recurrence']
-            cal.add('rrule')
-            cal.rrule = rec.getRRule()
-            
-    def _createAlarmPart(self, c, cal):
-        """
-        Transforms PISI internal alarm information (1 single integer for minutes) into vobject representation
-        """
-        if c.attributes['alarm']:
-            mins = c.attributes['alarmmin']
-            days = mins / (24 * 60)
-            seconds = (mins * (24*60)) * 60
-            cal.add("valarm")
-            cal.valarm.add("trigger")
-            cal.valarm.trigger.days = days
-            cal.valarm.trigger.seconds = seconds
-
-    def _createRawEventEntry(self,  c):
-        """
-        Transforms PISI internal Calendar event information (L{events.Event}) into vobject representation        
-        """
-        frame = vobject.iCalendar()
-        frame.add('vevent')
-        cal = frame.vevent
-        cal.add('dtstart')
-        if c.attributes['allday']:
-            if type(c.attributes['start']) == datetime.datetime:
-                c.attributes['start'] = c.attributes['start'].date()
-            if type(c.attributes['end']) == datetime.datetime:
-                c.attributes['end'] = c.attributes['end'].date()
-        cal.dtstart.value = c.attributes['start']   # all day is applied automatically due to datetime.datetime or datetime.date class
-        cal.add('dtend')
-        cal.dtend.value = c.attributes['end']
-        if c.attributes['title']:
-            cal.add('summary')
-            cal.summary.value = c.attributes['title']
-        if c.attributes['description']:
-            cal.add('description')
-            cal.description.value = c.attributes['description']
-        if c.attributes['location']:
-            cal.add('location')
-            cal.location.value = c.attributes['location']
-        cal.add('x-pisi-id')
-        cal.contents['x-pisi-id'][0].value = c.attributes['globalid']
-        self._createRecurrencePart(c,  cal)
-        self._createAlarmPart(c, cal)
-        cal.add('last-modified')
-        cal.last_modified.value = datetime.datetime.now(events.UTC())
-        return cal
         
     def saveModifications(self):
         """
@@ -186,7 +132,7 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
             elif action == ACTIONID_ADD or action == ACTIONID_MODIFY:
                 pisiprogress.getCallback().verbose("\t\t<ics> adding or replacing %s" %(globalId))                
                 e = self.getEvent(globalId)
-                self._rawData[globalId] = self._createRawEventEntry(e)
+                self._rawData[globalId] = createRawEventEntry(e)
             i+=1
             pisiprogress.getCallback().progress.setProgress(i * 70 / len(self._history))
             pisiprogress.getCallback().update('Storing')
