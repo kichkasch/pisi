@@ -320,11 +320,10 @@ def _createAlarmPart(c, cal):
     if c.attributes['alarm']:
         mins = c.attributes['alarmmin']
         days = mins / (24 * 60)
-        seconds = (mins * (24*60)) * 60
+        seconds = (mins - days*(24*60)) * 60
         cal.add("valarm")
         cal.valarm.add("trigger")
-        cal.valarm.trigger.days = days
-        cal.valarm.trigger.seconds = seconds
+        cal.valarm.trigger.value=datetime.timedelta(days,seconds)
 
 def createRawEventEntry(c, stupidMode = False):
     """
