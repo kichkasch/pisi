@@ -37,6 +37,7 @@ INTERFACE_QUERY = "org.freesmartphone.PIM.ContactQuery"
 INTERFACE_CONTACT = "org.freesmartphone.PIM.Contact"
 
 BACKEND_TYPE_SQLITE = "SQLite-Contacts"
+CONF_AUTOPREFIX = "phone_autoprefix"
 
 class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
     """
@@ -51,6 +52,11 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         contacts.AbstractContactSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "OPIMD")
         pisiprogress.getCallback().verbose('contact opimd module loaded using file')
+        try:
+            mode = config.get(configsection, CONF_AUTOPREFIX)
+            self._autoPrefix = mode and mode.lower() == "true"
+        except:
+            self._autoPrefix = False         
         self._idMappingInternalGlobal = {}
         self._idMappingGlobalInternal = {}
 
@@ -101,6 +107,8 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             self._extractValue(atts, 'phone', contactObject, 'Home phone')
             self._extractValue(atts, 'officePhone', contactObject, 'Work phone')
             self._extractValue(atts, 'fax', contactObject, 'Fax phone')
+            if self._autoPrefix:
+                self._dePrefixNumbers(atts)
             
             self._extractValue(atts, 'title', contactObject, 'Title')
             self._extractValue(atts, 'businessOrganisation', contactObject, 'Organisation')
@@ -145,6 +153,9 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         bus = dbus.SystemBus(mainloop = e_dbus.DBusEcoreMainLoop()) 
         dbusObject = bus.get_object(BUSNAME, PATH_CONTACTS)
         contacts = dbus.Interface(dbusObject, dbus_interface=INTERFACE_CONTACTS)
+        
+        if self._autoPrefix:
+            self._prefixNumbers(contact.attributes)
 
         fields = {}
         self._saveOneEntry(fields, 'Name', contact,'firstname' )
@@ -199,6 +210,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         This function is just a dispatcher to one of the three functions L{_saveOperationAdd}, L{_saveOperationDelete} or L{_saveOperationModify}.
         """
         pisiprogress.getCallback().verbose("OPIMD module: I apply %d changes now" %(len(self._history)))
+        
         i=0
         for listItem in self._history:
             action = listItem[0]

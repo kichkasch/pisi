@@ -26,6 +26,8 @@ You should have received a copy of the GNU General Public License
 along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+PHONE_PREFIX = "tel:"
+
 import datetime
 from pisiconstants import *
 import pisiprogress
@@ -143,6 +145,26 @@ class AbstractContactSynchronizationModule(pisiinterfaces.AbstractSynchronizatio
         pisiprogress.getCallback().verbose("We will delete contact %s" %(id))
         self.removeEntry(id)
         self._history.append([ACTIONID_DELETE,  id])
+        
+    def _prefixNumbers(self, atts):
+        """
+        Some sources do support prefixes in phone numbers (such as tel: or sip:), this supporting functions helps to add this information automatically
+        """
+        for x in ['mobile', 'phone', 'officePhone']:
+            if atts.has_key(x) and atts[x] != None and atts[x].strip() != "":
+                atts[x] = PHONE_PREFIX + atts[x]
+        
+    def _dePrefixNumbers(self, atts):
+        """
+        Some sources do support prefixes in phone numbers (such as tel: or sip:), this supporting functions helps to remove this information automatically
+        """
+        for x in ['mobile', 'phone', 'officePhone']:
+            if atts.has_key(x) and atts[x] != None:
+                if atts[x].startswith(PHONE_PREFIX):
+                    try:
+                        atts[x] = atts[x][len(PHONE_PREFIX):]
+                    except IndexError:
+                        atts[x] = None  # this is really stupid - only "tel:" in there
         
 
 def _safeString(st,  replacement = ""):

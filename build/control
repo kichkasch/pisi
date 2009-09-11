@@ -1,5 +1,5 @@
 Package: pisi
-Version: 0.5
+Version: 0.4.6
 Description: PISI is synchronizing information
 Section: openmoko/apps
 Priority: optional
@@ -8,5 +8,5 @@ Architecture: armv4t
 OE: pisi
 Homepage: http://projects.openmoko.org/projects/pisi/
 Tags: group::pim
-Depends: python-core, python-dateutil, python-vobject, python-sqlite3, python-pygtk, python-pygobject, python-pycairo, python-netserver, python-netclient, python-gdata, python-webdav, openldap, python-ldap, python-misc, libsyncml, libwbxml2-0, libsoup-2.4-1
+Depends: python-core, python-dateutil, python-vobject, python-sqlite3, python-pygtk, python-pygobject, python-pycairo, python-netserver, python-netclient, python-gdata, python-webdav, openldap, python-ldap, python-misc
 Source: https://projects.openmoko.org/frs/download.php/762/pisi-src-0.1.2.tar.gz

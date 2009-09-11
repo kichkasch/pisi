@@ -9,7 +9,7 @@ VCF_PHONETYPE_HOME = [['HOME', 'VOICE'], ['VOICE', 'HOME'], ['HOME']]
 """Indentifies a phone entry as home phone"""
 VCF_PHONETYPE_WORK = [['WORK', 'VOICE'], ['VOICE', 'WORK'], ['WORK']]
 """Indentifies a phone entry as work phone"""
-VCF_PHONETYPE_MOBILE = [['CELL', 'VOICE'], ['VOICE', 'CELL'], ['CELL']]
+VCF_PHONETYPE_MOBILE = [['CELL', 'VOICE'], ['VOICE', 'CELL'], ['CELL'], ['VOICE']]
 """Indentifies a phone entry as mobile phone"""
 VCF_PHONETYPE_FAX = [['FAX']]
 """Indentifies a phone entry as fax"""

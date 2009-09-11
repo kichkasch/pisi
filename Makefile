@@ -3,7 +3,7 @@
 # global parameters
 TITLE=		"PISI"
 URL=		"https://projects.openmoko.org/projects/pisi/"
-VERSION=	"0.5"
+VERSION=	"0.4.6"
 
 API_DOC_DIR=	apidoc/
 
@@ -64,7 +64,7 @@ dist:	clean
 	rm -rf build/template
 
 sdist: clean
-	tar czf build/pisi-src-$(VERSION).tar.gz *.py contacts/*.py events/*.py modules/*.py scripts/*.sql conf COPYING Makefile README
+	tar czf build/pisi-src-$(VERSION).tar.gz *.py contacts/*.py events/*.py modules/*.py scripts/*.sql thirdparty/*.py thirdparty/conduit/*.py conf COPYING README build/pisi.desktop build/pisi.png
 
 deps:	dep_dateutil dep_vobject dep_openldap dep_pythonldap dep_pythongdata dep_pythonwebdav
 	
