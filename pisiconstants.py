@@ -21,7 +21,7 @@ PISI_NAME = 'PISI'
 """'About'-information for user - program name"""
 PISI_COMMENTS = "PISI is synchronizing information"
 """'About'-information for user - comments / explainations"""
-PISI_VERSION = '0.5' #'-svn-' # 
+PISI_VERSION = '0.4.6' #'-svn-' # 
 """'About'-information for user - current version"""
 FILEPATH_COPYING = "/opt/pisi/COPYING"
 """'About'-information for user - where to find the 'licence' file"""
