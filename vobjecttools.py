@@ -5,17 +5,18 @@ import vobject
 import datetime
 from events import events
 
-VCF_PHONETYPE_HOME = ['HOME', 'VOICE']
+VCF_PHONETYPE_HOME = [['HOME', 'VOICE'], ['VOICE', 'HOME'], ['HOME']]
 """Indentifies a phone entry as home phone"""
-VCF_PHONETYPE_WORK = ['WORK', 'VOICE']
+VCF_PHONETYPE_WORK = [['WORK', 'VOICE'], ['VOICE', 'WORK'], ['WORK']]
 """Indentifies a phone entry as work phone"""
-VCF_PHONETYPE_MOBILE = ['CELL', 'VOICE']
+VCF_PHONETYPE_MOBILE = [['CELL', 'VOICE'], ['VOICE', 'CELL'], ['CELL']]
 """Indentifies a phone entry as mobile phone"""
-VCF_PHONETYPE_FAX = ['FAX']
+VCF_PHONETYPE_FAX = [['FAX']]
 """Indentifies a phone entry as fax"""
-VCF_ADDRESSTYPE_HOME = ['HOME', 'POSTAL']
+
+VCF_ADDRESSTYPE_HOME = [['HOME', 'POSTAL'], ['POSTAL', 'HOME'], ['HOME']]
 """Indentifies an address entry as home address"""
-VCF_ADDRESSTYPE_WORK = ['WORK', 'POSTAL']
+VCF_ADDRESSTYPE_WORK = [['WORK', 'POSTAL'], ['POSTAL', 'WORK'], ['WORK']]
 """Indentifies an address entry as work address"""
 
 
@@ -55,13 +56,13 @@ def extractVcfEntry(x):
         for tel in x.contents['tel']:
             if not tel.params.has_key('TYPE'):
                 atts['mobile'] = tel.value
-            elif tel.params['TYPE'] == VCF_PHONETYPE_HOME:
+            elif tel.params['TYPE'] in VCF_PHONETYPE_HOME:
                 atts['phone'] = tel.value
-            elif tel.params['TYPE'] == VCF_PHONETYPE_MOBILE:
+            elif tel.params['TYPE'] in VCF_PHONETYPE_MOBILE:
                 atts['mobile'] = tel.value
-            elif tel.params['TYPE'] == VCF_PHONETYPE_WORK:
+            elif tel.params['TYPE'] in VCF_PHONETYPE_WORK:
                 atts['officePhone'] = tel.value
-            elif tel.params['TYPE'] == VCF_PHONETYPE_FAX:
+            elif tel.params['TYPE'] in VCF_PHONETYPE_FAX:
                 atts['fax'] = tel.value
     except KeyError:
         pass    # no phone number; that's alright
@@ -69,13 +70,13 @@ def extractVcfEntry(x):
     # addresses
     try:
         for addr in x.contents['adr']:
-            if addr.params['TYPE'] == VCF_ADDRESSTYPE_HOME:
+            if addr.params['TYPE'] in VCF_ADDRESSTYPE_HOME:
                 atts['homeStreet'] = addr.value.street
                 atts['homeCity'] = addr.value.city
                 atts['homeState'] = addr.value.region
                 atts['homePostalCode'] = addr.value.code
                 atts['homeCountry'] = addr.value.country
-            elif addr.params['TYPE'] == VCF_ADDRESSTYPE_WORK:
+            elif addr.params['TYPE'] in VCF_ADDRESSTYPE_WORK:
                 atts['businessStreet'] = addr.value.street
                 atts['businessCity'] = addr.value.city
                 atts['businessState'] = addr.value.region
@@ -136,13 +137,13 @@ def _createPhoneAttribute(c,  j,  type):
     Phone entries are a bit tricky - you cannot access each of them directly as they all have the same attribute key (tel). Consequently, we have to access the dictionary for phones directly.
     """
     try:
-        if type == VCF_PHONETYPE_HOME:
+        if type in VCF_PHONETYPE_HOME:
             value = c.attributes['phone']
-        elif type == VCF_PHONETYPE_WORK:
+        elif type in VCF_PHONETYPE_WORK:
             value = c.attributes['officePhone']
-        elif type == VCF_PHONETYPE_MOBILE:
+        elif type in VCF_PHONETYPE_MOBILE:
             value = c.attributes['mobile']
-        elif type == VCF_PHONETYPE_FAX:
+        elif type in VCF_PHONETYPE_FAX:
             value = c.attributes['fax']
         if value == '' or value == None:
             return
@@ -164,13 +165,13 @@ def _createAddressAttribute(c,  j,  type):
     
     Entry is only created if city is set.
     """        
-    if type == VCF_ADDRESSTYPE_HOME:
+    if type in VCF_ADDRESSTYPE_HOME:
         street = _attFromDict(c.attributes,  'homeStreet')
         postalCode = _attFromDict(c.attributes,  'homePostalCode')
         city = _attFromDict(c.attributes,  'homeCity')
         country = _attFromDict(c.attributes,  'homeCountry')
         state = _attFromDict(c.attributes,  'homeState')
-    elif type == VCF_ADDRESSTYPE_WORK:
+    elif type in VCF_ADDRESSTYPE_WORK:
         street = _attFromDict(c.attributes,  'businessStreet')
         postalCode = _attFromDict(c.attributes,  'businessPostalCode')
         city = _attFromDict(c.attributes,  'businessCity')
@@ -217,13 +218,13 @@ def createRawVcard(c):
     _createRawAttribute(c,  j,  'title',  "c.attributes['title']")
 
     _createRawAttribute(c,  j,  'email',  "c.attributes['email']",  [['type_param',  "'INTERNET'"]])
-    _createPhoneAttribute(c, j,  VCF_PHONETYPE_HOME)
-    _createPhoneAttribute(c, j,  VCF_PHONETYPE_WORK)
-    _createPhoneAttribute(c, j,  VCF_PHONETYPE_MOBILE)
-    _createPhoneAttribute(c, j,  VCF_PHONETYPE_FAX)
+    _createPhoneAttribute(c, j,  VCF_PHONETYPE_HOME[0])
+    _createPhoneAttribute(c, j,  VCF_PHONETYPE_WORK[0])
+    _createPhoneAttribute(c, j,  VCF_PHONETYPE_MOBILE[0])
+    _createPhoneAttribute(c, j,  VCF_PHONETYPE_FAX[0])
     
-    _createAddressAttribute(c,  j, VCF_ADDRESSTYPE_HOME)
-    _createAddressAttribute(c,  j, VCF_ADDRESSTYPE_WORK)
+    _createAddressAttribute(c,  j, VCF_ADDRESSTYPE_HOME[0])
+    _createAddressAttribute(c,  j, VCF_ADDRESSTYPE_WORK[0])
     _createBusinessDetails(c,  j)
     return j
 
@@ -325,7 +326,7 @@ def _createAlarmPart(c, cal):
         cal.valarm.trigger.days = days
         cal.valarm.trigger.seconds = seconds
 
-def createRawEventEntry(c):
+def createRawEventEntry(c, stupidMode = False):
     """
     Transforms PISI internal Calendar event information (L{events.Event}) into vobject representation
     """

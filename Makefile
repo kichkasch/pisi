@@ -3,7 +3,7 @@
 # global parameters
 TITLE=		"PISI"
 URL=		"https://projects.openmoko.org/projects/pisi/"
-VERSION=	"0.4.5"
+VERSION=	"0.5"
 
 API_DOC_DIR=	apidoc/
 
@@ -49,6 +49,8 @@ dist:	clean
 	cp  modules/*.py build/template/opt/pisi/modules
 	mkdir -p build/template/opt/pisi/thirdparty
 	cp  thirdparty/*.py build/template/opt/pisi/thirdparty
+	mkdir -p build/template/opt/pisi/thirdparty/conduit
+	cp  thirdparty/conduit/*.py build/template/opt/pisi/thirdparty/conduit
 	mkdir build/template/bin
 	ln -s /opt/pisi/pisi.py build/template/bin/pisi
 	ln -s /opt/pisi/pisigui.py build/template/bin/pisigui
@@ -157,5 +159,7 @@ dist_ubuntu:
 	cp  modules/*.py build/ubuntu/opt/pisi/modules
 	mkdir -p build/ubuntu/opt/pisi/thirdparty
 	cp  thirdparty/*.py build/ubuntu/opt/pisi/thirdparty
+	mkdir -p build/template/opt/pisi/thirdparty/conduit
+	cp  thirdparty/conduit/*.py build/template/opt/pisi/thirdparty/conduit
 	cd build && dpkg --build ubuntu/ pisi-$(VERSION).deb
 	rm -rf build/ubuntu

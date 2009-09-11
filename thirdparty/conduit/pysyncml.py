@@ -1,7 +1,7 @@
 from ctypes import *
 
-#lib = CDLL('libsyncml.so')
-lib = CDLL('/usr/lib/libsyncml.so')
+lib = CDLL('libsyncml.so.2')
+#lib = CDLL('/usr/lib/libsyncml.so')
 libc = CDLL('libc.so.6')
 
 def instancemethod(method):

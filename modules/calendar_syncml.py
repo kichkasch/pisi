@@ -73,6 +73,7 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
 
         i = 0
         for x in events_raw.keys():
+            print events_raw[x]
             content = vobject.readOne(events_raw[x])
 
             if content.contents.has_key('vevent'):     # maybe it's an empty file - you new know ;)
@@ -98,7 +99,7 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
 
     def saveModifications(self):
         """
-        Save whatever changes have come by
+        Save whatever changcalendar_syncml.pyes have come by
         
         The history of actions for this data source is iterated. For each item in there the corresponding action is carried out on the item in question.
         For data assembling (ICS) the tools layer in L{vobjecttools} is used.
@@ -128,7 +129,7 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
                 pisiprogress.getCallback().verbose("\t\t<syncml> replacing %s" %(id))
                 c = self.getEvent(id)
                 syncml_id = self._mapping[id]
-                ics = vobjecttools.createRawEventEntry(c)
+                ics = vobjecttools.createRawEventEntry(c, True)
 #                mods[syncml_id] = vcard.serialize()    # causing problems - no proper replacement
                 dels[syncml_id] = ""
                 adds[str(i)] = ics.serialize()
