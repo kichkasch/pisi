@@ -172,6 +172,7 @@ class Recurrence:
         """
 #        print data
         self._data = data
+        #todo: check whether Timezone info available; otherwise assume (and prepend) UTC
         v = vobject.readComponents(data).next()
             
         self._allDay = False
