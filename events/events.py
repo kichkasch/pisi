@@ -28,6 +28,17 @@ from pisiconstants import *
 KNOWN_ATTRIBUTES = ['start', 'end', 'recurrence', 'allday', 'title', 'description', 'location', 'alarm', 'alarmmin']
 """List of attribute names, which have to be set for Event instances"""
 
+UTC_STRING = """BEGIN:VTIMEZONE
+TZID:UTC
+BEGIN:STANDARD
+DTSTART:20000101T000000
+RRULE:FREQ=YEARLY;BYMONTH=1
+TZNAME:UTC
+TZOFFSETFROM:+0000
+TZOFFSETTO:+0000
+END:STANDARD
+END:VTIMEZONE"""
+
 class Event(pisiinterfaces.Syncable):
     """
     Holds information for a single event (Calendar entry) instance
@@ -170,10 +181,20 @@ class Recurrence:
         """
         Initialize a recurrence from ICalendar formatted String
         """
+#        file = open("/tmp/pisi-ics.data", "w")
+#        file.write("from data")
+#        file.write(data)
+#        file.close()
+#        import os
+#        os.system("gedit /tmp/pisi-ics.data")
 #        print data
         self._data = data
         #todo: check whether Timezone info available; otherwise assume (and prepend) UTC
-        v = vobject.readComponents(data).next()
+        
+        try:
+            v = vobject.readComponents(data).next()
+        except ParseError:
+            v = vobject.readComponents(data + "\n" + UTC_STRING).next()
             
         self._allDay = False
         try:
@@ -213,6 +234,13 @@ class Recurrence:
             frame.add("standard")
             frame.standard = vobject.icalendar.TimezoneComponent(UTC())
             data += frame.standard.serialize()
+
+#        file = open("/tmp/pisi-ics.data", "w")
+#        file.write("from attributes")
+#        file.write(data)
+#        file.close()
+#        import os
+#        os.system("gedit /tmp/pisi-ics.data")
         self._data = data
 
     def getData(self):
