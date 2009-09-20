@@ -181,19 +181,14 @@ class Recurrence:
         """
         Initialize a recurrence from ICalendar formatted String
         """
-#        file = open("/tmp/pisi-ics.data", "w")
-#        file.write("from data")
-#        file.write(data)
-#        file.close()
-#        import os
-#        os.system("gedit /tmp/pisi-ics.data")
-#        print data
         self._data = data
-        #todo: check whether Timezone info available; otherwise assume (and prepend) UTC
         
         try:
             v = vobject.readComponents(data).next()
-        except ParseError:
+        except Error:
+            # some stupid Google Calendar recurrence entries do come without time zone information
+            # this cause ParseError in vobject lib; therefore we do another attempt with manually attached
+            # UTC information (stupid, but seems to work)
             v = vobject.readComponents(data + "\n" + UTC_STRING).next()
             
         self._allDay = False
