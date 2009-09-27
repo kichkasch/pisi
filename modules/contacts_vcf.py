@@ -33,7 +33,8 @@ from vobjecttools import *
 
 PATH_INTERACTIVE = "@interactive"
 """Option in configuration file for supplying filename and path of VCF file interactively"""
-
+DEFAULT_PHONETYPE = 'mobile'
+"""Phone type to use if none is provided in VCF file and user has not provided a default in config file for this source"""
 
 class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
     """
@@ -49,6 +50,10 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         contacts.AbstractContactSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "VCF")
         self._vcfpath = config.get(configsection,'vcfpath')
+        try:
+            self._defaultPhone = config.get(configsection,'default_phonetype')
+        except:
+            self._defaultPhone = DEFAULT_PHONETYPE
         self._folder = folder
         pisiprogress.getCallback().verbose("contact VCF module loaded using file %s" %(self._vcfpath))
         self._rawData = {}
@@ -93,7 +98,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         amount = self._guessAmount()
         i = 0
         for x in comps:
-            atts = extractVcfEntry(x)
+            atts = extractVcfEntry(x, self._defaultPhone)
 
             id = contacts.assembleID(atts)
             c = contacts.Contact(id,  atts)

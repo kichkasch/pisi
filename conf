@@ -141,10 +141,16 @@ ldapPassword=
 ## 2.3)
 ## Example for local VCF file
 ##
+## vcfpath: path of VCF file in local file system
+## default_phonetype: if type for phone entry is not set, use the value provided here; must be one of the following:
+##      * mobile            (for mobile phone)
+##      * phone             (for home landline phone)
+##      * officePhone     (for office landline phone)
 [vcf1]
 description=Local VCF file
 module=contacts_vcf
 vcfpath=/home/root/contacts.vcf
+default_phonetype=mobile
 
 ##########
 ## 2.4)

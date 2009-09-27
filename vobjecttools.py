@@ -37,7 +37,7 @@ def _extractAtt(x,  st):
 # PART 1: LOADING (Contacts)
 #
 
-def extractVcfEntry(x):
+def extractVcfEntry(x, defaultPhonetype = None):
     """
     Walks an entire vobject vcard entity and stores all information in a dictionary, which is returned in the end
     
@@ -55,7 +55,8 @@ def extractVcfEntry(x):
     try:
         for tel in x.contents['tel']:
             if not tel.params.has_key('TYPE'):
-                atts['mobile'] = tel.value
+                if defaultPhonetype:
+                    atts[defaultPhonetype] = tel.value
             elif tel.params['TYPE'] in VCF_PHONETYPE_HOME:
                 atts['phone'] = tel.value
             elif tel.params['TYPE'] in VCF_PHONETYPE_MOBILE:
