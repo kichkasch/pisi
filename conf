@@ -142,7 +142,7 @@ ldapPassword=
 ## Example for local VCF file
 ##
 ## vcfpath: path of VCF file in local file system
-## default_phonetype: if type for phone entry is not set, use the value provided here; must be one of the following:
+## default_phonetype (optional): if type for phone entry is not set, use the value provided here; must be one of the following:
 ##      * mobile            (for mobile phone)
 ##      * phone             (for home landline phone)
 ##      * officePhone     (for office landline phone)
