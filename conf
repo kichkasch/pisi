@@ -200,7 +200,7 @@ module=contacts_dbussim
 [opimd]
 description=OPIMD Contacts
 module=contacts_opimd
-phone_autoprefix=TRUE
+phone_autoprefix=FALSE
 
 ##
 # UNDER CONSTRUCTION
