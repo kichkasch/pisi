@@ -25,7 +25,7 @@ PISI_VERSION = '0.4.7' #'-svn-' #
 """'About'-information for user - current version"""
 FILEPATH_COPYING = "/opt/pisi/COPYING"
 """'About'-information for user - where to find the 'licence' file"""
-PISI_AUTHORS = ["Esben Damgaard","Michael Pilgermann", "Christian Pilgermann"]
+PISI_AUTHORS = ["Esben Damgaard","Michael Pilgermann"]
 """'About'-information for user - list of programmers"""
 PISI_HOMEPAGE = "https://projects.openmoko.org/projects/pisi/"
 """'About'-information for user - program home page"""

@@ -229,10 +229,31 @@ def createRawVcard(c):
     _createBusinessDetails(c,  j)
     return j
 
+def checkForMandatoryFields(entries):
+    """
+    Checks each entry, whether all mandatory fields are available.
+    
+    Current implementation only chechs for Full Name - if not available it will try to assemble something from first and last name.
+    """
+    for x in entries.keys():
+        v = entries[x]
 
+        try:
+            v.fn
+        except AttributeError:
+            firstname = _extractAtt(v, 'x.n.value.given')
+            lastname = _extractAtt(v, 'x.n.value.family')
 
-
-
+            if firstname:
+                if lastname:
+                    fn =firstname + ' ' +  lastname
+                else:
+                    fn = firstname
+            else:
+                fn = lastname
+            _createRawAttribute(None,  v,  'fn',  "'''" + fn + "'''")
+            
+            
 #
 # PART 3: LOADING (Calendar)
 #

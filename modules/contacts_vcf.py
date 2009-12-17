@@ -106,12 +106,21 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             self._rawData[id] = x
             if i < amount:
                 i += 1
-            pisiprogress.getCallback().progress.setProgress(20 + ((i*80) / amount))
-            pisiprogress.getCallback().update('Loading')
+            if amount:
+                pisiprogress.getCallback().progress.setProgress(20 + ((i*80) / amount))
+                pisiprogress.getCallback().update('Loading')
             
         file.close()
         pisiprogress.getCallback().progress.drop()
 
+    def _checkForMandatoryFields(self):
+        """
+        Checks each entry, whether all mandatory fields are available.
+        
+        Delegates request to vobjecttools.
+        """
+        checkForMandatoryFields(self._rawData)
+            
     
     def saveModifications( self ):
         """
@@ -152,6 +161,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             pisiprogress.getCallback().progress.setProgress(i * 70 / len(self._history))
             pisiprogress.getCallback().update('Storing')
 
+        self._checkForMandatoryFields()
         pisiprogress.getCallback().progress.setProgress(70)
         pisiprogress.getCallback().update('Storing')
 

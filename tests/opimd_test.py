@@ -83,6 +83,14 @@ def deleteAll():
         print "Deleting",  contact.get('Name')
         contactObject.Delete()
     
+def playAroundWithTypes():
+    bus = dbus.SystemBus(mainloop = e_dbus.DBusEcoreMainLoop()) 
+    dbusObject = bus.get_object("org.freesmartphone.opimd", "/org/freesmartphone/PIM/Contacts")
+    types = dbus.Interface(dbusObject, dbus_interface="org.freesmartphone.PIM.Fields")
+    
+    print types.ListFields()
+    
 #testWrite()
 #testLoad()
-deleteAll()
+#deleteAll()
+playAroundWithTypes()
