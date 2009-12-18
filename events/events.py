@@ -185,7 +185,7 @@ class Recurrence:
         
         try:
             v = vobject.readComponents(data).next()
-        except Error:
+        except:
             # some stupid Google Calendar recurrence entries do come without time zone information
             # this cause ParseError in vobject lib; therefore we do another attempt with manually attached
             # UTC information (stupid, but seems to work)

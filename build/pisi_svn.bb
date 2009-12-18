@@ -11,7 +11,7 @@ RDEPENDS = "python-vobject python python-pygtk python-pygobject python-pycairo\
            python-dateutil python-sqlite3 python-netserver python-netclient\
            python-misc"
 
-PV = "0.4.7+svnr${SRCPV}"
+PV = "0.4.9+svnr${SRCPV}"
 
 PACKAGE_ARCH = "all"
 
