@@ -60,13 +60,13 @@ def extractVcfEntry(x, defaultPhonetype = None):
                 if defaultPhonetype:
                     atts[defaultPhonetype] = tel.value
             else:
-                print "Before",  tel.params['TYPE']
+                for i in range(len(tel.params['TYPE'])):
+                    tel.params['TYPE'][i] = tel.params['TYPE'][i].upper()
                 for ign in VCF_PHONETYPE_IGNORELIST:
                     try:
                         del tel.params['TYPE'][tel.params['TYPE'].index(ign)]
                     except ValueError:
                         pass    # fine - this ignore value is not in the list
-                print "After",  tel.params['TYPE']
                 if tel.params['TYPE'] in VCF_PHONETYPE_HOME:
                     atts['phone'] = tel.value
                 elif tel.params['TYPE'] in VCF_PHONETYPE_MOBILE:
@@ -81,6 +81,8 @@ def extractVcfEntry(x, defaultPhonetype = None):
     # addresses
     try:
         for addr in x.contents['adr']:
+            for i in range(len(addr.params['TYPE'])):
+                addr.params['TYPE'][i] = addr.params['TYPE'][i].upper()
             if addr.params['TYPE'] in VCF_ADDRESSTYPE_HOME:
                 atts['homeStreet'] = addr.value.street
                 atts['homeCity'] = addr.value.city
