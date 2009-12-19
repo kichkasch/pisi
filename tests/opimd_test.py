@@ -88,7 +88,8 @@ def playAroundWithTypes():
     dbusObject = bus.get_object("org.freesmartphone.opimd", "/org/freesmartphone/PIM/Contacts")
     types = dbus.Interface(dbusObject, dbus_interface="org.freesmartphone.PIM.Fields")
     
-    print types.ListFields()
+    for key, value in types.ListFields().items():
+        print ("%s\t%s" %(key, value))
     
 #testWrite()
 #testLoad()

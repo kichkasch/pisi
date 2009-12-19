@@ -35,9 +35,43 @@ PATH_CONTACTS = "/org/freesmartphone/PIM/Contacts"
 INTERFACE_CONTACTS = "org.freesmartphone.PIM.Contacts"
 INTERFACE_QUERY = "org.freesmartphone.PIM.ContactQuery"
 INTERFACE_CONTACT = "org.freesmartphone.PIM.Contact"
+INTERFACE_FIELDS = "org.freesmartphone.PIM.Fields"
 
 BACKEND_TYPE_SQLITE = "SQLite-Contacts"
-#CONF_AUTOPREFIX = "phone_autoprefix"
+CONF_FIELDSUPPORT = "field_support"
+
+
+"""Type assignment
+
+Available Types are:
+objectpath, phonenumber, address, email, name, date, uri, photo, text, longtext, boolean, timezone, number, integer, generic 
+
+See U{http://wiki.openmoko.org/wiki/Opimd_redesign#Changes_in_fields} for details.
+"""
+TYPE_DEFS = { 
+    "Name": 'name', 
+    "Middlename": 'name', 
+    "Surname": 'name', 
+    "Email": 'email', 
+    "Phone": 'phonenumber', 
+    "Cell phone": 'phonenumber', 
+    "Home phone": 'phonenumber', 
+    "Work phone": 'phonenumber', 
+    "HomeStreet": 'address', 
+    "HomePostalCode": 'address', 
+    "HomeCity": 'address', 
+    "HomeCountry": 'address', 
+    "HomeState": 'address', 
+    "Organisation": None, 
+    "BusinessPostalCode": 'address', 
+    "BusinessStreet": 'address', 
+    "BusinessCity": 'address', 
+    "BusinessCountry": 'address', 
+    "BusinessState": 'address', 
+    "Fax phone": 'phonenumber', 
+    "Title": None, 
+    "Departement": None, 
+}
 
 class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
     """
@@ -52,11 +86,11 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         """
         contacts.AbstractContactSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "OPIMD")
         pisiprogress.getCallback().verbose('contact opimd module loaded using file')
-#        try:
-#            mode = config.get(configsection, CONF_AUTOPREFIX)
-#            self._autoPrefix = mode and mode.lower() == "true"
-#        except:
-#            self._autoPrefix = False         
+        try:
+            mode = config.get(configsection, CONF_FIELDSUPPORT)
+            self._fieldSupport = mode and mode.lower() == "true"
+        except:
+            self._fieldSupport = False         
         self._idMappingInternalGlobal = {}
         self._idMappingGlobalInternal = {}
 
@@ -107,8 +141,6 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             self._extractValue(atts, 'phone', contactObject, 'Home phone')
             self._extractValue(atts, 'officePhone', contactObject, 'Work phone')
             self._extractValue(atts, 'fax', contactObject, 'Fax phone')
-#            if self._autoPrefix:
-#                self._dePrefixNumbers(atts)
             
             self._extractValue(atts, 'title', contactObject, 'Title')
             self._extractValue(atts, 'businessOrganisation', contactObject, 'Organisation')
@@ -136,6 +168,21 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             pisiprogress.getCallback().progress.setProgress(20 + ((i*80) / count))
             pisiprogress.getCallback().update('Loading')
 
+    def _checkAndApplyTypes(self):
+        """
+        Makes sure that all required types for PISI are available in OPIMD.
+        """
+        bus = dbus.SystemBus(mainloop = e_dbus.DBusEcoreMainLoop()) 
+        dbusObject = bus.get_object(BUSNAME, PATH_CONTACTS)
+        fields = dbus.Interface(dbusObject, dbus_interface=INTERFACE_FIELDS)
+        
+        for key, value in TYPE_DEFS.items():
+            if value:   # do not proceed if NONE
+                try:
+                    fields.AddField(key, value)
+                except:
+                    pass    # don't care about that - we have checked that before; can't add twice
+
     def _saveOneEntry(self, fields, fieldName, contact,  attribute):
         try:
             fields[fieldName] = contact.attributes[attribute]
@@ -154,8 +201,8 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         dbusObject = bus.get_object(BUSNAME, PATH_CONTACTS)
         contacts = dbus.Interface(dbusObject, dbus_interface=INTERFACE_CONTACTS)
         
-#        if self._autoPrefix:
-#            self._prefixNumbers(contact.attributes)
+        if self._fieldSupport:
+            self._checkAndApplyTypes()
 
         fields = {}
         self._saveOneEntry(fields, 'Name', contact,'firstname' )
