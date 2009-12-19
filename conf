@@ -205,10 +205,22 @@ description=OPIMD Contacts
 module=contacts_opimd
 field_support=FALSE
 
+##########
+## 2.9)
+## Configuration for Evolution on your desktop (based on direct access to Berkeley Database)
+## 
+##
+[evolution]
+description=Evolution on Desktop
+module=contacts_evolution
+path=/tmp/pisi-tmp.db
+preprocess=scp -i /home/root/.ssh/id_rsa username@192.168.0.200:/home/username/.evolution/addressbook/local/system/addressbook.db /tmp/pisi-tmp.db
+postprocess=scp /tmp/pisi-tmp.db username@192.168.0.200:/home/username/.evolution/addressbook/local/system/addressbook.db && rm /tmp/pisi-tmp.db
+
 ##
 # UNDER CONSTRUCTION
 ##########
-## 2.9)
+## 2.10)
 ## Configuration for SyncML server (Contacts)
 ## - here Mobilcal example (https://www.mobical.net/mobical/startpage/index.jsp?page=start&tab=home)
 ##
