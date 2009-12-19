@@ -5,19 +5,21 @@ import vobject
 import datetime
 from events import events
 
-VCF_PHONETYPE_HOME = [['HOME', 'VOICE'], ['VOICE', 'HOME'], ['HOME']]
 """Indentifies a phone entry as home phone"""
-VCF_PHONETYPE_WORK = [['WORK', 'VOICE'], ['VOICE', 'WORK'], ['WORK']]
+VCF_PHONETYPE_HOME = [['HOME', 'VOICE'], ['VOICE', 'HOME'], ['HOME']]
 """Indentifies a phone entry as work phone"""
-VCF_PHONETYPE_MOBILE = [['CELL', 'VOICE'], ['VOICE', 'CELL'], ['CELL'], ['VOICE']]
+VCF_PHONETYPE_WORK = [['WORK', 'VOICE'], ['VOICE', 'WORK'], ['WORK']]
 """Indentifies a phone entry as mobile phone"""
-VCF_PHONETYPE_FAX = [['FAX']]
+VCF_PHONETYPE_MOBILE = [['CELL', 'VOICE'], ['VOICE', 'CELL'], ['CELL'], ['VOICE']]
 """Indentifies a phone entry as fax"""
+VCF_PHONETYPE_FAX = [['FAX']]
+"""Entries to remove before comparing"""
+VCF_PHONETYPE_IGNORELIST = ['OTHER']
 
-VCF_ADDRESSTYPE_HOME = [['HOME', 'POSTAL'], ['POSTAL', 'HOME'], ['HOME']]
 """Indentifies an address entry as home address"""
-VCF_ADDRESSTYPE_WORK = [['WORK', 'POSTAL'], ['POSTAL', 'WORK'], ['WORK']]
+VCF_ADDRESSTYPE_HOME = [['HOME', 'POSTAL'], ['POSTAL', 'HOME'], ['HOME']]
 """Indentifies an address entry as work address"""
+VCF_ADDRESSTYPE_WORK = [['WORK', 'POSTAL'], ['POSTAL', 'WORK'], ['WORK']]
 
 
 def _extractAtt(x,  st):
@@ -57,14 +59,22 @@ def extractVcfEntry(x, defaultPhonetype = None):
             if not tel.params.has_key('TYPE'):
                 if defaultPhonetype:
                     atts[defaultPhonetype] = tel.value
-            elif tel.params['TYPE'] in VCF_PHONETYPE_HOME:
-                atts['phone'] = tel.value
-            elif tel.params['TYPE'] in VCF_PHONETYPE_MOBILE:
-                atts['mobile'] = tel.value
-            elif tel.params['TYPE'] in VCF_PHONETYPE_WORK:
-                atts['officePhone'] = tel.value
-            elif tel.params['TYPE'] in VCF_PHONETYPE_FAX:
-                atts['fax'] = tel.value
+            else:
+                print "Before",  tel.params['TYPE']
+                for ign in VCF_PHONETYPE_IGNORELIST:
+                    try:
+                        del tel.params['TYPE'][tel.params['TYPE'].index(ign)]
+                    except ValueError:
+                        pass    # fine - this ignore value is not in the list
+                print "After",  tel.params['TYPE']
+                if tel.params['TYPE'] in VCF_PHONETYPE_HOME:
+                    atts['phone'] = tel.value
+                elif tel.params['TYPE'] in VCF_PHONETYPE_MOBILE:
+                    atts['mobile'] = tel.value
+                elif tel.params['TYPE'] in VCF_PHONETYPE_WORK:
+                    atts['officePhone'] = tel.value
+                elif tel.params['TYPE'] in VCF_PHONETYPE_FAX:
+                    atts['fax'] = tel.value
     except KeyError:
         pass    # no phone number; that's alright
 
