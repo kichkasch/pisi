@@ -24,6 +24,7 @@ import pisiprogress
 import bsddb
 import vobject  
 from vobjecttools import *
+import random
 
 class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
     def __init__( self, modulesString, config, configsection, folder, verbose=False, soft=False):
@@ -61,15 +62,14 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         i = 0
         for key in file.keys():
             data = file[key]
+#            print data
             if not data.startswith('BEGIN:VCARD'):
                 continue
             comps = vobject.readComponents(data[:len(data)-1])  # there is some problem with a traling white space in each entry
             for x in comps:
-                print x.n.value.given
-
+#                print x.n.value.given
                 
                 atts = extractVcfEntry(x)
-
                 id = contacts.assembleID(atts)
                 c = contacts.Contact(id,  atts)
                 self._allContacts[id] = c
@@ -79,6 +79,68 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
                 pisiprogress.getCallback().progress.setProgress((i*100) / amount)
                 pisiprogress.getCallback().update('Loading')                
         pisiprogress.getCallback().progress.drop()
+    
+    def _generateEDS_ID(self):
+        """
+        IDs from EDS look like being a 16 digit Hex String
+        """
+        st = ""
+        for i in range (16):
+            k = random.randint(0, 15)
+            if k > 9:
+                st += chr(k + 55)
+            else:
+                st += str(k)
+        return 'pas-id-' + st    
+    
+    def _applyEDSChangesToVcf(self, j, id):
+        # 1. Add EDS specific ID
+        try:
+            eds_id = self._edsIDs[id]
+        except KeyError:
+            eds_id = self._generateEDS_ID()
+            self._edsIDs[id] = eds_id
+        jid = j.add('uid')
+        jid.value = eds_id
+        
+        # 2. Remove postal from addresses
+        try:
+            for addr in j.contents['adr']:
+                try:
+                    pos = addr.params['TYPE'].index('POSTAL')
+                    del addr.params['TYPE'][pos]
+                except ValueError:
+                    pass    # fine; no postal in there at all
+        except KeyError:
+            pass    # fine; this entry hasn't got any addresses
+                
+        # 3. Remove Voice from phone numbers
+        try:
+            for tel in j.contents['tel']:
+                try:
+                    pos = tel.params['TYPE'].index('VOICE')
+                    del tel.params['TYPE'][pos]                
+                except ValueError:
+                    pass    # fine; no voice in there at all                    
+        except KeyError:
+            pass    # no phone number; that's alright
+        
+            
+        return eds_id
+    
+    def _saveAdd(self, id, file):
+        c = self.getContact(id)
+        rawContact = createRawVcard(c)
+        eds_id = self._applyEDSChangesToVcf(rawContact, id)
+        file[eds_id] = rawContact.serialize()
+        
+    def _saveDel(self, id, file):
+        key = self._edsIDs[id]
+        del file[key]
+        
+    def _saveModify(self, id, file):
+        self._saveDel(id, file)
+        self._saveAdd(id, file)
     
     def saveModifications( self ):
         """
@@ -95,13 +157,12 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             id = listItem[1]
             if action == ACTIONID_ADD:
                 pisiprogress.getCallback().verbose("\t\t<evolution contacts> adding %s" %(id))
-                pass    # implementation goes here
+                self._saveAdd(id, file)
             elif action == ACTIONID_DELETE:
                 pisiprogress.getCallback().verbose("\t\t<evolution contacts> deleting %s" %(id))
-                key = self._edsIDs[id]
-                del file[key]
+                self._saveDel(id, file)
             elif action == ACTIONID_MODIFY:
                 pisiprogress.getCallback().verbose("\t\t<evolution contacts> replacing %s" %(id))
-                pass    # implementation goes here
+                self._saveModify(id, file)
  
         file.sync()
