@@ -84,5 +84,24 @@ def tryDodgyWay():
             
     print "Committing ..."
     file.sync() # commit
-        
-tryDodgyWay()
+
+def testDBInterface():
+    from bsddb import db 
+    fruitDB = db.DB()
+    # Open database
+    #	Access method: Hash
+    #	set isolation level to "dirty read (read uncommited)"
+    fruitDB.open("/home/michael/.evolution/addressbook/local/system/addressbook.db", None, db.DB_HASH, db.DB_DIRTY_READ)
+
+    # get database cursor and print out database content
+    cursor = fruitDB.cursor()
+    rec = cursor.first()
+    while rec:
+            print rec
+            rec = cursor.next()
+    fruitDB.close()
+
+
+#tryLibWay()
+#tryDodgyWay()
+testDBInterface()
