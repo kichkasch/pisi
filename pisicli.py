@@ -180,7 +180,7 @@ def testConfiguration():
         return True
     except ValueError:
         print ("PISI configuration not found")
-        print ("For running PISI you must have a configuration file located in '/home/root/.pisi/conf'.\n\nWith the package a well-documented sample was placed at '/home/root/.pisi/conf_default'. You may rename this for a starting point - then edit this file in order to configure your PIM synchronization data sources.")
+        print ("For running PISI you must have a configuration file located in '/home/root/.pisi/conf'.\n\nWith the package a well-documented sample was placed at '/usr/share/doc/pisi/conf.example'. You may rename this for a starting point - then edit this file in order to configure your PIM synchronization data sources.")
         return False
      
         
@@ -204,7 +204,7 @@ def startCLI():
     cb.verbose( "*" * 22 + "   PISI    " + "*" * 22)
     cb.verbose( "*" * 55)
     cb.verbose( "** PISI is synchronizing information " + "*" * 18)
-    cb.verbose( "** http://projects.openmoko.org/projects/pisi/ " + "*" * 8)
+    cb.verbose( "** http://freshmeat.net/projects/pisiom " + "*" * 8)
     cb.verbose( "*" * 55)
     
     cb.verbose( ("\n" + "*" * 15 + " PHASE 0 - Configuration " + "*" * 15))
@@ -323,7 +323,7 @@ Flags:
       -m5 Manually confirm each entry
 
 Configuration:
-Read https://projects.openmoko.org/plugins/wiki/index.php?configure&id=156&type=g for help.
+Read http://wiki.github.com/kichkasch/pisi/an-end-user for help.
 """
     sys.exit(usage)
     

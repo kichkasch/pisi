@@ -5,3 +5,4 @@ apidoc*
 *ipk
 *tar.gz
 *deb
+build/template

@@ -27,7 +27,7 @@ FILEPATH_COPYING = "/opt/pisi/COPYING"
 """'About'-information for user - where to find the 'licence' file"""
 PISI_AUTHORS = ["Esben Damgaard","Michael Pilgermann"]
 """'About'-information for user - list of programmers"""
-PISI_HOMEPAGE = "https://projects.openmoko.org/projects/pisi/"
+PISI_HOMEPAGE = "http://freshmeat.net/projects/pisiom"
 """'About'-information for user - program home page"""
 PISI_TRANSLATOR_CREDITS = None
 """'About'-information for user - list of translators"""

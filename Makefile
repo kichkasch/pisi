@@ -2,7 +2,7 @@
 #
 # global parameters
 TITLE=		"PISI"
-URL=		"https://projects.openmoko.org/projects/pisi/"
+URL=		"http://freshmeat.net/projects/pisiom"
 VERSION=	"0.4.10"
 
 API_DOC_DIR=	apidoc/
@@ -54,8 +54,8 @@ dist:	clean
 	mkdir build/template/bin
 	ln -s /opt/pisi/pisi.py build/template/bin/pisi
 	ln -s /opt/pisi/pisigui.py build/template/bin/pisigui
-	mkdir -p build/template/home/root/.pisi
-	cp conf build/template/home/root/.pisi/conf.default
+	mkdir -p build/template/usr/local/doc/pisi
+	cp conf.example build/template/usr/local/doc/pisi/conf.example
 	mkdir -p build/template/usr/share/applications
 	cp build/pisi.desktop build/template/usr/share/applications
 	mkdir -p build/template/usr/share/pixmaps
@@ -64,7 +64,7 @@ dist:	clean
 	rm -rf build/template
 
 sdist: clean
-	tar cf build/tmp.tar *.py contacts/*.py events/*.py modules/*.py scripts/*.sql thirdparty/*.py thirdparty/conduit/*.py conf COPYING README build/pisi.desktop build/pisi.png
+	tar cf build/tmp.tar *.py contacts/*.py events/*.py modules/*.py scripts/*.sql thirdparty/*.py thirdparty/conduit/*.py conf.example COPYING README build/pisi.desktop build/pisi.png
 	mkdir pisi-$(VERSION)
 	(cd pisi-$(VERSION) && tar -xf ../build/tmp.tar)
 	rm build/tmp.tar
@@ -166,5 +166,7 @@ dist_ubuntu:
 	cp  thirdparty/*.py build/ubuntu/opt/pisi/thirdparty
 	mkdir -p build/template/opt/pisi/thirdparty/conduit
 	cp  thirdparty/conduit/*.py build/template/opt/pisi/thirdparty/conduit
+	mkdir -p build/template/usr/local/doc/pisi
+	cp conf.example build/template/usr/local/doc/pisi/conf.example
 	cd build && dpkg --build ubuntu/ pisi-$(VERSION).deb
 	rm -rf build/ubuntu
