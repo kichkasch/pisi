@@ -3,7 +3,7 @@
 # global parameters
 TITLE=		"PISI"
 URL=		"http://freshmeat.net/projects/pisiom"
-VERSION=	"0.4.10"
+VERSION=	"0.5"
 
 API_DOC_DIR=	apidoc/
 

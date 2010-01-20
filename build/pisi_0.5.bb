@@ -2,9 +2,9 @@ DESCRIPTION = "PISI is synchronizing information"
 AUTHOR = "Michael Pilgermann"
 PRIORITY = "optional"
 LICENSE = "GPL"
-HOMEPAGE = "http://projects.openmoko.org/projects/pisi/"
+HOMEPAGE = "http://freshmeat.net/projects/pisiom"
 SRCNAME = "pisi"
-DEPENDS = "python-native python"
+DEPENDS = "python-native python libsyncml2"
 RDEPENDS = "python-vobject python python-pygtk python-pygobject python-pycairo\
            python-gdata python-webdav python-ldap python-epydoc python-core\
            python-dateutil python-sqlite3 python-netserver python-netclient\

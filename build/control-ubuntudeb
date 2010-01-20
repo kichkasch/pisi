@@ -1,8 +1,8 @@
 Package: pisi
-Version: 0.4.10
+Version: 0.5
 Section: apps
 Maintainer: Michael Pilgermann <kichkasch@gmx.de>
 Architecture: all
 Depends: python, python-gtk2, python-vobject, python-gdata
-Homepage: http://projects.openmoko.org/projects/pisi/
+Homepage: http://freshmeat.net/projects/pisiom
 Description: PISI is synchronizing information

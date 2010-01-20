@@ -205,29 +205,29 @@ description=OPIMD Contacts
 module=contacts_opimd
 field_support=FALSE
 
+##
+# UNDER CONSTRUCTION
+##########
 ##########
 ## 2.9)
 ## Configuration for Evolution on your desktop (based on direct access to Berkeley Database)
 ## 
 ##
-[evolution]
-description=Evolution on Desktop
-module=contacts_evolution
-path=/tmp/pisi-tmp.db
-preprocess=scp -i /home/root/.ssh/id_rsa username@192.168.0.200:/home/username/.evolution/addressbook/local/system/addressbook.db /tmp/pisi-tmp.db
-postprocess=scp /tmp/pisi-tmp.db username@192.168.0.200:/home/username/.evolution/addressbook/local/system/addressbook.db && rm /tmp/pisi-tmp.db
+#[evolution]
+#description=Evolution on Desktop
+#module=contacts_evolution
+#path=/tmp/pisi-tmp.db
+#preprocess=scp -i /home/root/.ssh/id_rsa username@192.168.0.200:/home/username/.evolution/addressbook/local/system/addressbook.db /tmp/pisi-tmp.db
+#postprocess=scp /tmp/pisi-tmp.db username@192.168.0.200:/home/username/.evolution/addressbook/local/system/addressbook.db && rm /tmp/pisi-tmp.db
 
-##
-# UNDER CONSTRUCTION
-##########
 ## 2.10)
 ## Configuration for SyncML server (Contacts)
-## - here Mobilcal example (https://www.mobical.net/mobical/startpage/index.jsp?page=start&tab=home)
+## - here Mobilcal example (https://www.mobical.net/mobical/startpage/index.jsp?page=start&tab=home) - please be aware: syncml password is not the same as login password!
 ##
-#[syncmlMobical]
-#description=SyncML Mobical (Contacts)
-#module=contacts_syncml
-#username=USERNAME
-#password=PASSWORD
-#url=http://www.mobical.net/sync/server
-#database=con
+[syncmlMobical]
+description=SyncML Mobical (Contacts)
+module=contacts_syncml
+username=USERNAME
+password=PASSWORD
+url=http://www.mobical.net/sync/server
+database=con
