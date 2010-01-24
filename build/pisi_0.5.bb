@@ -8,7 +8,7 @@ DEPENDS = "python-native python libsyncml2"
 RDEPENDS = "python-vobject python python-pygtk python-pygobject python-pycairo\
            python-gdata python-webdav python-ldap python-epydoc python-core\
            python-dateutil python-sqlite3 python-netserver python-netclient\
-           python-misc"
+           python-misc python-ctypes"
 
 PACKAGE_ARCH = "all"
 

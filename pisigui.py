@@ -632,7 +632,7 @@ def testConfiguration():
         return True
     except ValueError:
         dialog = gtk.MessageDialog(None, buttons=gtk.BUTTONS_OK,  message_format = "PISI configuration not found",  type = gtk.MESSAGE_ERROR)
-        dialog.format_secondary_markup("For running PISI you must have a configuration file located in '/home/root/.pisi/conf'.\n\nWith the package a well-documented sample was placed at '/home/root/.pisi/conf_default'. You may rename this for a starting point - then edit this file in order to configure your PIM synchronization data sources.")
+        dialog.format_secondary_markup("For running PISI you must have a configuration file located in '/home/root/.pisi/conf'.\n\nWith the package a well-documented sample was placed at '/usr/share/doc/pisi/conf.example'. You may rename this for a starting point - then edit this file in order to configure your PIM synchronization data sources.")
         ret = dialog.run()
         dialog.destroy()
         return False

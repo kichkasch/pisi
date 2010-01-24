@@ -148,8 +148,8 @@ class SyncmlDataProvider():
     def _syncml_run(self):
         err = pysyncml.Error()
 
-        self._setup_connection()
-        self._setup_datastore()
+        self._setup_connection(err)
+        self._setup_datastore(err)
 
         self.syncobj.set_option(enums.SML_DATA_SYNC_CONFIG_VERSION, self._syncml_version_, pysyncml.byref(err))
         self.syncobj.set_option(enums.SML_DATA_SYNC_CONFIG_IDENTIFIER, self._syncml_identifier_, pysyncml.byref(err))
@@ -232,8 +232,7 @@ class HttpClient(SyncmlDataProvider):
         self.username = username
         self.password = password
 
-    def _setup_connection(self):
-        err = pysyncml.Error()
+    def _setup_connection(self, err = pysyncml.Error()):
         self.syncobj = pysyncml.SyncObject.new(enums.SML_SESSION_TYPE_CLIENT, enums.SML_TRANSPORT_HTTP_CLIENT, pysyncml.byref(err))
         self.syncobj.set_option(enums.SML_TRANSPORT_CONFIG_URL, self._address_, pysyncml.byref(err))
 
@@ -259,8 +258,7 @@ class ContactsProvider(SyncmlDataProvider):
 
     _mime_ = "text/x-vcard"
 
-    def _setup_datastore(self):
-        err = pysyncml.Error()
+    def _setup_datastore(self, err = pysyncml.Error()):
         self.syncobj.add_datastore(self._mime_, None, self._store_, pysyncml.byref(err))
 
 
