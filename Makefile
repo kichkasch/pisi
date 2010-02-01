@@ -4,8 +4,13 @@
 TITLE=		"PISI"
 URL=		"http://freshmeat.net/projects/pisiom"
 VERSION=	"0.5"
+PROGRAM =pisi
 
 API_DOC_DIR=	apidoc/
+
+# for UBUNTU Launchpad upload of deb package
+PGP_KEYID ="1B09FB51"
+BUILD_VERSION = "0ubuntu2"
 
 # dependency parameters
 DATEUTIL2.5=	"deps/python-dateutil-py2.5.tar.gz"
@@ -30,6 +35,9 @@ clean:
 	rm -f *.pyc contacts/*.pyc events/*.pyc modules/*.pyc
 	rm -rf build/template
 	rm -f apidoc.tar.gz
+	rm -f build/pisi-$(VERSION).orig.tar.gz
+	rm -rf build/pisi-$(VERSION)
+	rm -rf build/ubuntu
 
 # this whole thing is based on ipkg-build by Carl Worth
 # http://cc.oulu.fi/~rantalai/freerunner/packaging/    
@@ -143,30 +151,18 @@ dep_pythonwebdav:
 # PISI might be good for desktop use as well ...
 # here go instructions for building Desktop packages
 # 1. Ubuntu deb
-# (install with: sudo apt-get python-vobject python-gdata && sudo dpkg -i pisi-$VERSION.deb)
-dist_ubuntu:
-	mkdir -p build/ubuntu/DEBIAN
-	cp build/control-ubuntudeb build/ubuntu/DEBIAN/control
-	mkdir -p build/ubuntu/usr/bin
-	ln -s /opt/pisi/pisi.py build/ubuntu/usr/bin/pisi
-	ln -s /opt/pisi/pisigui.py build/ubuntu/usr/bin/pisigui
-	mkdir -p build/ubuntu/usr/share/applications
-	cp build/pisi.desktop-ubuntu build/ubuntu/usr/share/applications/pisi.desktop
-	mkdir -p build/ubuntu/usr/share/pixmaps
-	cp build/pisi.png build/ubuntu/usr/share/pixmaps
-	mkdir -p build/ubuntu/opt/pisi
-	cp *.py COPYING README build/ubuntu/opt/pisi
-	mkdir -p build/ubuntu/opt/pisi/contacts
-	cp  contacts/*.py build/ubuntu/opt/pisi/contacts
-	mkdir -p build/ubuntu/opt/pisi/events
-	cp  events/*.py build/ubuntu/opt/pisi/events
-	mkdir -p build/ubuntu/opt/pisi/modules
-	cp  modules/*.py build/ubuntu/opt/pisi/modules
-	mkdir -p build/ubuntu/opt/pisi/thirdparty
-	cp  thirdparty/*.py build/ubuntu/opt/pisi/thirdparty
-	mkdir -p build/template/opt/pisi/thirdparty/conduit
-	cp  thirdparty/conduit/*.py build/template/opt/pisi/thirdparty/conduit
-	mkdir -p build/template/usr/local/doc/pisi
-	cp conf.example build/template/usr/local/doc/pisi/conf.example
-	cd build && dpkg --build ubuntu/ pisi-$(VERSION).deb
-	rm -rf build/ubuntu
+
+
+# All up-to-date information must be applied to sub dir build/debian in advance
+sdist_ubuntu: sdist
+	export DEBFULLNAME="Michael Pilgermann"
+	export DEBEMAIL="kichkasch@gmx.de"
+	cp build/pisi-src-$(VERSION).tar.gz build/pisi-$(VERSION).orig.tar.gz
+	(cd build && tar -xzf pisi-$(VERSION).orig.tar.gz)
+	cp -r build/debian build/pisi-$(VERSION)/
+	cp README build/pisi-$(VERSION)/debian/README.Debian
+	dch -m -c build/pisi-$(VERSION)/debian/changelog
+	(cd build/pisi-$(VERSION)/ && dpkg-buildpackage -S -k$(PGP_KEYID))
+	
+ppa_upload: sdist_ubuntu
+	(cd build/ && dput kichkasch-ppa $(PROGRAM)_$(VERSION)-$(BUILD_VERSION)_source.changes)

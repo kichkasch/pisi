@@ -46,7 +46,7 @@ def doInstall(path):
     basedir = os.path.join(path, 'opt/pisi')
     if not os.path.exists(os.path.join(path, 'opt/')):
         os.mkdir(os.path.join(path, 'opt/'))
-    shutil.copytree(os.getcwdu(), basedir)
+    shutil.copytree(os.getcwdu(), basedir, ignore = shutil.ignore_patterns('debian'))
     for entry in filesToMove:
         dir = os.path.join(path, entry[1])
         if not os.path.exists(dir):
@@ -59,14 +59,19 @@ def doInstall(path):
         os.symlink(entry[0], os.path.join(destDir, entry[2]))            
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print "Wrong number of arguments"
-        sys.exit(1)
+#    if len(sys.argv) != 3:
+#        print "Wrong number of arguments"
+#        sys.exit(1)
     if sys.argv[1] == 'build':
         doBuild(sys.argv[2])
     elif sys.argv[1] == 'install':
-        doInstall(sys.argv[2])
-    
+        if sys.argv[2].startswith('--root='):
+            dest = sys.argv[2][7:]
+        else:
+            dest = sys.argv[2]
+        doInstall(dest)
+    elif sys.argv[1] == 'clean':
+        pass
     else:
         print "Unknown command"
         sys.exit(1)

@@ -1,7 +1,8 @@
 Package: pisi
 Version: 0.5
 Section: apps
-Maintainer: Michael Pilgermann <kichkasch@gmx.de>
+Maintainer: Ubuntu MOTU Developers <ubuntu-motu@lists.ubuntu.com>
+XSBC-Original-Maintainer: Michael Pilgermann <kichkasch@gmx.de>
 Architecture: all
 Depends: python, python-gtk2, python-vobject, python-gdata
 Homepage: http://freshmeat.net/projects/pisiom
