@@ -6,3 +6,5 @@ apidoc*
 *tar.gz
 *deb
 build/template
+build/*.dsc
+build/*source.changes

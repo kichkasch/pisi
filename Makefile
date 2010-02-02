@@ -10,7 +10,7 @@ API_DOC_DIR=	apidoc/
 
 # for UBUNTU Launchpad upload of deb package
 PGP_KEYID ="1B09FB51"
-BUILD_VERSION = "0ubuntu2"
+BUILD_VERSION = "0ubuntu3"
 
 # dependency parameters
 DATEUTIL2.5=	"deps/python-dateutil-py2.5.tar.gz"
@@ -38,6 +38,7 @@ clean:
 	rm -f build/pisi-$(VERSION).orig.tar.gz
 	rm -rf build/pisi-$(VERSION)
 	rm -rf build/ubuntu
+	rm -f build/*ppa.upload
 
 # this whole thing is based on ipkg-build by Carl Worth
 # http://cc.oulu.fi/~rantalai/freerunner/packaging/    
