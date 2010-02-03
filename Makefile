@@ -89,4 +89,4 @@ sdist_ubuntu: sdist
 	(cd build/$(PACKAGE_NAME)-$(VERSION)/ && dpkg-buildpackage -S -k$(PGP_KEYID))
 	
 ppa_upload: sdist_ubuntu
-	(cd build/ && dput kichkasch-ppa $(PACKAGE_NAME)_$(VERSION)-$(BUILD_VERSION)_source.changes)
+	(cd build/ && dput --config dput.config  kichkasch-ppa $(PACKAGE_NAME)_$(VERSION)-$(BUILD_VERSION)_source.changes)
