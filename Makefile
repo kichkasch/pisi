@@ -86,6 +86,7 @@ sdist_ubuntu: sdist
 	cp -r build/debian build/$(PACKAGE_NAME)-$(VERSION)/
 	cp README build/$(PACKAGE_NAME)-$(VERSION)/debian/README.Debian
 	dch -m -c build/$(PACKAGE_NAME)-$(VERSION)/debian/changelog
+	cp build/$(PACKAGE_NAME)-$(VERSION)/debian/changelog build/debian
 	(cd build/$(PACKAGE_NAME)-$(VERSION)/ && dpkg-buildpackage -S -k$(PGP_KEYID))
 	
 ppa_upload: sdist_ubuntu
