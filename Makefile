@@ -4,7 +4,7 @@
 TITLE=		"PISI"
 URL=		"http://freshmeat.net/projects/pisiom"
 VERSION=	"0.5"
-PROGRAM =pisi
+PACKAGE_NAME =pisi
 
 API_DOC_DIR=	apidoc/
 
@@ -12,17 +12,6 @@ API_DOC_DIR=	apidoc/
 PGP_KEYID ="1B09FB51"
 BUILD_VERSION = "0ubuntu3"
 
-# dependency parameters
-DATEUTIL2.5=	"deps/python-dateutil-py2.5.tar.gz"
-DATEUTIL2.6=	"deps/python-dateutil-py2.6.tar.gz"
-VOBJECT2.5=	"deps/vobject-py2.5.tar.gz"
-VOBJECT2.6=	"deps/vobject-py2.6.tar.gz"
-PYTHONLDAP2.5=	"deps/python-ldap-py2.5.tar.gz"
-PYTHONLDAP2.6=	"deps/python-ldap-py2.6.tar.gz"
-PYTHONGDATA2.5=	"deps/gdata-py2.5.tar.gz"
-PYTHONGDATA2.6=	"deps/gdata-py2.6.tar.gz"
-PYTHONWEBDAV2.5=	"deps/python-webdav-py2.5.tar.gz"
-PYTHONWEBDAV2.6=	"deps/python-webdav-py2.6.tar.gz"
 
 # this generates API documentation in HTML format
 # epydoc needs to be installed prior to usage - the epydoc program must be in your path environement.
@@ -35,8 +24,8 @@ clean:
 	rm -f *.pyc contacts/*.pyc events/*.pyc modules/*.pyc
 	rm -rf build/template
 	rm -f apidoc.tar.gz
-	rm -f build/pisi-$(VERSION).orig.tar.gz
-	rm -rf build/pisi-$(VERSION)
+	rm -f build/$(PACKAGE_NAME)-$(VERSION).orig.tar.gz
+	rm -rf build/$(PACKAGE_NAME)-$(VERSION)
 	rm -rf build/ubuntu
 	rm -f build/*ppa.upload
 
@@ -44,6 +33,9 @@ clean:
 # http://cc.oulu.fi/~rantalai/freerunner/packaging/    
 #
 # make sure, you have provided all required up-to-date information in build/control before building a package
+#
+# please note: these packages are only for temporary testing; proper packages are now build by SHR build environment
+# using source packages (see also http://wiki.github.com/kichkasch/pisi/instructions-for-releasing-a-new-version)
 dist:	clean
 	mkdir build/template
 	mkdir build/template/CONTROL
@@ -73,97 +65,28 @@ dist:	clean
 	rm -rf build/template
 
 sdist: clean
-	tar cf build/tmp.tar *.py contacts/*.py events/*.py modules/*.py scripts/*.sql thirdparty/*.py thirdparty/conduit/*.py conf.example COPYING README build/pisi.desktop build/pisi.png
-	mkdir pisi-$(VERSION)
-	(cd pisi-$(VERSION) && tar -xf ../build/tmp.tar)
+	tar cf build/tmp.tar *.py contacts/*.py events/*.py modules/*.py scripts/*.sql thirdparty/*.py thirdparty/conduit/*.py conf.example COPYING README build/$(PACKAGE_NAME).desktop build/$(PACKAGE_NAME).png
+	mkdir $(PACKAGE_NAME)-$(VERSION)
+	(cd $(PACKAGE_NAME)-$(VERSION) && tar -xf ../build/tmp.tar)
 	rm build/tmp.tar
-	tar czf build/pisi-src-$(VERSION).tar.gz pisi-$(VERSION)
-	rm -rf pisi-$(VERSION)
+	tar czf build/$(PACKAGE_NAME)-src-$(VERSION).tar.gz $(PACKAGE_NAME)-$(VERSION)
+	rm -rf $(PACKAGE_NAME)-$(VERSION)
 
-deps:	dep_dateutil dep_vobject dep_openldap dep_pythonldap dep_pythongdata dep_pythonwebdav
-	
-
-# creates an ipk for the correspondig dependency package
-# make sure a binary distribution is located in the subfolder 'deps' (probably created by 'python setup.py bdist')
-# make sure, you have provided all required up-to-date information in deps/control-XXX before building a package
-dep_dateutil:
-	mkdir -p deps/template/CONTROL
-	cp deps/control-dateutil deps/template/CONTROL/control
-	cd deps/template && tar xzf ../../$(DATEUTIL2.5)
-	cd deps/template && tar xzf ../../$(DATEUTIL2.6)
-	mkdir -p deps/template/usr/lib/python2.6/site-packages
-	ln -s /usr/local/lib/python2.6/dist-packages/dateutil/ deps/template/usr/lib/python2.6/site-packages/dateutil
-	cd deps && fakeroot ../build/ipkg-build template
-	rm -rf deps/template
-
-dep_vobject:
-	mkdir -p deps/template/CONTROL
-	cp deps/control-vobject deps/template/CONTROL/control
-	cd deps/template && tar xzf ../../$(VOBJECT2.5)
-	cd deps/template && tar xzf ../../$(VOBJECT2.6)
-	mkdir -p deps/template/usr/lib/python2.6/site-packages
-	ln -s /usr/local/lib/python2.6/dist-packages/vobject/ deps/template/usr/lib/python2.6/site-packages/vobject
-	cd deps && fakeroot ../build/ipkg-build template
-	rm -rf deps/template
-
-dep_openldap:
-	mkdir -p deps/template/CONTROL
-	cp deps/control-openldap deps/template/CONTROL/control
-	cp -r deps/ldap/usr deps/template
-	cd deps && fakeroot ../build/ipkg-build template
-	rm -rf deps/template
-
-dep_pythonldap:
-	mkdir -p deps/template/CONTROL
-	cp deps/control-pythonldap deps/template/CONTROL/control
-	cd deps/template && tar xzf ../../$(PYTHONLDAP2.5)
-	cd deps/template && tar xzf ../../$(PYTHONLDAP2.6)
-	mkdir -p deps/template/usr/lib/python2.6/site-packages
-	ln -s /usr/local/lib/python2.6/dist-packages/ldap deps/template/usr/lib/python2.6/site-packages/ldap
-	cp deps/template/usr/local/lib/python2.6/dist-packages/*.p* deps/template/usr/lib/python2.6/site-packages/
-	cp deps/template/usr/local/lib/python2.6/dist-packages/_ldap.so deps/template/usr/lib/python2.6/site-packages/
-	ln -s /usr/lib/libssl.so.0.9.8 deps/template/usr/lib/libssl.so.0.9.7
-	ln -s /usr/lib/libcrypto.so.0.9.8 deps/template/usr/lib/libcrypto.so.0.9.7
-	cd deps && fakeroot ../build/ipkg-build template
-	rm -rf deps/template
-
-dep_pythongdata:
-	mkdir -p deps/template/CONTROL
-	cp deps/control-pythongdata deps/template/CONTROL/control
-	cd deps/template && tar xzf ../../$(PYTHONGDATA2.5)
-	cd deps/template && tar xzf ../../$(PYTHONGDATA2.6)
-	mkdir -p deps/template/usr/lib/python2.6/site-packages
-	ln -s /usr/local/lib/python2.6/dist-packages/gdata deps/template/usr/lib/python2.6/site-packages/gdata
-	ln -s /usr/local/lib/python2.6/dist-packages/atom deps/template/usr/lib/python2.6/site-packages/atom
-	cd deps && fakeroot ../build/ipkg-build template
-	rm -rf deps/template
-
-dep_pythonwebdav:
-	mkdir -p deps/template/CONTROL
-	cp deps/control-pythonwebdav deps/template/CONTROL/control
-	cd deps/template && tar xzf ../../$(PYTHONWEBDAV2.5)
-	cd deps/template && tar xzf ../../$(PYTHONWEBDAV2.6)
-	mkdir -p deps/template/usr/lib/python2.6/site-packages
-	ln -s /usr/local/lib/python2.6/dist-packages/webdav deps/template/usr/lib/python2.6/site-packages/webdav
-	cp deps/template/usr/local/lib/python2.6/dist-packages/*.p* deps/template/usr/lib/python2.6/site-packages/
-	cd deps && fakeroot ../build/ipkg-build template
-	rm -rf deps/template
 
 # PISI might be good for desktop use as well ...
 # here go instructions for building Desktop packages
 # 1. Ubuntu deb
 
-
 # All up-to-date information must be applied to sub dir build/debian in advance
 sdist_ubuntu: sdist
 	export DEBFULLNAME="Michael Pilgermann"
 	export DEBEMAIL="kichkasch@gmx.de"
-	cp build/pisi-src-$(VERSION).tar.gz build/pisi-$(VERSION).orig.tar.gz
-	(cd build && tar -xzf pisi-$(VERSION).orig.tar.gz)
-	cp -r build/debian build/pisi-$(VERSION)/
-	cp README build/pisi-$(VERSION)/debian/README.Debian
-	dch -m -c build/pisi-$(VERSION)/debian/changelog
-	(cd build/pisi-$(VERSION)/ && dpkg-buildpackage -S -k$(PGP_KEYID))
+	cp build/$(PACKAGE_NAME)-src-$(VERSION).tar.gz build/$(PACKAGE_NAME)-$(VERSION).orig.tar.gz
+	(cd build && tar -xzf $(PACKAGE_NAME)-$(VERSION).orig.tar.gz)
+	cp -r build/debian build/$(PACKAGE_NAME)-$(VERSION)/
+	cp README build/$(PACKAGE_NAME)-$(VERSION)/debian/README.Debian
+	dch -m -c build/$(PACKAGE_NAME)-$(VERSION)/debian/changelog
+	(cd build/$(PACKAGE_NAME)-$(VERSION)/ && dpkg-buildpackage -S -k$(PGP_KEYID))
 	
 ppa_upload: sdist_ubuntu
-	(cd build/ && dput kichkasch-ppa $(PROGRAM)_$(VERSION)-$(BUILD_VERSION)_source.changes)
+	(cd build/ && dput kichkasch-ppa $(PACKAGE_NAME)_$(VERSION)-$(BUILD_VERSION)_source.changes)
