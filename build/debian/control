@@ -11,6 +11,6 @@ Package: pisi
 Architecture: all
 XB-Python-Version: ${python:Versions}
 Depends: ${python:Depends}, ${misc:Depends}, python-dateutil, python-gtk2, python-vobject
-Recommends: python-gdata, python-sqlite3, python-gobject, python-pycairo, python-webdav, libldap, python-ldap, libsyncml0, python-ctypes
+Recommends: python-gdata, python-sqlite3, python-gobject, python-pycairo, python-webdav, libldap, python-ldap, libsyncml2 (>=0.5.4), python-ctypes
 Description: PISI is synchronizing information
  Pisi is an application for synchronizing all sorts of PIM data. Currently, mainly contacts from several sources may be synchronized.

@@ -1,3 +1,15 @@
+pisi (0.5-0ubuntu5) karmic; urgency=low
+
+  * Fixed (again) required libsyncml lib (>= 0.5.4)
+
+ -- Michael Pilgermann <kichkasch@gmx.de>  Thu, 04 Feb 2010 19:07:36 +0100
+
+pisi (0.5-0ubuntu4) karmic; urgency=low
+
+  * Fixed required libsyncml lib (>= 0.5.4)
+
+ -- Michael Pilgermann <kichkasch@gmx.de>  Thu, 04 Feb 2010 18:54:09 +0100
+
 pisi (0.5-0ubuntu3) karmic; urgency=low
 
   * Change to Karmic for Ubuntu releasing

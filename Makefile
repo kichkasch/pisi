@@ -10,7 +10,7 @@ API_DOC_DIR=	apidoc/
 
 # for UBUNTU Launchpad upload of deb package
 PGP_KEYID ="1B09FB51"
-BUILD_VERSION = "0ubuntu3"
+BUILD_VERSION = "0ubuntu5"
 
 
 # this generates API documentation in HTML format
@@ -26,7 +26,6 @@ clean:
 	rm -f apidoc.tar.gz
 	rm -f build/$(PACKAGE_NAME)-$(VERSION).orig.tar.gz
 	rm -rf build/$(PACKAGE_NAME)-$(VERSION)
-	rm -rf build/ubuntu
 	rm -f build/*ppa.upload
 
 # this whole thing is based on ipkg-build by Carl Worth

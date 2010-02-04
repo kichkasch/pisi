@@ -26,6 +26,7 @@ along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
 
 import ConfigParser
 import os
+import os.path
 import sys
 
 from events import events,  eventsSync
@@ -51,9 +52,8 @@ def readConfiguration():
     """
     Loads configuration from the configuration file and returns the container with all the information as well as the config folder
     """
-    homedir = os.environ.get('HOME')
-    configfolder = homedir + '/.pisi/'
-    configfile = configfolder + 'conf'
+    configfolder = os.path.join(os.environ.get('HOME'), '.pisi')
+    configfile = os.path.join(configfolder, 'conf') 
     pisiprogress.getCallback().verbose("Reading configfile: %s" %(configfile) )
     if not os.path.isfile(configfile):
         sys.exit("Couldn't find the configuration file: "+configfile)
