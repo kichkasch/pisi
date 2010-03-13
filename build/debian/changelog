@@ -1,3 +1,10 @@
+pisi (0.5-0ubuntu6) karmic; urgency=low
+
+  * fixed bug 30: Exception in DBUS-SIM module
+  * fixed bug 32: OPIMD - only one backend; selection 
+
+ -- Michael Pilgermann <kichkasch@gmx.de>  Thu, 04 Feb 2010 19:07:36 +0100
+ 
 pisi (0.5-0ubuntu5) karmic; urgency=low
 
   * Fixed (again) required libsyncml lib (>= 0.5.4)

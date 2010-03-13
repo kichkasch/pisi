@@ -128,9 +128,6 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             dbusObject = bus.get_object(BUSNAME, contact.get('Path'))
             contactObject = dbus.Interface(dbusObject, dbus_interface= INTERFACE_CONTACT)
             
-            if contactObject.GetUsedBackends()[0]!= BACKEND_TYPE_SQLITE:
-                continue    # let's only go for sqlite entries
-            
             self._extractValue(atts, 'firstname', contactObject, 'Name')
             self._extractValue(atts, 'middlename', contactObject, 'Middlename')
             self._extractValue(atts, 'lastname', contactObject, 'Surname')
