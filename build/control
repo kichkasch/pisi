@@ -8,5 +8,5 @@ Architecture: armv4t
 OE: pisi
 Homepage: http://freshmeat.net/projects/pisiom
 Tags: group::pim
-Depends: python-core, python-dateutil, python-vobject, python-sqlite3, python-pygtk, python-pygobject, python-pycairo, python-netserver, python-netclient, python-gdata, python-webdav, libldap, python-ldap, python-misc, libsyncml2, python-ctypes
+Depends: python-core, python-dateutil, python-vobject, python-sqlite3, python-pygtk, python-pygobject, python-pycairo, python-netserver, python-netclient, python-gdata, python-webdav, python-ldap, python-misc, libsyncml2, python-ctypes
 Source: http://cloud.github.com/downloads/kichkasch/pisi/pisi-src-0.5.tar.gz

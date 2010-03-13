@@ -197,13 +197,12 @@ module=contacts_dbussim
 ## Configuration for OPIMD
 ## - optional parameter indicating whether to prefix each phone number (home, work, cell) automatically with 'tel:' (default is TRUE)
 ##
-## - field support is work in progress for OPIMD, if you have a version of opimd supporting types already, put true here. Ones, this will
-##      have been widely deployed, the option will default; now default is FALSE!
+## - field support
 ##
 [opimd]
 description=OPIMD Contacts
 module=contacts_opimd
-field_support=FALSE
+field_support=TRUE
 
 ##
 # UNDER CONSTRUCTION
