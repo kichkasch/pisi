@@ -231,3 +231,22 @@ username=USERNAME
 password=PASSWORD
 url=http://www.mobical.net/sync/server
 database=con
+
+
+##
+# UNDER CONSTRUCTION
+##########
+####################
+### 2.11)
+### Example for Roundcube Mysql database
+###
+### Connection parameters for MySQL database used for Roundcube installation
+###
+#[roundCubeSample]
+#description=RoundCube Sample
+#module=mysqlroundcube
+#hostname=localhost
+#database=roundcube
+#username=rounduser
+#password=roundpass
+#userid=1

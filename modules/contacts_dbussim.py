@@ -95,7 +95,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         bus = dbus.SystemBus()
         gsm_device_obj = bus.get_object(DBUS_GSM_DEVICE[0], DBUS_GSM_DEVICE[1])
         sim = dbus.Interface(gsm_device_obj,DBUS_SIM)
-        dbusContacts = sim.RetrievePhonebook(DBUS_CONTACTS)
+        dbusContacts = sim.RetrievePhonebook(DBUS_CONTACTS, 1, self._max_simentries)
         pisiprogress.getCallback().progress.setProgress(20) 
         pisiprogress.getCallback().update("Loading")
         i = 0
