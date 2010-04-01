@@ -54,7 +54,7 @@ TYPE_DEFS = {
     "Surname": 'name', 
     "Email": 'email', 
     "Phone": 'phonenumber', 
-    "Cell phone": 'phonenumber', 
+    "Mobile phone": 'phonenumber', 
     "Home phone": 'phonenumber', 
     "Work phone": 'phonenumber', 
     "HomeStreet": 'address', 
@@ -134,7 +134,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             self._extractValue(atts, 'email', contactObject, 'E-mail')
             self._extractValue(atts, 'mobile', contactObject, 'Phone')
             if not atts['mobile']:
-                self._extractValue(atts, 'mobile', contactObject, 'Cell phone')
+                self._extractValue(atts, 'mobile', contactObject, 'Mobile phone')
             self._extractValue(atts, 'phone', contactObject, 'Home phone')
             self._extractValue(atts, 'officePhone', contactObject, 'Work phone')
             self._extractValue(atts, 'fax', contactObject, 'Fax phone')
@@ -206,7 +206,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         self._saveOneEntry(fields, 'Surname', contact, 'lastname')
         self._saveOneEntry(fields, 'Middlename', contact,'middlename' )
         self._saveOneEntry(fields, 'E-mail', contact, 'email')
-        self._saveOneEntry(fields, 'Cell phone', contact, 'mobile')
+        self._saveOneEntry(fields, 'Mobile phone', contact, 'mobile')
         self._saveOneEntry(fields, 'Work phone', contact, 'officePhone')
         self._saveOneEntry(fields, 'Home phone', contact, 'phone')
         self._saveOneEntry(fields, 'Fax phone', contact,'fax' )
