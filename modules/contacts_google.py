@@ -32,8 +32,9 @@ import pisitools
 import atom
 import gdata.contacts
 import gdata.contacts.service
+import gdata.service
 
-class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
+class SynchronizationModule(contacts.AbstractContactSynchronizationModule, pisitools.GDataSyncer):
     """
     The implementation of the interface L{contacts.AbstractContactSynchronizationModule} for the Google Contacts backend
     """
@@ -55,19 +56,16 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         @param soft: should tell you if you should make changes (ie. save)
         """
         contacts.AbstractContactSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "Google contacts")
+        pisitools.GDataSyncer.__init__(self, config.get(configsection,'user'), config.get(configsection,'password'))
         self.verbose = verbose
-        self._user = config.get(configsection,'user')
-        self._password = config.get(configsection,'password')
         pisiprogress.getCallback().verbose("Google contacts module loaded")
 
         self._idMappingInternalGlobal = {}
         self._idMappingGlobalInternal = {}
 
         self._gd_client = gdata.contacts.service.ContactsService()
-        self._gd_client.email = self._user
-        self._gd_client.password = self._password
-        self._gd_client.source = GOOGLE_CONTACTS_APPNAME
-        self._gd_client.ProgrammaticLogin()
+        self._google_client = self._gd_client
+        self._doGoogleLogin(GOOGLE_CONTACTS_APPNAME)
 
     def _unpackGoogleTitle(self, atts, gtitle):
         """

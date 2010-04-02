@@ -23,11 +23,12 @@ import atom
 import sys,os
 import datetime,time
 
+import pisitools
 import pisiprogress
 from pisiconstants import *
 from events import events
 
-class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
+class SynchronizationModule(events.AbstractCalendarSynchronizationModule, pisitools.GDataSyncer):
     """
     The implementation of the interface L{events.AbstractCalendarSynchronizationModule} for the Google Calendar backend
     """
@@ -41,14 +42,16 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
         The connection to the Google Gdata backend is established.
         """
         events.AbstractCalendarSynchronizationModule.__init__(self,  verbose,  soft,  modulesString,  config,  configsection,  "Google Calendar")
+        pisitools.GDataSyncer.__init__(self, config.get(configsection,'user'), config.get(configsection,'password'))
         self.folder = folder
         self.newEvents = {}
         self._googleevents = {}
         self.batchOperations = gdata.calendar.CalendarEventFeed()
-        user = config.get(configsection,'user')
-        password = config.get(configsection, 'password')
         self.calendarid = config.get(configsection,'calendarid')
-        self._login( user, password )
+
+        self.cal_client = gdata.calendar.service.CalendarService()
+        self._google_client = self.cal_client 
+        self._doGoogleLogin(GOOGLE_CALENDAR_APPNAME)
         
     def load(self):
         """
@@ -226,14 +229,3 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule):
             tz = events.CustomOffset("custom", gtime[23:])
         onlyDandT = datetime.datetime(int(gtime[0:4]),  int(gtime[5:7]),   int(gtime[8:10]), int(gtime[11:13]),  int(gtime[14:16]), int(gtime[17:19]),  0, tz)
         return (allday, onlyDandT)
-
-    def _login( self, user, password ):
-        """
-        Supporting function to perform login at Google's Calendar Web-Service API
-        """
-        pisiprogress.getCallback().verbose("Google Calendar: Logging in with user %s" %(user))
-        self.cal_client = gdata.calendar.service.CalendarService()
-        self.cal_client.email = user
-        self.cal_client.password = password
-        self.cal_client.source = GOOGLE_CALENDAR_APPNAME
-        self.cal_client.ProgrammaticLogin()

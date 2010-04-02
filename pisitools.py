@@ -16,6 +16,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Pisi.  If not, see <http://www.gnu.org/licenses/>.
 """
+import pisiprogress
+
+import atom
+import gdata.contacts
+import gdata.contacts.service
+import gdata.service
+
 def parseFullName(fullName):
     retTitle = retLastname = retFirstname = retMiddlename = ''
     fullName = fullName.strip()
@@ -69,3 +76,37 @@ def assembleFullName(contactEntry):
             if lastname and lastname != '':
                 ret += lastname
         return ret.strip()    
+
+class GDataSyncer():
+    """
+    Super class for all gdata sync modules (for now contacts and calendar)
+    """
+    
+    def __init__(self, user, password):
+        """
+        Constructor
+        """
+        self._user = user
+        self._password = password 
+
+    def _doGoogleLogin(self, APPNAME):
+        """
+        Perform login
+        
+        Especially take care of Google Captcha mechanism, which kicks in from time to time.
+        """
+        self._google_client.email = self._user
+        self._google_client.password = self._password
+        self._google_client.source = APPNAME
+        pisiprogress.getCallback().verbose("Google gdata: Logging in with user %s" %(self._user))
+        try:
+            self._google_client.ProgrammaticLogin()
+            pisiprogress.getCallback().verbose("-- Google gdata - sucessfully passed authentication (no capture)")
+        except gdata.service.CaptchaRequired:
+            pisiprogress.getCallback().verbose("-- Google gdata - this time authentication requires capture")
+            captcha_token = self._google_client._GetCaptchaToken()
+            url = self._google_client._GetCaptchaURL()
+            pisiprogress.getCallback().verbose("-- Google gdata capture URL is <%s>" %(url))
+            captcha_response = pisiprogress.getCallback().promptGeneric("Google account requests captcha. Please visit page <%s> and provide capture solution here" %(url))
+            pisiprogress.getCallback().verbose("-- Google gdata capture response is <%s>" %(captcha_response))
+            self._google_client.ProgrammaticLogin(captcha_token, captcha_response)

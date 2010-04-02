@@ -403,11 +403,15 @@ class Base(pisiprogress.AbstractCallback):
         d.destroy()
         return ret == gtk.RESPONSE_YES
 
-    def promptGeneric(self,  prompt,  default):
+    def promptGeneric(self,  prompt,  default=None):
         """
-        Prompt the user for a single entry to type in - not implemented in GUI
+        Prompt the user for a single entry to type in
         """
-        raise ValueError("Prompt Generic not implemented for this GUI.")
+        dia = SimpleInputDialog("User input required", self.window, prompt, default)
+        ret = dia.run()
+        ret = dia.getValue()
+        dia.destroy()
+        return ret
 
     def promptFilename(self, prompt,  default):
         """
@@ -450,6 +454,23 @@ class Base(pisiprogress.AbstractCallback):
         self.progressbar.set_fraction(prog / 100.0)
         while gtk.events_pending():     # see http://faq.pygtk.org/index.py?req=show&file=faq03.007.htp
            gtk.main_iteration(False)
+
+class SimpleInputDialog(gtk.Dialog):
+    def __init__(self, title,  parent, prompt, default=None):
+        gtk.Dialog.__init__(self, title, parent, gtk.DIALOG_MODAL,  (gtk.STOCK_OK,gtk.RESPONSE_OK))
+        label = gtk.Label(prompt)
+        self.vbox.pack_start(label, True, True, 0)
+        label.show()
+
+        self._tf = gtk.Entry()
+        self.vbox.pack_start(self._tf , True, True, 0)
+        if default:
+            self._tf.set_text(default)
+        self._tf.show()
+        
+    def getValue(self):
+        return self._tf.get_text()
+        
 
 class ConflictsDialog(gtk.Dialog):
     """

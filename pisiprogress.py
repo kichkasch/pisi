@@ -77,7 +77,7 @@ class AbstractCallback():
         """
         pass
         
-    def promptGeneric(self,  prompt,  default):
+    def promptGeneric(self,  prompt,  default=None):
         """
         Prompt the user for a single entry to type in
         """

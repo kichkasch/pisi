@@ -69,7 +69,7 @@ class CLICallback(pisiprogress.AbstractCallback):
         if self.isVerbose:
             self.message(st)
         
-    def promptGeneric(self,  prompt,  default):
+    def promptGeneric(self,  prompt,  default=None):
         """
         Prepare a prompt and return the user input
         
