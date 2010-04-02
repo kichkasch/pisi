@@ -10,7 +10,7 @@ API_DOC_DIR=	apidoc/
 
 # for UBUNTU Launchpad upload of deb package
 PGP_KEYID ="1B09FB51"
-BUILD_VERSION = "0ubuntu5"
+BUILD_VERSION = "0ubuntu6"
 
 
 # this generates API documentation in HTML format

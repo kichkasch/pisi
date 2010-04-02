@@ -14,7 +14,7 @@ PACKAGE_ARCH = "all"
 
 PR = "r0"
 
-SRC_URI = "http://cloud.github.com/downloads/kichkasch/pisi/pisi-src-${PV}.tar.gz"
+SRC_URI = "http://github.com/downloads/kichkasch/pisi/pisi-src-${PV}.tar.gz"
 
 FILES_${PN} += "/opt/${PN} \
                 ${datadir}/pixmaps \

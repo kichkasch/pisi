@@ -1,6 +1,6 @@
 README for PISI
 
-Pisi is an engine (written in Python) to which it's possible to make modules to synchronize all sorts of data. Google calendar, Gmail contacts, Openmoko calendar/contacts, evolution? Yes! And more! 
+Pisi is an application (written in Python) to which it's possible to make modules to synchronize all sorts of data. Google calendar, Gmail contacts, Openmoko calendar/contacts, evolution? Yes! And more! 
 
 First source of information is its home page:
 http://freshmeat.net/projects/pisiom
