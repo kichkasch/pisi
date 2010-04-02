@@ -459,6 +459,7 @@ class SimpleInputDialog(gtk.Dialog):
     def __init__(self, title,  parent, prompt, default=None):
         gtk.Dialog.__init__(self, title, parent, gtk.DIALOG_MODAL,  (gtk.STOCK_OK,gtk.RESPONSE_OK))
         label = gtk.Label(prompt)
+        label.set_line_wrap(True)
         self.vbox.pack_start(label, True, True, 0)
         label.show()
 
