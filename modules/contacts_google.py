@@ -153,9 +153,14 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule, pisit
         
         A single query is performed and the result set is parsed afterwards.
         """
+        pisiprogress.getCallback().verbose("Google Contacts: Loading")        
         query = gdata.contacts.service.ContactsQuery()
         query.max_results = GOOGLE_CONTACTS_MAXRESULTS
         feed = self._gd_client.GetContactsFeed(query.ToUri())
+        pisiprogress.getCallback().progress.setProgress(20) # we guess that the actual query took up 20 % of the time - the remaining 80 % are taken by parsing the content ...
+        pisiprogress.getCallback().update('Loading')
+        count = 0
+        inTotal = len(feed.entry)
         for i, entry in enumerate(feed.entry):
             atts = {}
             if not entry.title or not entry.title.text:
@@ -200,6 +205,9 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule, pisit
             id = contacts.assembleID(atts)
             c = contacts.Contact(id,  atts)
             self._allContacts[id] = c
+            count+=1
+            pisiprogress.getCallback().progress.setProgress(20 + ((count*80) / inTotal))
+            pisiprogress.getCallback().update('Loading')
 
             self._idMappingGlobalInternal[id] = entry.GetEditLink().href
             self._idMappingInternalGlobal[entry.GetEditLink().href] = id

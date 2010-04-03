@@ -59,7 +59,12 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule, pisito
         
         A single query is performed and the result set is parsed afterwards.
         """
+        pisiprogress.getCallback().verbose("Google Calendar: Loading")        
         feed = self.cal_client.GetCalendarEventFeed('/calendar/feeds/'+self.calendarid+'/private/full?max-results=%d' %(GOOGLE_CALENDAR_MAXRESULTS))
+        pisiprogress.getCallback().progress.setProgress(20) # we guess that the actual query took up 20 % of the time - the remaining 80 % are taken by parsing the content ...
+        pisiprogress.getCallback().update('Loading')
+        count = 0
+        inTotal = len(feed.entry)        
         for i, an_event in enumerate(feed.entry):
             globalId,  updated, attributes = self._geventToPisiEvent(an_event)
             if globalId == None:
@@ -71,6 +76,9 @@ class SynchronizationModule(events.AbstractCalendarSynchronizationModule, pisito
                 tmpEvent = events.Event( globalId, updated, attributes)
             self._allEvents[globalId] = tmpEvent
             self._googleevents[globalId] = an_event
+            count+=1
+            pisiprogress.getCallback().progress.setProgress(20 + ((count*80) / inTotal))
+            pisiprogress.getCallback().update('Loading')
 
     def _saveAddEvent(self, id ):
         """
