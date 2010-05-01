@@ -34,18 +34,15 @@ from contacts import contactsSync
 from pisiconstants import *
 import pisiprogress
 
+def getConfigLocation():
+    return os.path.join(os.environ.get('HOME'), '.pisi', 'conf')
+
 def getConfiguration():
     """
     Returns the entire content of the configuration file
     """
     # Read configuration
-    homedir = os.environ.get('HOME')
-    configfolder = homedir + '/.pisi/'
-    configfile = configfolder + 'conf'
-    if not os.path.isfile(configfile):
-        raise ValueError("Couldn't find the configuration file: "+configfile)
-    config = ConfigParser.ConfigParser()
-    config.readfp(open(configfile))
+    config,  configfolder = readConfiguration()
     return config
 
 def readConfiguration():
@@ -53,13 +50,13 @@ def readConfiguration():
     Loads configuration from the configuration file and returns the container with all the information as well as the config folder
     """
     configfolder = os.path.join(os.environ.get('HOME'), '.pisi')
-    configfile = os.path.join(configfolder, 'conf') 
+    configfile = getConfigLocation()
     pisiprogress.getCallback().verbose("Reading configfile: %s" %(configfile) )
     if not os.path.isfile(configfile):
-        sys.exit("Couldn't find the configuration file: "+configfile)
+        raise ValueError("Couldn't find the configuration file: "+configfile)
     config = ConfigParser.ConfigParser()
     config.readfp(open(configfile))
-    return config,  configfolder
+    return config, configfolder
 
 def importModules(configfolder,  config,  modulesToLoad,  modulesNamesCombined, soft):
     """
