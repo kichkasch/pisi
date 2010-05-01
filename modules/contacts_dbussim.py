@@ -82,8 +82,13 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         gsm_device_obj = bus.get_object(DBUS_GSM_DEVICE[0], DBUS_GSM_DEVICE[1])
         sim = dbus.Interface(gsm_device_obj,DBUS_SIM)
         infos = sim.GetPhonebookInfo(DBUS_CONTACTS)
-        self._max_simentries = infos["max_index"]
-        self._name_maxlength = infos["name_length"]
+        if type(infos) == dict: # old ogsmd
+            self._max_simentries = infos["max_index"]
+            self._name_maxlength = infos["name_length"]
+        else: # new fsogsmd (http://git.freesmartphone.org/?p=specs.git;a=blob_plain;f=html/org.freesmartphone.GSM.SIM.html;hb=HEAD#GetPhonebookInfo)
+            slots, numberlength, namelength = infos
+            self._max_simentries = slots
+            self._name_maxlength = namelength
 
     def load(self):
         """

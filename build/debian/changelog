@@ -2,6 +2,7 @@ pisi (0.5.1-0ubuntu1) karmic; urgency=low
 
   * task 34: Integrate Google Captcha (gdata baed modules)
   * task 4: Polishing - apply detailed progress on google modules
+  * task 36: apply changes from dbus interface for SIM card limitations
 
  -- Michael Pilgermann <kichkasch@gmx.de>  Thu, 04 Feb 2010 19:07:36 +0100
  
