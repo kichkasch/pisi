@@ -1,3 +1,9 @@
+pisi (0.5.1-0ubuntu1) lucid; urgency=low
+
+  * push to new ubuntu release
+
+ -- Michael Pilgermann <kichkasch@gmx.de>  Sat, 01 May 2010 18:24:04 +0200
+
 pisi (0.5.1-0ubuntu1) karmic; urgency=low
 
   * task 34: Integrate Google Captcha (gdata baed modules)
