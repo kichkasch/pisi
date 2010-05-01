@@ -62,15 +62,15 @@ TYPE_DEFS = {
     "HomeCity": 'address', 
     "HomeCountry": 'address', 
     "HomeState": 'address', 
-    "Organisation": None, 
+    "Organisation": 'text', 
     "BusinessPostalCode": 'address', 
     "BusinessStreet": 'address', 
     "BusinessCity": 'address', 
     "BusinessCountry": 'address', 
     "BusinessState": 'address', 
     "Fax phone": 'phonenumber', 
-    "Title": None, 
-    "Departement": None, 
+    "Title": 'text', 
+    "Departement": 'text', 
 }
 
 class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
@@ -90,7 +90,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             mode = config.get(configsection, CONF_FIELDSUPPORT)
             self._fieldSupport = mode and mode.lower() == "true"
         except:
-            self._fieldSupport = False         
+            self._fieldSupport = True         
         self._idMappingInternalGlobal = {}
         self._idMappingGlobalInternal = {}
 
@@ -101,6 +101,8 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         atts[attName] = contactObject.GetContent().get(opimdField)
         if not atts[attName]:
             atts[attName] = ''
+        if type(atts[attName]) == list: # return values may be lists when returned; in case simply go for first entry
+            atts[attName] = atts[attName][0]
 
     def load(self):
         """
@@ -184,9 +186,10 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         try:
             fields[fieldName] = contact.attributes[attribute]
         except KeyError:
-            fields[fieldName] = ""
-        if not fields[fieldName]:
-            fields[fieldName] = ""
+            pass    # opimd does not like empty fields; so skip for now
+#            fields[fieldName] = ""
+#        if not fields[fieldName]:
+#            fields[fieldName] = ""
 
     def _saveOperationAdd(self, id):
         """
