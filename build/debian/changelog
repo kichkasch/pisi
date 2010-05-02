@@ -1,3 +1,9 @@
+pisi (0.5.2-0ubuntu1) lucid; urgency=low
+
+  * bug fix release - config file handler was slightly messed up
+
+ -- Michael Pilgermann <kichkasch@gmx.de>  Sat, 01 May 2010 18:26:36 +0200
+
 pisi (0.5.1-0ubuntu2) lucid; urgency=low
 
   * push to new ubuntu release

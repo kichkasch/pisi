@@ -42,7 +42,11 @@ def getConfiguration():
     Returns the entire content of the configuration file
     """
     # Read configuration
-    config,  configfolder = readConfiguration()
+    configfile = getConfigLocation()
+    if not os.path.isfile(configfile):
+        raise ValueError("Couldn't find the configuration file: "+configfile)
+    config = ConfigParser.ConfigParser()
+    config.readfp(open(configfile))
     return config
 
 def readConfiguration():
@@ -50,12 +54,8 @@ def readConfiguration():
     Loads configuration from the configuration file and returns the container with all the information as well as the config folder
     """
     configfolder = os.path.join(os.environ.get('HOME'), '.pisi')
-    configfile = getConfigLocation()
     pisiprogress.getCallback().verbose("Reading configfile: %s" %(configfile) )
-    if not os.path.isfile(configfile):
-        raise ValueError("Couldn't find the configuration file: "+configfile)
-    config = ConfigParser.ConfigParser()
-    config.readfp(open(configfile))
+    config = getConfiguration()
     return config, configfolder
 
 def importModules(configfolder,  config,  modulesToLoad,  modulesNamesCombined, soft):

@@ -3,14 +3,14 @@
 # global parameters
 TITLE=		"PISI"
 URL=		"http://freshmeat.net/projects/pisiom"
-VERSION=	"0.5.1"
+VERSION=	"0.5.2"
 PACKAGE_NAME =pisi
 
 API_DOC_DIR=	apidoc/
 
 # for UBUNTU Launchpad upload of deb package
 PGP_KEYID ="1B09FB51"
-BUILD_VERSION = "0ubuntu2"
+BUILD_VERSION = "0ubuntu1"
 
 
 # this generates API documentation in HTML format

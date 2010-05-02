@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Name=pisi
 Comment=PISI is synchronizing information
-Version=0.5.1
+Version=0.5.2
 Type=Application
 Exec=pisigui
 Terminal=false
