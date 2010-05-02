@@ -4,11 +4,11 @@ PRIORITY = "optional"
 LICENSE = "GPL"
 HOMEPAGE = "http://freshmeat.net/projects/pisiom"
 SRCNAME = "pisi"
-DEPENDS = "python-native python libsyncml2"
+DEPENDS = "python-native python"
 RDEPENDS = "python-vobject python python-pygtk python-pygobject python-pycairo\
            python-gdata python-webdav python-ldap python-epydoc python-core\
            python-dateutil python-sqlite3 python-netserver python-netclient\
-           python-misc python-ctypes"
+           python-misc python-ctypes libsyncml2"
 
 PACKAGE_ARCH = "all"
 
