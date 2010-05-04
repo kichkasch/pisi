@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Name=pisi
 Comment=PISI is synchronizing information
-Version=0.5.2
+Version=0.5.3
 GenericName=PISI is synchronizing information
 Terminal=false
 Icon=pisi.png

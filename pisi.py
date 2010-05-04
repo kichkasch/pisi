@@ -54,7 +54,7 @@ def readConfiguration():
     Loads configuration from the configuration file and returns the container with all the information as well as the config folder
     """
     configfolder = os.path.join(os.environ.get('HOME'), '.pisi')
-    pisiprogress.getCallback().verbose("Reading configfile: %s" %(configfile) )
+    pisiprogress.getCallback().verbose("Reading configfile: %s" %(getConfigLocation()) )
     config = getConfiguration()
     return config, configfolder
 
