@@ -1,5 +1,13 @@
 pisi (0.5.3-0ubuntu1) lucid; urgency=low
 
+  * bug fix on cache folder name path join - backups were going directly to home folder 
+  * bug fix: shrsim - dbus api returns special dict; not Python standard dict 
+
+ -- Michael Pilgermann <kichkasch@gmx.de>  Tue, 04 May 2010 20:55:27 +0200
+
+
+pisi (0.5.3-0ubuntu1) lucid; urgency=low
+
   * bug fix release - config file handler was again messed up
 
  -- Michael Pilgermann <kichkasch@gmx.de>  Tue, 04 May 2010 20:55:27 +0200
