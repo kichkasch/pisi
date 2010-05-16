@@ -66,17 +66,18 @@ def importModules(configfolder,  config,  modulesToLoad,  modulesNamesCombined, 
     The required modules are now imported.
     """
     # Create folders for the modules to use to save stuff
-    modulesFolder = configfolder+modulesToLoad[0]+modulesToLoad[1]+'/'
+    modulesFolder = os.path.join(configfolder, modulesToLoad[0]+modulesToLoad[1])
     if not os.path.exists(modulesFolder):
-        os.mkdir( modulesFolder )
+        os.mkdir(modulesFolder)
 
     source = []
     for i in range(0,2):
-        modulename = config.get(  modulesToLoad[i], 'module' )
-        if not os.path.exists(modulesFolder + modulesToLoad[i]):
-            os.mkdir( modulesFolder + modulesToLoad[i] )
-        exec "from modules import " + modulename + " as module"+i.__str__()
-        exec "source.append( module"+i.__str__()+".SynchronizationModule(modulesNamesCombined, config, modulesToLoad[i], modulesFolder+modulesToLoad[i]+'/', True, soft) )"
+        modulename = config.get(modulesToLoad[i], 'module' )
+        cacheFolder = os.path.join(modulesFolder,  modulesToLoad[i])
+        if not os.path.exists(cacheFolder):
+            os.mkdir(cacheFolder)
+        exec "from modules import " + modulename + " as module"+ str(i)
+        exec "source.append(module"+ str(i) +".SynchronizationModule(modulesNamesCombined, config, modulesToLoad[i], modulesFolder+modulesToLoad[i]+'/', True, soft) )"
     # Now we have source[0] and source[1] as our 2 synchronization modules
     return source
 
