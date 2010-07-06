@@ -1,3 +1,10 @@
+pisi (0.5.4-0ubuntu1) lucid; urgency=low
+
+  * bug fix 42: VCF import to opimd from SE K800i bug (not really a bug; but somehow support of older vcf version - here 2.1 rather than 3.0) 
+
+ -- Michael Pilgermann <kichkasch@gmx.de>  Tue, 04 May 2010 20:55:27 +0200
+
+
 pisi (0.5.3-0ubuntu1) lucid; urgency=low
 
   * bug fix on cache folder name path join - backups were going directly to home folder 

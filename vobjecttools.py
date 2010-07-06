@@ -15,12 +15,23 @@ VCF_PHONETYPE_MOBILE = [['CELL', 'VOICE'], ['VOICE', 'CELL'], ['CELL'], ['VOICE'
 VCF_PHONETYPE_FAX = [['FAX']]
 """Entries to remove before comparing"""
 VCF_PHONETYPE_IGNORELIST = ['OTHER']
+"""Indentifies a phone entry as home phone (older VCF versions; no attribute values)"""
+VCF_PHONETYPE_HOME_SINGLETON = 'HOME'
+"""Indentifies a phone entry as home phone (older VCF versions; no attribute values)"""
+VCF_PHONETYPE_MOBILE_SINGLETON = 'CELL'
+"""Indentifies a phone entry as home phone (older VCF versions; no attribute values)"""
+VCF_PHONETYPE_WORK_SINGLETON = 'WORK'
+"""Indentifies a phone entry as fax (older VCF versions; no attribute values)"""
+VCF_PHONETYPE_FAX_SINGLETON = 'FAX'
 
 """Indentifies an address entry as home address"""
 VCF_ADDRESSTYPE_HOME = [['HOME', 'POSTAL'], ['POSTAL', 'HOME'], ['HOME']]
 """Indentifies an address entry as work address"""
 VCF_ADDRESSTYPE_WORK = [['WORK', 'POSTAL'], ['POSTAL', 'WORK'], ['WORK']]
-
+"""Identifies an address entry as home address (older VCF versions; no attribute values)"""
+VCF_ADDRESSTYPE_HOME_SINGLETON = 'HOME'
+"""Identifies an address entry as work address (older VCF versions; no attribute values)"""
+VCF_ADDRESSTYPE_WORK_SINGLETON = 'WORK'
 
 def _extractAtt(x,  st):
     """
@@ -56,10 +67,11 @@ def extractVcfEntry(x, defaultPhonetype = None):
     # phone numbers
     try:
         for tel in x.contents['tel']:
-            if not tel.params.has_key('TYPE'):
-                if defaultPhonetype:
-                    atts[defaultPhonetype] = tel.value
-            else:
+            isHome = False
+            isWork = False
+            isMobile = False
+            isFax = False
+            if tel.params.has_key('TYPE'):         
                 for i in range(len(tel.params['TYPE'])):
                     tel.params['TYPE'][i] = tel.params['TYPE'][i].upper()
                 for ign in VCF_PHONETYPE_IGNORELIST:
@@ -68,28 +80,58 @@ def extractVcfEntry(x, defaultPhonetype = None):
                     except ValueError:
                         pass    # fine - this ignore value is not in the list
                 if tel.params['TYPE'] in VCF_PHONETYPE_HOME:
-                    atts['phone'] = tel.value
+                    isHome = True
                 elif tel.params['TYPE'] in VCF_PHONETYPE_MOBILE:
-                    atts['mobile'] = tel.value
+                    isMobile = True
                 elif tel.params['TYPE'] in VCF_PHONETYPE_WORK:
-                    atts['officePhone'] = tel.value
+                    isWork = True
                 elif tel.params['TYPE'] in VCF_PHONETYPE_FAX:
-                    atts['fax'] = tel.value
+                    isFax = True
+            elif VCF_PHONETYPE_MOBILE_SINGLETON in tel.singletonparams:
+                isMobile = True
+            elif VCF_PHONETYPE_HOME_SINGLETON in tel.singletonparams:
+                isHome = True
+            elif VCF_PHONETYPE_WORK_SINGLETON in tel.singletonparams:
+                isWork = True
+            elif VCF_PHONETYPE_FAX_SINGLETON in tel.singletonparams:
+                isFax = True
+            elif defaultPhonetype:
+                atts[defaultPhonetype] = tel.value
+
+            if isHome:
+                atts['phone'] = tel.value
+            elif isMobile:
+                atts['mobile'] = tel.value
+            elif isWork:
+                atts['officePhone'] = tel.value
+            elif isFax:
+                atts['fax'] = tel.value
     except KeyError:
         pass    # no phone number; that's alright
 
     # addresses
     try:
         for addr in x.contents['adr']:
-            for i in range(len(addr.params['TYPE'])):
-                addr.params['TYPE'][i] = addr.params['TYPE'][i].upper()
-            if addr.params['TYPE'] in VCF_ADDRESSTYPE_HOME:
+            isHome = False
+            isWork = False
+            if addr.params.has_key('TYPE'):
+                for i in range(len(addr.params['TYPE'])):
+                    addr.params['TYPE'][i] = addr.params['TYPE'][i].upper()
+                if addr.params['TYPE'] in VCF_ADDRESSTYPE_HOME:
+                    isHome = True
+                elif addr.params['TYPE'] in VCF_ADDRESSTYPE_WORK:
+                    isWork = True
+            elif VCF_ADDRESSTYPE_HOME_SINGLETON in addr.singletonparams:
+                isHome = True
+            elif VCF_ADDRESSTYPE_WORK_SINGLETON in addr.singletonparams:
+                isWork = True
+            if isHome:
                 atts['homeStreet'] = addr.value.street
                 atts['homeCity'] = addr.value.city
                 atts['homeState'] = addr.value.region
                 atts['homePostalCode'] = addr.value.code
                 atts['homeCountry'] = addr.value.country
-            elif addr.params['TYPE'] in VCF_ADDRESSTYPE_WORK:
+            elif isWork:
                 atts['businessStreet'] = addr.value.street
                 atts['businessCity'] = addr.value.city
                 atts['businessState'] = addr.value.region
