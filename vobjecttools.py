@@ -14,7 +14,7 @@ VCF_PHONETYPE_MOBILE = [['CELL', 'VOICE'], ['VOICE', 'CELL'], ['CELL'], ['VOICE'
 """Indentifies a phone entry as fax"""
 VCF_PHONETYPE_FAX = [['FAX']]
 """Entries to remove before comparing"""
-VCF_PHONETYPE_IGNORELIST = ['OTHER']
+VCF_PHONETYPE_IGNORELIST = ['OTHER', 'PREF']
 """Indentifies a phone entry as home phone (older VCF versions; no attribute values)"""
 VCF_PHONETYPE_HOME_SINGLETON = 'HOME'
 """Indentifies a phone entry as home phone (older VCF versions; no attribute values)"""
