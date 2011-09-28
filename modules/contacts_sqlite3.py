@@ -33,8 +33,12 @@ import pisiprogress
 
 QTOPIADB_PHONETYPE_HOME = 1
 """Constant value for phone type used in QTOPIA database - value for type home phone."""
-QTOPIADB_PHONETYPE_MOBILE = 257
+QTOPIADB_PHONETYPE_MOBILE = 256
 """Constant value for phone type used in QTOPIA database - value for type mobile phone."""
+QTOPIADB_PHONETYPE_MOBILE_PRIVATE = 257
+"""Constant value for phone type used in QTOPIA database - value for type mobile phone private."""
+QTOPIADB_PHONETYPE_MOBILE_WORK = 258
+"""Constant value for phone type used in QTOPIA database - value for type mobile phone work."""
 QTOPIADB_PHONETYPE_OFFICE = 2
 """Constant value for phone type used in QTOPIA database - value for type office phone."""
 QTOPIADB_PHONETYPE_FAX = 514
@@ -92,7 +96,7 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
             phoneEntries = database.execute(db_call).fetchall()
             for phoneEntry in phoneEntries:
                 type = int(phoneEntry[1])
-                if type == QTOPIADB_PHONETYPE_MOBILE:     
+                if type == QTOPIADB_PHONETYPE_MOBILE or type == QTOPIADB_PHONETYPE_MOBILE_PRIVATE or type == QTOPIADB_PHONETYPE_MOBILE_WORK:     
                     atts['mobile'] = phoneEntry[0]
                 elif type == QTOPIADB_PHONETYPE_HOME:     
                     atts['phone'] = phoneEntry[0]
