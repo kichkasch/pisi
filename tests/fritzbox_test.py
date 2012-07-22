@@ -20,20 +20,21 @@ FRITZBOX_PROTOCOl = "HTTPS"
 FRITZBOX_USER = "dslf-config"
 FRITZBOX_PASSWORD = "hd5hainer"
 
-
-print SOAPProxy(proxy='%s://%s:%s/upnp/control/WANCommonIFC1' %(FRITZBOX_PROTOCOl, FRITZBOX_IP, FRITZBOX_PORT),
-                namespace='urn:schemas-upnp-org:service:WANIPConnection:1',
-                soapaction='urn:schemas-upnp-org:service:WANIPConnection:1#GetExternalIPAddress',
-                noroot=True).GetExternalIPAddress()
-print SOAPProxy(proxy='%s://%s:%s/upnp/control/wancommonifconfig1' %(FRITZBOX_PROTOCOl, FRITZBOX_IP, FRITZBOX_PORT),
-                namespace='urn:dslforum-org:service:WANCommonInterfaceConfig:1',
-                soapaction='urn:dslforum-org:service:WANCommonInterfaceConfig:1#GetCommonLinkProperties',
-                noroot=True).GetCommonLinkProperties()
+#
+#print SOAPProxy(proxy='%s://%s:%s/upnp/control/wancommonifconfig1' %(FRITZBOX_PROTOCOl, FRITZBOX_IP, FRITZBOX_PORT),
+#                namespace='urn:dslforum-org:service:WANIPConnection:1',
+#                soapaction='urn:schemas-upnp-org:service:WANIPConnection:1#GetTotalBytesSent',
+#                noroot=True).GetTotalBytesSent()
                 
-#print SOAPProxy(proxy='http://192.168.200.1:49000/upnp/control/deviceinfo',
-#                namespace='urn:dslforumorg:service:DeviceInfo:1',
-#                soapaction='urn:dslforum-org:service:DeviceInfo:1#GetSecurityPort',
-#                noroot=True).GetSecurityPort()
+                
+print SOAPProxy(proxy='http://192.168.200.1:49000/upnp/control/deviceinfo',
+                namespace='urn:dslforumorg:service:DeviceInfo:1',
+                soapaction='urn:dslforum-org:service:DeviceInfo:1#GetSecurityPort',
+                noroot=True).GetSecurityPort()
+print SOAPProxy(proxy='https://%s:%s@192.168.200.1:49443/upnp/control/deviceinfo' %(FRITZBOX_USER, FRITZBOX_PASSWORD),
+                namespace='urn:dslforum-org:service:DeviceInfo:1',
+                soapaction='urn:dslforum-org:service:DeviceInfo:1#GetDeviceLog',
+                noroot=True).GetDeviceLog()
    
 #print SOAPProxy(proxy='%s://%s:%s@%s:%s/upnp/control/x_contact' %(FRITZBOX_PROTOCOl, FRITZBOX_USER, FRITZBOX_PASSWORD, FRITZBOX_IP, FRITZBOX_PORT),
 #                namespace='urn:dslforum-org:service:X_AVM-DE_OnTel:1',

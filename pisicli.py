@@ -120,7 +120,11 @@ class CLICallback(pisiprogress.AbstractCallback):
         Returns default value if the attribute is not available in the given dictionery (key error).
         """
         try:
-            return dict[key]
+            value = dict[key]
+            if type(value) == NoneType:
+                return default
+            else:
+                return value
         except KeyError:
             return default
 
