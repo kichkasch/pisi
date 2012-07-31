@@ -24,6 +24,7 @@ along with Pisi.  If not, see <http://www.gnu.org/licenses/>
 import os.path
 import sqlite3 
 import sys,os,re
+from types import *
 
 # Allows us to import contact
 sys.path.insert(0,os.path.abspath(__file__+"/../.."))
@@ -143,8 +144,11 @@ class SynchronizationModule(contacts.AbstractContactSynchronizationModule):
         Supporting function to get around problems with integrating 'None' values and KeyErrors if an attribute is not available
         """
         try:
-            val = contact.attributes[st].replace("'",  "''")    # this is SQL standard; one apostrophe has to be quoted by another one
-            return "'" +val + "'"
+            if type(contact.attributes[st]) == NoneType:
+                return "''"
+            else:
+                val = contact.attributes[st].replace("'",  "''")    # this is SQL standard; one apostrophe has to be quoted by another one
+                return "'" +val + "'"
         except TypeError:
             return "''"
         except KeyError:
